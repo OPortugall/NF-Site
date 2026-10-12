@@ -1,0 +1,21 @@
+@charset "utf-8";
+/* CSS Document */
+::selection {background: #F54F36;}
+::-moz-selection {background: #F54F36;}
+#jpreBar,.patern span,.red,.nav-button span,.inner-overlay,.skillbar-bar,.serviseslider h3 span,.icon-holder,.subscriptionForm input#submitButton,#loadingProgress,.planContainer .price,.planContainer .button a, .sepcolor,.quote-icon,.skillbar-bar,#facts ul li h6,.skillbar-bar-member,.member-social-list li a,#closeProject a,#ajaxpage a.lanch-project,#clientlist,#contact_form textarea:focus,#contact_form input:focus, .owl-theme .owl-controls .owl-page.active span,.owl-theme .owl-controls .clickable .owl-page:hover span,.slides-pagination a.current,.slides-pagination a:hover,.submit_btn:hover, .pagination a.current-page, .pagination a:hover , .project-details a{background:#F54F36;}
+#team .content,#options li.back,#subscribe .content,#prices .content, .simple-page{border-top:2px solid #F54F36;}
+#facts ul li h6:before {border-bottom-color: #F54F36;}
+#testimonials .content{border-top:2px solid #F54F36;border-bottom:2px solid #F54F36;}
+.actser:after {border-top-color: #F54F36;}
+.inner a:hover , .inner li.current a{color:#F54F36;border-right:2px solid #F54F36;}
+.customNavigation a.next-slide{background:#F54F36 url(../images/pl-small.png) no-repeat center;}
+.customNavigation a.close{background:#F54F36 url(../images/close-white.png) no-repeat center;}
+.customNavigation a.btn:hover{box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 10px 10px #F54F36, 0 0 0 10px rgba(255,255,255,0.5);}
+.ajl,.bigtext,.sections-head,.slides-container h1 span,.planContainer .options li,.error,#options li:hover,#options li.actcat,.social-list ul li a:hover,.num,.project-description h3,.project-details h3,.subcribe div#error,.subcribe div#success,.smallicon:hover,.footer, .simple-page-head .content h2 span, .post-body a, .widget h4, .search-submit, .tagcloud a:hover, #comments-title , #reply-title , .controls button:hover, .share-options a:hover, .portfolio-nav a{color:#F54F36;}
+.triangle{border-color: transparent #F54F36 transparent transparent;}
+.popup-gallery a span {background: #F54F36 url(../images/pl-small.png) no-repeat center;}
+.social-list ul li.back{border-top: 1px solid #F54F36;}
+.to-top:after {border-bottom-color: #F54F36;}
+.flex-direction-nav .flex-next { background: #F54F36 url(../images/project-next1.png) no-repeat center;}
+.flex-direction-nav .flex-prev {background: #F54F36 url(../images/project-prev1.png) no-repeat center;}
+@media only screen and  (max-width: 540px) {.but h3{color:#F54F36;}}

@@ -1,0 +1,39 @@
+<?php 
+header("Content-type: text/css; charset=utf-8");
+
+$sC = '#'.htmlspecialchars($_GET['sc']);
+
+?>
+@charset "utf-8";
+/* default color skin */
+@skin-color: <?php echo $sC;?>;
+/* CSS Document */
+::selection {background: @skin-color; color:#fff;}
+::-moz-selection {background: @skin-color; color:#fff;}
+#jpreBar,.patern span,.red,.nav-button span,.inner-overlay,.skillbar-bar,.serviseslider h3 span,.icon-holder,.subscriptionForm input#submitButton,#loadingProgress,.sepcolor,.quote-icon,.skillbar-bar,#facts ul li h6,#closeProject a,#ajaxpage a.lanch-project,#clientlist,#contact_form textarea:focus,#contact_form input:focus, .owl-theme .owl-controls .owl-page.active span,.owl-theme .owl-controls .clickable .owl-page:hover span,.slides-pagination a.current,.slides-pagination a:hover,.submit_btn:hover,.resume-head,.resume-line,.resume-date,.download-resume , .pagination a.current-page, .pagination a:hover , .project-details a{background:@skin-color;}
+#team .content , #options li.back, #subscribe .content, #prices .content, .simple-page{border-top:2px solid @skin-color;}
+#options li.back, #subscribe .content{border-top:2px solid @skin-color;}
+#facts ul li h6:before {border-bottom-color: @skin-color;}
+#testimonials .content{border-top:2px solid @skin-color;border-bottom:2px solid @skin-color;}
+.actser:after {border-top-color: @skin-color;}
+.inner a:hover , .inner li.current a{color:@skin-color;border-right:2px solid @skin-color;}
+.customNavigation a.next-slide{background:@skin-color url(../images/pl-small.png) no-repeat center;}
+.customNavigation a.close{background:@skin-color url(../images/close-white.png) no-repeat center;}
+.customNavigation a.btn:hover{box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 0 10px 10px @skin-color, 0 0 0 10px rgba(255,255,255,0.5);}
+.ajl,.bigtext,.sections-head,.slides-container h1 span,.error,#options li:hover,#options li.actcat,.social-list ul li a:hover,.num,.project-description h3,.project-details h3,.subcribe div#error,.subcribe div#success,.smallicon:hover,.footer,.company-color ,.simple-page-head .content h2 span, .post-body a, .widget h4, .search-submit, .tagcloud a:hover, #comments-title , #reply-title , .controls button:hover, .share-options a:hover, .portfolio-nav a{color:@skin-color;}
+.triangle{border-color: transparent @skin-color transparent transparent;}
+.popup-gallery a span {background: @skin-color url(../images/pl-small.png) no-repeat center;}
+.social-list ul li.back{border-top: 1px solid @skin-color;}
+.to-top:after {border-bottom-color: @skin-color;}
+.flex-direction-nav .flex-next { background: @skin-color url(../images/project-next1.png) no-repeat center;}
+.flex-direction-nav .flex-prev {background: @skin-color url(../images/project-prev1.png) no-repeat center;}
+.right-head-arrow:before {border-left-color: @skin-color;}
+.left-head-arrow:before {border-right-color: @skin-color;}
+.image-popup{border-bottom:10px solid @skin-color}
+.image-popup span {background: @skin-color url(../images/pl-small.png) no-repeat center;}
+.right-date:before {border-right-color: @skin-color;}
+.left-date:before {border-left-color: @skin-color;}
+.resume-circle{border:2px solid @skin-color;}
+.resume-slider{border-bottom:10px solid @skin-color;}
+
+@media only screen and  (max-width: 540px) {.but h3{color:@skin-color;}}

@@ -1,0 +1,123 @@
+﻿url;data_captura;motivo
+http://nfsolucoesdigitais.com.br/;20240227225527;versao repetida/antiga da pagina inicial ou redirecionamento (usada a de 22/02/2024)
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=12&token=21e3337ab764e86b2a0f07ad44b6d04b;20220626080508;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=13&token=21e3337ab764e86b2a0f07ad44b6d04b;20220626085513;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=14&token=21e3337ab764e86b2a0f07ad44b6d04b;20220626074312;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=15&token=21e3337ab764e86b2a0f07ad44b6d04b;20220626083607;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=16&token=21e3337ab764e86b2a0f07ad44b6d04b;20220626072128;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=17&token=21e3337ab764e86b2a0f07ad44b6d04b;20201029134916;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=18&token=21e3337ab764e86b2a0f07ad44b6d04b;20220816231846;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=2&token=21e3337ab764e86b2a0f07ad44b6d04b;20200809174338;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/carrinho?add=1&id_product=3&token=21e3337ab764e86b2a0f07ad44b6d04b;20220816212016;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login;20220626075024;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=addresses;20201029143218;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=history;20201029143431;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=http%3A%2F%2Fnfsolucoesdigitais.com.br%2Floja%2Fmodule%2Fblockwishlist%2Fmywishlist;20240914210447;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=http%3A%2F%2Fnfsolucoesdigitais.com.br%2Floja%2Fpedido%3Fstep%3D1;20190213024256;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=identity;20210926065908;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=my-account;20240803033739;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/login?back=order-slip;20220626082220;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/melhores-vendas;20240618100011;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/module/blockwishlist/mywishlist;20250719114746;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/module/productcomments/default;20190213020943;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blockcart/blockcart-set-collapse.php;20190213023444;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blocklayered/blocklayered-ajax.php;20190213024211;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blockwishlist/buywishlistproduct.php?rand=;20190213023505;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blockwishlist/cart.php?rand=;20190213023503;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blockwishlist/managewishlist.php?rand=;20190213023506;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/modules/blockwishlist/sendwishlist.php;20190213023509;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido;20250118113618;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=0;20190213024236;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=1;20190213021149;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=12;20190213021429;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=13;20190213022012;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=14;20190213021036;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=15;20190213022046;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=16;20190213021104;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=17;20190213022121;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=18;20190213022159;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=2;20190213021242;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/pedido?ipa=3;20190213021314;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/procurar;20190128224106;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/loja/recuperar-senha;20201029141623;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://nfsolucoesdigitais.com.br/nf//;20160111105822;sem conteudo util
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=10;20260514103217;spam nos comentarios (ataque)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=100;20260415164909;spam nos comentarios (ataque)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=110;20260415174307;spam nos comentarios (ataque)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=120;20260415155126;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=130;20260514103442;spam nos comentarios (ataque)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=20;20260514105833;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=240;20260607235646;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=30;20260415172347;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=40;20260415152452;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=50;20260415155850;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=60;20260415162327;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=70;20260415164524;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=80;20260315085634;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=90;20260415152725;spam nos comentarios (ataque)
+http://nfsolucoesdigitais.com.br/nfs/index.php/component/k2/itemlist/category/12-standard;20260415164407;blog de demonstracao do tema (texto em latim)
+http://nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog-sticky/item/21-phasellus-tempor?start=170;20260129144145;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/;20241213012659;versao repetida/antiga da pagina inicial ou redirecionamento (usada a de 22/02/2024)
+http://www.nfsolucoesdigitais.com.br/nfs/?view=page&id=16;20220703135721;versao repetida/antiga da pagina inicial ou redirecionamento (usada a de 22/02/2024)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/blog-sticky/item/18-a-post-with-youtube;20240413210757;sem conteudo util
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21;20260610191907;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21?start=0;20240717193102;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21start=0;20260610174746;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21start=0?start=360;20260113134229;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/item/21start=0?start=370;20260423184243;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/component/k2/itemlist/user/327-superuser;20260207155218;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/contact.sendemail;20190128224405;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team;20190128224135;versao repetida/antiga da pagina inicial ou redirecionamento (usada a de 22/02/2024)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog;20250209071924;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog-sticky/item/21-phasellus-tempor;20260226203155;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog-sticky/item/21-phasellus-tempor?start=280;20251206002242;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog-sticky/item/21-phasellus-temporstart=120;20260610183114;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/10-cras-faucibus;20260515074908;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/11-vestibulum-sodales-nulla-iaculis;20251014040155;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/12-a-post-with-youtube;20250909194039;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/13-a-post-with-soundcloud;20250909183324;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/18-a-post-with-youtube;20250319001654;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/19-vestibulum-sodales-nulla-iaculis;20251206000258;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/2-phasellus;20250815153429;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus;20260806094609;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=10;20260414195513;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=100;20260515070148;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=110;20260515072207;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=120;20260515074226;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=130;20260610183934;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=140;20260610185524;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=150;20260610191059;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=160;20260610174557;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=20;20260414180407;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=30;20260414183644;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=40;20260414190519;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=50;20260414173726;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=60;20260414181159;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=70;20260414184234;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=80;20260414191602;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/20-cras-faucibus?start=90;20260414173926;spam nos comentarios (ataque)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/26-vivamus-gravida;20251014044334;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/28-phasellus;20250318232934;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/item/4-vivamus-gravida;20251014043148;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/13-video;20260414180715;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/4-standard;20251205233536;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/5-video;20250614172046;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/6-gallery;20251109000306;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/7-quotes;20260113235542;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/category/8-soundcloud;20250707203746;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/date/2014/7?catid=5;20251205230734;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/audio;20250209085636;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/blog;20250209075440;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/demo;20251014040405;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/gallery;20251109013316;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/portfolio;20251109000542;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/tag;20250707195413;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/tag/video;20250909201731;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog/itemlist/user/327-superuser;20250614172011;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/blog?start=4;20250707184602;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team-nf/root/shortcodes;20250815155853;blog de demonstracao do tema (texto em latim)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/home-team?view=page&id=5;20190128224335;versao repetida/antiga da pagina inicial ou redirecionamento (usada a de 22/02/2024)
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/poi.park;20190128224416;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://www.nfsolucoesdigitais.com.br/nfs/index.php/road.local;20190128224409;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://www.nfsolucoesdigitais.com.br/nfs/index.php?option=com_k2&view=item&task=getVotesNum&format=raw&itemID=;20190128224142;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio
+http://www.nfsolucoesdigitais.com.br/nfs/index.php?option=com_k2&view=item&task=getVotesPercentage&format=raw&itemID=;20190128224140;pagina de sistema (carrinho, login, busca, ajax) sem conteudo proprio

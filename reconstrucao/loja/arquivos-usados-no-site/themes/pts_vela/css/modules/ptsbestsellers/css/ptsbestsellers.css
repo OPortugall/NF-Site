@@ -1,0 +1,93 @@
+.pts-bestsellers-product .product-name {
+    font-family: "helveticaneue";
+    font-size: 15px;
+    font-weight: normal;
+    line-height: 14px;
+    text-transform: capitalize;
+    vertical-align: top;
+}
+.pts-bestsellers-product .product-name:hover{
+    color:#eb5f60;
+}
+.pts-bestsellers-product h3{
+    line-height: 14px;
+    margin: 0;
+}
+.product-name a {
+    font-size: 17px;
+    line-height: 23px;
+    color: #3a3939; }
+.product-name a:hover {
+    color: #515151; }
+@media (max-width: 768px) {
+.product-name a {
+    font-size: 14px; } }
+.pts-bestsellers-product .content_price{
+    margin:10px 0;
+    display: block !important;
+}
+.pts-bestsellers-product .content_price span{
+    padding-right:0;
+    font-size:14px;
+    font-family:"helveticaneue";
+}
+.pts-bestsellers-product .btn-default em{
+    font-size:14px;
+}
+
+.pts-bestsellers-product{
+    margin:0 0 30px 0;
+}
+.pts-bestsellers-product-title{
+    font-family:"pathway";
+    border-bottom: 1px solid #d6d4d4;
+    color: #000000;
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    text-transform: uppercase;
+}
+.pts-bestsellers-product ul.bestsellers-product{
+    border:none;
+}
+.pts-bestsellers-product ul.bestsellers-product li{
+    margin-bottom: 15px;
+}
+.pts-bestsellers-product ul.bestsellers-product li:last-child{
+    border:none;
+}
+.pts-bestsellers-product .product_image{
+    float:left;
+    margin-right:30px;
+}
+.bestsellers-product .product-content{
+    overflow: hidden;
+    text-align: left;
+    text-shadow: 1px 1px #fff;
+}
+.pts-bestsellers-product a img:hover{
+    opacity:0.8;
+}
+    #category .pts-bestsellers-product .title_block{margin-top: 0;}
+    .pts-bestsellers-product a.btn span{
+        background: none;
+        padding: 0; 
+    }
+    .pts-bestsellers-product a.btn{
+        background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+        border: medium none;
+        color: #555555;
+        line-height: 20px;
+        text-transform: uppercase;
+    }
+    .pts-bestsellers-product a.btn:hover{
+        color: #eb5f60;
+        background: none;
+    }
+    .pts-bestsellers-product a.btn span:hover{
+        background: none;
+    }
+    .pts-bestsellers-product .comments_note{
+        margin: 0 0 7px !important;
+        display: block !important;
+    }

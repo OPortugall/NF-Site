@@ -1,0 +1,50 @@
+/* block top languages */
+
+#header .row nav #languages_block_top p {
+    background: none !important;
+}
+#languages_block_top ul#first-languages li.selected_language {
+    padding: 0 16px;
+}
+@media (max-width: 767px){
+    #header .row nav #languages_block_top{display: inline-block; float: none;}
+}
+#languages_block_top ul#first-languages li a{
+    color: #ffffff;
+    display: inline-block;
+    width: 75%;}
+#languages_block_top ul#first-languages li:hover a{
+        color:#ffffff;
+}
+/*languages with jquery*/
+#countries {
+	cursor: pointer;
+	position: relative;
+	z-index: 1089;
+}
+#countries p img, .countries_ul li img {
+	margin-right:  5px;
+	margin-top: -4px;
+}
+#countries .countries_ul{
+	display:none;
+	z-index: 1000;
+	list-style-type:none;
+        
+}
+#countries .countries_ul_hover{
+	display:block;
+	z-index: 5000;
+	position:absolute;
+	left: 0;
+	top: 38px;
+	padding-top:1px;
+	height:auto;
+        width: 70px;
+}
+@media (max-width: 479px) {
+    #languages-block-top {
+      width: 25%; } }
+
+ 
+

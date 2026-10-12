@@ -1,0 +1,17 @@
+﻿id;nome;caminho;subcategorias;produtos_listados;descricao;url_original;data_captura
+3;Impressoras;Home Impressoras;;"RICOH SPC232DN (id 14); RICOH SPC430DN (id 16)";;http://nfsolucoesdigitais.com.br/loja/3-impressoras;20240803
+4;Coloridas;Home Impressoras > Coloridas;;"RICOH SPC232DN (id 14); RICOH SPC430DN (id 16)";;http://nfsolucoesdigitais.com.br/loja/4-coloridas;20250118
+8;Monocromáticas;Home Impressoras > Monocromáticas;;;;http://nfsolucoesdigitais.com.br/loja/8-monocromaticas;20250118
+12;Plotter;Home Plotter;;;;http://nfsolucoesdigitais.com.br/loja/12-plotter;20250118
+13;Canon;Home Plotter > Canon;;;;http://nfsolucoesdigitais.com.br/loja/13-canon;20241212
+16;Suprimentos;Home Suprimentos;;"Toner Ricoh Compatível (id 4); Toner Ricoh Compatível (id 11)";;http://nfsolucoesdigitais.com.br/loja/16-suprimentos;20241212
+17;Multifuncional;Home Multifuncional;;"RICOH MPC2050 (id 1); RICOH MPC2551 (id 2); RICOH MPC2051 (id 13); RICOH MP5001 (id 15); RICOH MP7500 (id 17); RICOH MPC3502 (id 18)";;http://nfsolucoesdigitais.com.br/loja/17-multifuncional;20250118
+18;Copiadoras;Home Copiadoras;;;;http://nfsolucoesdigitais.com.br/loja/18-copiadoras;20241104
+19;Coloridas;Home Multifuncional > Coloridas;;"RICOH MPC2050 (id 1); RICOH MPC2551 (id 2); RICOH MPC2550 (id 3); RICOH MPC2051 (id 13); RICOH MPC3502 (id 18)";;http://nfsolucoesdigitais.com.br/loja/19-coloridas;20250118
+20;Monocromáticas;Home Multifuncional > Monocromáticas;;"RICOH MP5001 (id 15); RICOH MP7500 (id 17)";;http://nfsolucoesdigitais.com.br/loja/20-monocromaticas;20250118
+21;Chip;Home Suprimentos > Chip;;;;http://nfsolucoesdigitais.com.br/loja/21-chip;20241212
+22;Cilindro;Home Suprimentos > Cilindro;;;;http://nfsolucoesdigitais.com.br/loja/22-cilindro;20250118
+23;Revelador;Home Suprimentos > Revelador;;;;http://nfsolucoesdigitais.com.br/loja/23-revelador;20241104
+24;Toner;Home Suprimentos > Toner;;"Toner Ricoh Compatível (id 4); Toner Ricoh Compatível (id 11)";;http://nfsolucoesdigitais.com.br/loja/24-toner;20250118
+25;Coloridas;Home Copiadoras > Coloridas;;;;http://nfsolucoesdigitais.com.br/loja/25-coloridas;20241212
+26;Monocromáticas;Home Copiadoras > Monocromáticas;;RICOH MP5000 (id 12);;http://nfsolucoesdigitais.com.br/loja/26-monocromaticas;20241104

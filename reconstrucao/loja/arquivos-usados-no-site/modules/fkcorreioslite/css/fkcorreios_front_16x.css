@@ -1,0 +1,127 @@
+.fkcorreios-form {
+    padding: 5px 10px 5px 10px;}
+
+    .fkcorreios-form input[type="text"] {
+        height: 24px;
+        padding: 3px;
+        font-size: 13px;
+        line-height: 1.42857;
+        color: #9c9b9b;
+        vertical-align: middle;
+        background-color: white;
+        border: 1px solid #d6d4d4;
+        border-radius: 0px;}
+    
+.fkcorreios-button { 
+    font-size: 14px;
+    line-height: 18px;
+    color: white;
+    padding: 5px 10px 5px 10px;
+    font-weight: bold;
+    background: #43b754;
+    border: 1px solid;
+    border-color: #399a49 #247f32 #1a6d27 #399a49;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;}
+    
+    .fkcorreios-button:hover {
+        background: #3aa04c;
+        border-color: #196f28 #399a49 #399a49 #258033;}    
+
+.fkcorreios-box {
+    background: #fbfbfb;
+    border: 1px solid #d6d4d4;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 20px 0;}
+
+.fkcorreios-legenda {
+    padding-top: 5px;
+    padding-bottom: 5px;}
+       
+    .fkcorreios-legenda p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;}
+        
+    .fkcorreios-legenda .fkcorreios-button {
+        margin-left: 20px;}
+        
+.fkcorreios-legenda-resumo {
+    padding-top: 5px;
+    padding-bottom: 5px;}
+       
+    .fkcorreios-legenda-resumo p {
+        margin-bottom: 5px;
+        font-weight: bold;
+        text-align: center;}
+        
+    .fkcorreios-legenda-resumo .fkcorreios-button {
+        margin-left: 20px;}        
+    
+.fkcorreios-transportadoras {
+    background-color: #FFFFFF;
+    font-size: 14px;}
+    
+    .fkcorreios-transportadoras p {
+        padding: 5px;
+        margin: 5px 0 5px 0;
+        background-color: #43b754;
+        text-align: center;
+        color: #FFFFFF;
+        font-weight: bold;}
+        
+    .fkcorreios-transportadoras table {
+        width: 100%;}
+        
+    .fkcorreios-transportadoras tr {
+        border-bottom: 1px solid #d6d4d4;} 
+        
+.fkcorreios-transportadoras-resumo {
+    background-color: #FFFFFF;}
+    
+    .fkcorreios-transportadoras-resumo p {
+        padding: 2px 5px;
+        margin: 5px 0 5px 0;
+        background-color: #ffffff;
+        font-size: 14px;
+        text-align: center;
+        color: #FF0000;
+        font-weight: bold;}
+        
+    .fkcorreios-transportadoras-resumo table {
+        width: 100%;}
+        
+    .fkcorreios-transportadoras-resumo tr {
+        border-bottom: 1px solid #d6d4d4;}                 
+
+.fkcorreios-fancybox {
+    display: none;}
+        
+#fkcorreios-nome {
+    width: 60%;}
+    
+#fkcorreios-valor {
+    width: 20%;
+    text-align: right;
+    padding-right: 10px;}
+
+#fkcorreios-img-resumo {
+    }
+
+    #fkcorreios-img-resumo img {
+        width: 99%;
+    } 
+    
+#fkcorreios-nome-resumo {
+    width: 50%;
+    font-size: 11px;}
+    
+#fkcorreios-valor-resumo {
+    width: 20%;
+    font-size: 11px;
+    text-align: right;
+    padding-right: 5px;}

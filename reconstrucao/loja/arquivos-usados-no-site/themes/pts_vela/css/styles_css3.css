@@ -1,0 +1,103 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Aug 11, 2014, 2:05:48 PM
+    Author     : ADMIN
+*/
+
+
+.home-banner .img3 img,
+.home-banner .img1 img,
+.home-banner img.img_row1,
+.home-banner .img4 img, 
+.home-banner .img3 .des, 
+.home-banner .img2 span.top,
+.home-banner .img6 span.top{
+    transition: all 1s ease-in-out 0s;
+    -webkit-transition: all 1s ease-in-out 0s;
+    -ms-transition: all 1s ease-in-out 0s;
+    -o-transition: all 1s ease-in-out 0s;
+}
+
+/*.home-banner .img1 img.top,*/
+.home-banner .img2 span.top,
+.home-banner .img6 span.top{
+    transform: scale(0, 0);
+    -webkit-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+}
+.home-banner .img2:hover span.top,
+.home-banner .img6:hover span.top{
+    transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform-origin: center center 0;
+    -webkit-transform-origin: center center 0;
+    -ms-transform-origin: center center 0;
+    -o-transform-origin: center center 0;
+}
+.home-banner1 .img3 img.top, .home-banner1 .img3:hover {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -ms-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+}
+
+.home-banner .img5 {
+    transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transition-duration: 250ms;
+    -webkit-transition-duration: 250ms;
+    -ms-transition-duration: 250ms;
+    -o-transition-duration: 250ms;
+    transition-timing-function: ease-out;
+    -webkit-transition-timing-function: ease-out;
+    -ms-transition-timing-function: ease-out;
+    -o-transition-timing-function: ease-out;
+}
+.home-banner .img5:hover {
+    transform: scale(1.1, 1.1);
+    -webkit-transform: scale(1.1, 1.1);
+    -ms-transform: scale(1.1, 1.1);
+    -o-transform: scale(1.1, 1.1);
+    transition-duration: 250ms;
+    -webkit-transition-duration: 250ms;
+    -ms-transition-duration: 250ms;
+    -o-transition-duration: 250ms;
+    transition-timing-function: ease-out;
+    -webkit-transition-timing-function: ease-out;
+    -ms-transition-timing-function: ease-out;
+    -o-transition-timing-function: ease-out;
+}
+.home-banner .img4 img.top, 
+.home-banner .img3 img.top, 
+.home-banner .img3:hover img.bottom, 
+.home-banner .row1:hover .img_row1,
+.home-banner .img1 img.top,
+.home-banner .img6 span.top,
+.home-banner .img2 span.top{
+    opacity: 0;
+}
+.home-banner .row1:hover .img4 img.top, 
+.home-banner .row1:hover .img1 img.top, 
+.home-banner .img3:hover img.top,
+.home-banner .row1 .img_row1,
+.home-banner .img2:hover span.top,
+.home-banner .img6:hover span.top,
+.home-banner .img2:hover span.bottom,
+.home-banner .img6:hover span.bottom{
+    opacity: 1;
+}
+.home-banner .img1 img:hover,
+.home-banner .img4 img:hover,
+.home-banner .img_row1:hover,
+.home-banner .img3 img:hover{
+    opacity: 0.8;
+}
