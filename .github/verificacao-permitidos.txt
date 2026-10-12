@@ -1,0 +1,6 @@
+# Arquivos liberados da checagem de "código malicioso" do scripts/verificar.py.
+# Use só para falsos positivos confirmados, um arquivo por linha, sempre com o motivo:
+#
+#   caminho/do/arquivo.php  # motivo da liberação (quem conferiu e quando)
+#
+# Atenção: liberar um arquivo aqui desliga a busca por backdoors nele.

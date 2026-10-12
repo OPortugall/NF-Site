@@ -86,12 +86,6 @@ Os preços e o estoque são os da data de cada cópia. Confira antes de publicar
 
 ## Banco de dados: o que pedir à hospedagem
 
-Os arquivos de configuração mostram que a hospedagem é a **UOL Host** (`uhserver.com`). Para completar a recuperação, peça o backup (dump `.sql`) destes bancos:
+Para completar a recuperação, peça à hospedagem o backup (dump `.sql`) dos bancos de dados do site. O mais importante é o da **loja**, que tem clientes, pedidos e os produtos completos. Os nomes e endereços dos bancos estão nos arquivos de configuração do backup original, que não é publicado.
 
-| Banco | Servidor | Era usado por |
-|---|---|---|
-| `nfloja` | nfloja.mysql.uhserver.com | **Loja** (clientes, pedidos, produtos completos). É o mais importante |
-| `onepage` | onepage.mysql.uhserver.com | Site principal (Joomla). Contém o spam |
-| `nfswpress` | nfswpress.mysql.uhserver.com | WordPress em `/nf/` (provavelmente vazio) |
-
-As senhas desses bancos estavam nos arquivos do site. **Troque todas** (bancos, FTP, painel da hospedagem e administradores).
+As senhas dos bancos estavam nos arquivos do site. **Troque todas** (bancos, FTP, painel da hospedagem e administradores).

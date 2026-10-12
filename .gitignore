@@ -1,2 +1,5 @@
-
+# Backups do site antigo: contêm arquivos de configuração com senhas
 *.zip
+
+# Ferramentas locais
+graphify-out/

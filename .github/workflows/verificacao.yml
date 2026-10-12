@@ -1,0 +1,42 @@
+# Verificação automática do repositório NF-Site (Fase 1 do CI).
+# Roda a cada push, a cada pull request para a main e também manualmente (aba Actions → Run workflow).
+
+name: Verificação
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificacao-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  segredos:
+    name: Senhas e chaves (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # histórico completo: procura segredos em todos os commits, não só no último
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1 # mesma versão testada localmente com o .gitleaks.toml
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  verificacao:
+    name: Arquivos, código malicioso e conteúdo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Rodar scripts/verificar.py
+        run: python scripts/verificar.py

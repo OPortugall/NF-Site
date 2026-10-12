@@ -1,0 +1,16 @@
+# Configuração do gitleaks (busca de senhas e chaves) usada no CI.
+# Usa todas as regras padrão e libera apenas um falso positivo conhecido.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = """
+Tokens públicos do PrestaShop antigo (static_token, token, secure_key) embutidos em toda página
+da loja e também visíveis no Wayback Machine. Não são credenciais e a loja antiga não existe mais.
+Liberados só nas páginas arquivadas (.html) e nas planilhas de controle (.csv) de reconstrucao/.
+"""
+condition = "AND"
+paths = ['''^reconstrucao/.*\.(html|csv)$''']
+regexTarget = "match"
+regexes = ['''(?i)\b(static_token|token|secure_key|stf_secure_key)\b''']
