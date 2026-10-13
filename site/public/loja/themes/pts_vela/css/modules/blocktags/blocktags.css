@@ -1,0 +1,10 @@
+/*.tags_block *{
+    direction: ltr !important;
+}*/
+.tags_block {
+    margin-bottom: 26px;
+}
+.tags_block .block_content {
+    overflow: hidden;
+}
+
