@@ -100,10 +100,7 @@ export default function PaginaCategory4Coloridas() {
 	<a className="home" href="/loja" title="Retornar a Home"><span>Home</span></a>
 						<a href="/loja/3-impressoras" title="Impressoras" data-gg="">Impressoras</a><span className="navigation-pipe">{'>'}</span>Coloridas
 			</div>
-	    		    <div className="content_scene_cat">
-                    <div className="content_scene_cat_bg" style={{ background: "url('/loja/img/c/4-category_default.jpg') right center no-repeat", backgroundSize: "cover", minHeight: "246px" }}>
-                     </div>
-                              </div>
+	    		    
 					<div className="content_sortPagiBar clearfix">
 			    <div className="top-pagination-content sortPagiBar clearfix">
 				<ul className="display hidden-xs col-sm-3 col-md-3 col-sms-3 col-smb-12">

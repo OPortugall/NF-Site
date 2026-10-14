@@ -159,8 +159,16 @@ def partes_da_pagina(texto):
     }
 
 
+def remover_banners_categoria(html):
+    """Remove o banner de topo das categorias (img/c/*-category_default.jpg).
+    As imagens das categorias 3, 4 e 8 tinham conteúdo impróprio e foram apagadas; nenhuma volta."""
+    return re.sub(r'<div class="content_scene_cat">.*?<div class="content_sortPagiBar|<div class="content_scene_cat">.*?</div>\s*</div>',
+                  lambda m: '<div class="content_sortPagiBar' if m.group(0).endswith('content_sortPagiBar') else '',
+                  html, flags=re.S)
+
+
 def jsx_de(html):
-    return limpar_tokens(converter(html, reescrever_url))
+    return limpar_tokens(converter(remover_banners_categoria(html), reescrever_url))
 
 
 def nome_componente(s):

@@ -3,3 +3,5 @@
 
 # Ferramentas locais
 graphify-out/
+
+__pycache__/

@@ -1,0 +1,1177 @@
+[
+  {
+    "id": 18,
+    "slug": "18-mpc3502",
+    "nome": "RICOH MPC3502",
+    "marca": "Ricoh",
+    "modelo": "MPC3502",
+    "condicao": "Usado",
+    "precoCentavos": 1200000,
+    "resumo": "Multifuncional A3 Laser Color Ricoh Mp C3502 Seminova",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/18-mpc3502/foto-63.jpg",
+      "/produtos/18-mpc3502/foto-65.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "titulo",
+        "texto": "Especificações Gerais"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de Transmissão",
+            "35 -ppm P&B e Colorida"
+          ],
+          [
+            "Peso do Papel",
+            "Bandejas Padrão: 52 - 256 g/m² / Bandeja manual: 52 - 300g/m² / Unidade Duplex: 52 - 169g/m²"
+          ],
+          [
+            "Peso",
+            "120 kg c/ARDF"
+          ],
+          [
+            "Dimensões (L x P x A)",
+            "670 x 682 x 880 mm"
+          ],
+          [
+            "Duplex Automático",
+            "Padrão"
+          ],
+          [
+            "Indicador de Quantidade",
+            "Até 999 cópias"
+          ],
+          [
+            "Consumo de Energia",
+            "1,631W ou menos"
+          ],
+          [
+            "Capacidade de Saída",
+            "Padrão (todas): 500 folhas / viradas para baixo máxima: 1.625 folhas (com finalizador / 1.000 folhas + 1 Bandeja Bin)"
+          ],
+          [
+            "Capacidade de Papel",
+            "Padrão: 2 x 550 folhas + Bypass de 100 folhas. Máxima,: 4.400 folhas (c/Tandem LCT + LCT lateral)"
+          ],
+          [
+            "Recuperação do Modo de Espera",
+            "7.8 segundos"
+          ],
+          [
+            "Processo de Impressão",
+            "Método de 4 tambores"
+          ],
+          [
+            "Zoom",
+            "25% – 400% em incrementos de 1%"
+          ],
+          [
+            "Alimentação Elétrica",
+            "120V – 127V, 60Hz"
+          ],
+          [
+            "Tempo de Aquecimento",
+            "20 segundos"
+          ],
+          [
+            "Tipo de Papel",
+            "Simples, papel reciclado, transparências qualificadas, etiquetas, envelopes"
+          ],
+          [
+            "Tempo da Primeira Cópia",
+            "7.3 segundos (P&B) / 4.8 segundos (colorido)"
+          ],
+          [
+            "Tamanhos de Papel Aceitáveis",
+            "Personalizados: Largura: 90 - 305 mm, Comprimento: 148 - 600 mm"
+          ],
+          [
+            "Tamanho do Papel",
+            "A4 até A3 / Envelopes até A3 com o opcional"
+          ],
+          [
+            "Resolução de Cópia",
+            "600 dpi"
+          ],
+          [
+            "Alimentador Automático de Originais",
+            "ARDF - 50 folhas / A5-A3 / Simplex até 128gr / Duplex até 105gr"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações da Impressora Padrão"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Utilitários",
+            "Web SmartDeviceMonitor Web Image Monitor, @Remote™"
+          ],
+          [
+            "Memória",
+            "1.5 GB RAM padrão / 190 GB HDD"
+          ],
+          [
+            "Interface de Rede",
+            "Padrão: 10BaseT/100Base-TX Ethernet (RJ-45), Interface USB 2.0, USB 2.0 Hi Speed (para PC direto / conexão Mac), USB frontal Slot para cartão de interface 2.0/SD"
+          ],
+          [
+            "Interface (opcional)",
+            "Opcional: Gigabit Ethernet (1000Base-T) IEEE 802.11a/b/g de Interface Wireless, Bluetooth, Interface IEEE 1284/ECP Paralela"
+          ],
+          [
+            "Fontes",
+            "Padrão: PCL: 45 escaláveis, 6 de bitmap + 13 fontes internacionais Opcionais: PostScript 3: 136 fontes romanas, IPDS: 108 fontes romanas"
+          ],
+          [
+            "Drivers de Impressão",
+            "Padrão: PCL 5c, PCL 6 (XL), XPS via download opcional: Postscript 3"
+          ],
+          [
+            "CPU",
+            "Intel Celeron-M @ 600 MHz, Embedded"
+          ],
+          [
+            "Rede/Sistema operacional",
+            "Windows XP/Vista/7/Server 2003/Server 2008/Server 2008R2, Mac OS X 10.2 or later, Novell NetWare 6.5, Sun Solaris, HP-UX, SCO OpenServer, RedHat Linux, and IBM AIX, SAP R/3, IBM iSeries – AS/400 using OS/400 Host Print Transform"
+          ],
+          [
+            "Resolução da Impressora (Máx.)",
+            "1200 x 1200 dpi"
+          ],
+          [
+            "Velocidade Máxima de Impressão",
+            "35 ppm P&B e Colorido"
+          ],
+          [
+            "Protocolo da Rede",
+            "TCP/IP (IPv4, IPv6), IPX/SPX (necessário opcional de Netware)"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações do Servidor de Documento (padrão)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Capacidade máxima de documentos armazenados",
+            "3.000 documentos"
+          ],
+          [
+            "Capacidade máxima de páginas",
+            "9.000 páginas"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações do Fax (opcional)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Auto Discagem Padrão/Máx.",
+            "2.000 Números de discagem rápida; 100 números de discagem de grupo"
+          ],
+          [
+            "Capacidade de Memória (SAF)",
+            "Padrão: 4 MB (aprox. 320 págs), Opcional: 28 MB (aprox. 2.240 págs)"
+          ],
+          [
+            "Método de Compressão",
+            "MH, MR, MMR, JBIG"
+          ],
+          [
+            "Opcionais",
+            "Linhas G3 Adicionais (até 2), unidade de conexão de fax, Memória SAF, monofone"
+          ],
+          [
+            "Resolução",
+            "200 x 100 dpi, 200 x 200 dpi, 400 x 400 dpi (com nenória SAF opcional)"
+          ],
+          [
+            "Tipo",
+            "C5502; Super G3"
+          ],
+          [
+            "Velocidade de Digitalização",
+            "49 ipm"
+          ],
+          [
+            "Velocidade de Transmissão",
+            "G3: Aproximadamente 2 segundos/page (JBIG)"
+          ],
+          [
+            "Velocidade do Modem",
+            "33.6K – 2,400 bps com Auto Fallback"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações de Segurança (opcional)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Opcional",
+            "Copy Data Security, DataOverwriteSecurity System (DOSS) with ISO 15408 Common Criteria Certification"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações de Segurança (padrão)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Padrão",
+            "DataOverwriteSecurity System (DOSS), HDD Encryption, Códigos de Usuários, Suporte a SNMP v3 , Encriptação, Impressão bloqueada, Autenticação de usuário, 802.1.x Autenticação Wired , WPA/WPA2 (Acesso protegido a Wi-Fi ), Digitally Signed PDF, and"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações do Scanner (padrão)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de Digitalização",
+            "200 dpi: 51 ipm (carta) P&B/Colorido; 300 dpi: 47ipm P&B/41 ipm Colorido"
+          ],
+          [
+            "Método de Compressão",
+            "P&B: TIFF (MH, MR, MMR, JBIG2) Escala de cinza/Colorida: JPEG"
+          ],
+          [
+            "Modos de Digitalização",
+            "Scan-to-Email (com suporte LDAP) Scan-to-Folder (SMB/FTP/NCP) Scan-to-URL, Scan-to-Media (USB/SD Card) Network TWAIN Scanning"
+          ],
+          [
+            "Resolução do Scanner",
+            "Digitalização P&B e Colorida: 100 - 600 dpi, até 1200 dpi para digitalização TWAIN. / Resolução de digitalização padrão: 200 dpi"
+          ],
+          [
+            "Área de Digitalização",
+            "297mm – 432 mm"
+          ],
+          [
+            "Formatos de Arquivos",
+            "Uma página/Multi-Páginas TIFF / Uma página JPEG Uma página/Multi-Páginas PDF / Alta compressão PDF, PDF/A"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "slug": "17-mp7500",
+    "nome": "RICOH MP7500",
+    "marca": "Ricoh",
+    "modelo": "MP7500",
+    "condicao": "Usado",
+    "precoCentavos": 900000,
+    "resumo": "Multifuncional Ricoh Mp7500 Seminova Revisada",
+    "tipo": "multifuncionais",
+    "impressao": "pb",
+    "fotos": [
+      "/produtos/17-mp7500/foto-61.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "titulo",
+        "texto": "Principais funcionalidades"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Com o aumento da concorrência e as especificações dos trabalhos cada vez mais exigentes, a capacidade para satisfazer todas as necessidades dos seus clientes / utilizadores é absolutamente crucial. O Aficio™MP 7500 da Ricoh tem tudo aquilo que é preciso: alta velocidade, produtividade, várias capacidades de acabamento e uma excelente fiabilidade. Para satisfazer as mais altas exigências de uma reprografia centralizada, impressões a pedido e impressão em centros de dados, qualquer tipo de produção profissional é virtualmente possível. Este brilhante sistema multifunctional foi concebido para se integrar com a sua infra-estrutura existente e para lidar com o seu fluxo de trabalho do princípio ao fim. Com a maior segurança e magníficas possibilidades de personalização, as suas capacidades irão bastante para além do processamento de documentos tradicional. O Aficio™MP 7500: um investimento à prova do futuro para novos níveis de produtividade."
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Produção fiável a 75 páginas por minuto",
+          "Originais com frente e verso digitalizados numa única passagem",
+          "Interface fácil para o utilizador, para funcionamento e supervisão remota",
+          "Modo simplificado de apresentação no painel",
+          "Acabamento superior, inserção de capas, dobrar, agrafar, furar e produção de folhetos",
+          "Excelente durabilidade graças a componentes de longa duração"
+        ]
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "slug": "15-mp5001",
+    "nome": "RICOH MP5001",
+    "marca": "Ricoh",
+    "modelo": "MP5001",
+    "condicao": "Usado",
+    "precoCentavos": 760000,
+    "resumo": "Multifuncional Ricoh Mp5001 Seminova Revisada",
+    "tipo": "multifuncionais",
+    "impressao": "pb",
+    "fotos": [
+      "/produtos/15-mp5001/foto-57.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "titulo",
+        "texto": "Características Principais"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Recursos de economia de energia como a tecnologia de Inicialização Rápida e o Modo Hibernar economizam energia.",
+          "O Alimentador Recirculador de Originais de 100 folhas lida de forma eficiente com originais de várias páginas e em frente e verso de até A3(duplo-Carta).",
+          "A Unidade Duplex sem empilhamento produz cópias, impressões e fax em frente e verso—cortando pela metade os custos com papel, arquivamento e postagem.",
+          "Capacidade padrão de 1.200 folhas, e capacidade de papel máxima de 4.400 folhas com bancos de papel opcionais.",
+          "Opcionais de acabamento profissional incluem 2 ou 3 furações e vários opcionais de acabamento como a criação de livretos com grampeamento na dobra opcional.",
+          "Compatível com a Arquitetura de Software Incorporado (ESA) da Ricoh, uma plataforma de desenvolvimento de software compatível com Java (J2ME).",
+          "Tela VGA colorida sensível ao toque com Tela Simplificada e orientação de usuário animada.",
+          "Crie PDFs buscáveis e produções digitalizadas personalizadas.",
+          "Transforme originais de papel em arquivos do Microsoft Office completamente editáveis, em PDFs ou em formulários preenchíveis.",
+          "Baixe elementos gráficos (widgets) para qualquer cliente (desktop, PC, laptop ou Smartphone) a de forma padrão; use-os em qualquer MFP habilitado com App2Me."
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características da Impressora"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "PCL5e/6 Padrão e Adobe PostScript3 (Opcional).",
+          "Aceita dados do Windows®, AS/400, Linux, Macintosh® e Novell® para a integração ininterrupta com uma ampla variedade de Sistemas Operacionais de rede.",
+          "As interfaces opcionais incluem Rede Local sem Fio IEEE802.11a/b/g, IEEE1284/ECP Gigabit Ethernet e Bluetooth.",
+          "Visualize as configurações e gerencie os documentos de qualquer PC conectado, pelo navegador padrão.",
+          "Os arquivos impressos podem ser temporariamente retidos utilizando-se a Impressão Retida, e liberados e recolhidos quando você estiver pronto.",
+          "Impressão em rede de alto desempenho com 600 x 600 dpi a 50 ppm.",
+          "Gerencie os trabalhos e reordene as prioridades facilmente com a Função Lista de Trabalhos.",
+          "A impressão direta em PDF permite que você envie arquivos em PDF diretamente a uma impressora sem abrir o aplicativo, reduzindo o congestionamento da rede."
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características da Copiadora"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Vem de forma padrão com RAM de 768 MB.",
+          "Unidade de Disco Rígido de 40 GB.",
+          "“Digitalizar uma Vez, Imprimir Várias” com produção rápida e nítida a 40 ppm.",
+          "Tempo de aquecimento de 22 segundos com velocidade de primeira cópia de 4,1 segundos.",
+          "Cópias rápidas com resolução de 600 dpi em 256 tons da escala de cinzas.",
+          "Controle o uso ao configurar cotas de impressão ou cópia para até 500 usuários."
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características do Scanner"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Digitalizar-para-Email—Procure e envie documentos eletrônicos de forma fácil para uma entrega precisa e pontual.",
+          "Digitalizar-para-Pasta—A forma ideal de armazenar e compartilhar arquivos grandes com muitos clientes.",
+          "Digitalização em PB pela Rede = 61 ipm a 200 dpi; Cores = 31 ipm a 200 dpi.",
+          "Suporta um amplo conjunto de arquivos padrão do mercado como PDF, TIFF e JPEG; TIFF Multi/Única Página, PDF, PDF de Alta Compressão, JPEG de Página Única.",
+          "Digitalizar-para-Email, Digitalizar-para-Pasta, Digitalizar-para-URL, Digitalizar-para-FTP e Digitalizar-para-SMB embutidos sem a necessidade de hardware ou software adicional.",
+          "A digitalização TWAIN oferece opções de digitalização alternativa para usuários conectados à rede.",
+          "Digitalização versátil pela rede em preto e branco e em Cores.",
+          "Digitaliza papéis com tamanho máximo de A3(duplo-Carta) a 600 dpi com 256 tons da escala de cinzas.",
+          "A Visualização de Miniaturas permite que os usuários verifiquem se eles têm o arquivo certo e na direção correta."
+        ]
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "."
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características de Segurança"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Evite o acesso não autorizado às funções do equipamento com a Autenticação Windows/LDAP/Kerberos, que exige um nome de usuário e senha válidos.",
+          "O Disco Rígido Removível (RHD) opcional permite que o disco rígido seja desbloqueado, removido e guardado em um local seguro; possibilitando que os usuários gerenciem informação confidencial e/ou crítica facilmente.",
+          "Proteja os dados do catálogo de endereços com o Catálogo de endereços Criptografado, que protege os dados mesmo que o disco rígido embutido seja removido, descartado ou roubado.",
+          "Garanta a comunicação por Protocolo de Internet Seguro (IPSec) ao autenticar e/ou criptografar cada pacote IP em um fluxo de dados com a Comunicação IPSec e transmita PDFs de forma segura com a Transmissão de PDF Criptografado.",
+          "Criptografe o disco rígido e dados da memória RAM não-voláteis imediatamente após o armazenamento, com a Criptografia de Dados do HD.",
+          "O recurso Impressão Bloqueada dá a você a segurança extra de liberar os arquivos quando você decidir liberá-los, e em seguida deleta os arquivos do servidor de documentos após a impressão."
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características do Fax (opcional)"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Economize tempo com até três linhas de fax Super G3 e elimine tarifas de ligações interurbanas com recursos de envio de fax pela internet.",
+          "Envie cópias em papel a 2 segundos por página com o JBIG padrão em até três linhas analógicas pelo Modem Super G3 de 33,6 kbps com Redução Automática.",
+          "Economize tempo e papel com a função LAN Fax e envie fax diretamente do seu computador.",
+          "Explore os benefícios econômicos do IP Fax (T.38) para uma comunicação rápida e de alta qualidade: envie e receba fax diretamente pele sua Local ou Remota, contornando a sua PSTN (Rede Pública de Telefonia Comutada).",
+          "Distribua fax recebidos de forma rápida ao encaminhá-los automaticamente a endereços de e-mail ou a pastas na rede. Os destinatários recebem uma notificação de e-mail automática das entregas de fax."
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características Opcionais"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "A Unidade de Acabamento de 1.000 Folhas oferece capacidade, de até 1.000 folhas de A4/Carta ou menor; 500 folhas de Ofício ou maior, papel de 75 g/m² e grampeia automaticamente em 3 posições diferentes.",
+          "A Unidade de Acabamento de Grampeamento na Dobra/Livretos de 2.000 folhas permite que você produza livretos de qualidade profissional com uma ampla variedade de posições de grampos e furos (2 ou 3 furos).",
+          "Adicione o banco de papel de 2 x 550 folhas e tenha até cinco diferentes direções e tamanhos de papel que podem ser colocados a qualquer hora para a máxima versatilidade.",
+          "A bandeja de alta capacidade de 2.000 folhas (tamanho Carta) também está disponível, permitindo uma combinação máxima de até 4.400 folhas de papel colocadas, para ambientes de alta produção."
+        ]
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "slug": "12-mp5000",
+    "nome": "RICOH MP5000",
+    "marca": "Ricoh",
+    "modelo": "MP5000",
+    "condicao": "Usado",
+    "precoCentavos": 700000,
+    "resumo": "Copiadora Ricoh Mp5000 Seminova Revisada",
+    "tipo": "multifuncionais",
+    "impressao": "pb",
+    "fotos": [
+      "/produtos/12-mp5000/foto-51.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Velocidade da Primeira Cópia 3,5 segundos"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Zoom 25% a 400% em incrementos de 1%"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Velocidade de Cópia Contínua 50 cópias/minuto (LTR)"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Indicador de Quantidade Até 999"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Fonte de Energia 120V/60Hz"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Escala Cinza 256 níveis"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Disco Rígido 40 GB padrão"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Elemento de Digitalização Scanner de Mesa com Sensor de Imagem Ordenada Móvel CCD"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Configuração Console"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Dimensões (L x P x A) 67,5cm (L) x 90,93cm (A) x 67,56cm (D)"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Capacidade de Papel Padrão 550 folhas x 2 bandejas , Bandeja Manual para 100 Folhas"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Capacidade de Papel Opcional 550 folhas x 2 bandejas OR , 2.000 x 1; Bandeja de Alta Capacidade (LCT) para 1.200 Folhas"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Alimentador de Documentos ARDF padrão de 100 folhas"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Ajuste de Exposição Manual & Automático"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Memória do Sistema (padrão/máx.) 768 MB RAM"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Peso do Papel Bandeja 1 & 2: 60 - 169 g/m² Manual: 52 - 220g/m² Duplex: 60 - 169g/m²"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Toner Seco, Componente Duplo"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tipo Original Livro/Folha"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tipo da Cópia Papel Simples, Transparências, Papel Reciclado, Cartões, Timbre"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tempo de Aquecimento 13 segundos"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tempo de Recuperação (a partir do Auto off) 10 segundos"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tamanho Original Máximo Até 279,4mm x 431,8 mm"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tamanho do Papel 139,7mm x 216 mm a 279,4mm x 431,8 mm"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Tamanho da Cópia 139,7mm x 216 mm a 279,4mm x 431,8 mm"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Resolução de Cópia 600 x 600 dpi"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Proporções de Redução 25%, 50%, 65%, 73%, 78%, 85%, 93%"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Proporções de Aumento 121%, 129%, 155%, 200%, 400%"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Processo de Impressão Digitalização com Raio Laser Duplo & Impressão Eletrofotográfica"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Peso 85,00 Kg"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Características Padrão Auto Ampliação, Auto Seleção de Papel, Alternância Automática de Bandeja, Apaga Centro/Borda, Capítulos, Modo de Combinação, Inserção de Tampa, Impressão de Data, Ampliação Direcional, Cópia Dupla, Classificação Eletrônica / de Giro, Car"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "slug": "2-mpc2551",
+    "nome": "RICOH MPC2551",
+    "marca": "Ricoh",
+    "modelo": "MPC2551",
+    "condicao": "Usado",
+    "precoCentavos": 560000,
+    "resumo": "Multifuncional A3 Laser Color Ricoh Mp C2551 Seminova",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/2-mpc2551/foto-41.jpg",
+      "/produtos/2-mpc2551/foto-42.jpg",
+      "/produtos/2-mpc2551/foto-43.jpg",
+      "/produtos/2-mpc2551/foto-44.jpg",
+      "/produtos/2-mpc2551/foto-45.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "titulo",
+        "texto": "Copiador"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Processo de cópia",
+            "Sistema de transferência eletrostática a seco"
+          ],
+          [
+            "Velocidade de cópia",
+            "20 cópias por minuto"
+          ],
+          [
+            "Resolução",
+            "600 dpi"
+          ],
+          [
+            "Cópia múltipla",
+            "Até 999"
+          ],
+          [
+            "Tempo de aquecimento",
+            "Inferior a 22 segundos"
+          ],
+          [
+            "Velocidade da primeira cópia",
+            "Inferior a 6,5 segundos"
+          ],
+          [
+            "Zoom",
+            "25 - 400 % (em variações de 1%)"
+          ],
+          [
+            "Memória",
+            "Standard 1,5 GB + 160 GB HDD"
+          ],
+          [
+            "Capacidade de entrada de papel",
+            "Standard 2 bandeja(s) de 250 folhas; Bandeja de alimentação manual para 100; Máxima 1600 folhas"
+          ],
+          [
+            "Capacidade de saída de papel",
+            "650 folhas"
+          ],
+          [
+            "Formato de papel",
+            "A6 - A3"
+          ],
+          [
+            "Gramagem do papel",
+            "52 - 220 g/m ²"
+          ],
+          [
+            "Dimensões (L x P x A)",
+            "587 x 676 x 845 mm (incluind ARDF)"
+          ],
+          [
+            "Peso",
+            "Inferior a 100 kg (com ARDF)"
+          ],
+          [
+            "Fonte de alimentação",
+            "220 - 240 V, 50 - 60 Hz"
+          ],
+          [
+            "Consumo de energia",
+            "Máximo 1680 W"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Impressora (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de impressão",
+            "20 impressões por minuto"
+          ],
+          [
+            "Linguagem da impressora/resolução",
+            "Standard PCL5e, PCL6; Opção Adobe® PostScript®3™, PictBridge, IPDS"
+          ],
+          [
+            "Interface",
+            "Standard Interface USB Host, USB2.0, Ethernet 10Base-T/100Base-TX, IEEE 1284/ECP, Wireless LAN, Ethernet 1000 «Base-T"
+          ],
+          [
+            "Protocolo de rede",
+            "TCP/IP (IPv4, IPv6), IPX/SPX"
+          ],
+          [
+            "Ambientes suportados",
+            "Windows® 2000/XP/Server 2003/Vista/Server 2008/Server2008R2; NDPS Gateway; Macintosh OS X v10.2, SAP® R/3®; Sun® Solaris 2.6/7/8/9/10; HP-UX 10.x/11.x/11iv2/11iv3; RedHat® Linux 6.x/7.x/8.x/9.x/Enterprise; SCO OpenServer 5.0.6/5.0.7/6.0; IBM® AIX v4.3/5L v5.1/5L v5.2/5L v5.3; Novell® Netware® 3.12/3.2/4.1/4.11/5.0/5.1/6.0/6.5"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Scanner (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de digitalização",
+            "Cor integral Máximo 10 originais por minuto; Preto Máximo 22 originais por minuto"
+          ],
+          [
+            "Resolução",
+            "Máximo 600 dpi"
+          ],
+          [
+            "Formato de original",
+            "A5 - A3"
+          ],
+          [
+            "Formatos de saída",
+            "TIFF, PDF, JPEG"
+          ],
+          [
+            "Drivers fornecidos",
+            "Network TWAIN"
+          ],
+          [
+            "Scan to e-mail",
+            "SMTP, POP3"
+          ],
+          [
+            "Scan-to-folder",
+            "SMB, FTP ou NCP"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Software (mp c2051ad)"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Web Image Monitor, SmartDeviceMonitor™, DeskTopBinder™ Lite/Professional/v.5, Web SmartDeviceMonitor™"
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Fax (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Circuito",
+            "PSTN, PBX"
+          ],
+          [
+            "Compatibilidade",
+            "ITU-T (CCITT) G3"
+          ],
+          [
+            "Velocidade do modem",
+            "Máximo 33.6 Kbps"
+          ],
+          [
+            "Capacidade de memória",
+            "Máximo 28 MB"
+          ],
+          [
+            "Backup de memória",
+            "Sim"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Outras opções"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Outras Opções",
+            "Bandeja de papel de 500 folhas; 2 Bandejas de papel de 500 folhas; Finalizador inerno de 500 folhas Unidade de furação; Bandeja de saída em espinha Unidade de fax; PictBridge; Copy Data Security Unit; Porta de comunicação remota BN1; HDD Encryption Unit; Unidade de Browser"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "slug": "3-mpc2550",
+    "nome": "RICOH MPC2550",
+    "marca": "Ricoh",
+    "modelo": "MPC2550",
+    "condicao": "Usado",
+    "precoCentavos": 540000,
+    "resumo": "Multifuncional Ricoh Mp C2550 Seminova Revisada",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/3-mpc2550/foto-47.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "A Aficio MPC2550 de 20 ppm possui controlador GW com CPU de 533MHz, suporte a memoria adicional e interfaces expansíveis de rede. Esse controlador é equipado com 768MB de RAM, com unidade de disco rígido de 60GB padrão e oferece benefícios incluindo os recursos de seguransa para proteção de dados, resoluções de impressão mais altas, conjunto completo de recursos Digitalizar-para (Scan-to), armazenamento de documentos eletrônicos e suporte opcional a Macintosh."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Pronta para a rede esse modelo possibilita ser posicionado com um centro completo de comunicações para escritórios e grupos de trabalho corporativos de pequeno porte com recursos avançados de conexão a rede, integrado de recursos, segurança e produção de documentos."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Sem necessidade de opcionais a parte, o modelo MPC2550 na configuração standard estara pronto para digitalização em cores para cópia, bem como para envio eletronico e/ou armazenamento local para HD, impressão em rede compartilhando alta qualidade de imagem para grupos de trabalho inteiros - mesmo em redes mistas Windows e Macintosh. Além disso, possui ARDF de 50 folhas e duplex automático na configuracação Standard."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Somado a isso, o modelo Aficio MP C2550 pode ser equipada com uma Unidade de Acabamento Interna para fornecer grampeamento de 50 folhas e furação opcional tornando-se uma estação completa de produção de documentos com aumento mínimo na area ocupada pelo sistema."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Quando configurada como o modulo de Fax Super G3 opcional, o modelo MPC2550 possibilita enviar tanto arquivos digitais quando impressos, por linhas telefônicas e de transmissão de dados de rede através de recursos tais como LAN Fax, Internet Fax e IP Fax"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "slug": "13-mpc2051",
+    "nome": "RICOH MPC2051",
+    "marca": "Ricoh",
+    "modelo": "MPC2051",
+    "condicao": "Usado",
+    "precoCentavos": 540000,
+    "resumo": "Multifuncional A3 Laser Color Ricoh Mp C2051 Seminova",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/13-mpc2051/foto-52.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "titulo",
+        "texto": "Copiador"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Processo de cópia",
+            "Sistema de transferência eletrostática a seco"
+          ],
+          [
+            "Velocidade de cópia",
+            "20 cópias por minuto"
+          ],
+          [
+            "Resolução",
+            "600 dpi"
+          ],
+          [
+            "Cópia múltipla",
+            "Até 999"
+          ],
+          [
+            "Tempo de aquecimento",
+            "Inferior a 22 segundos"
+          ],
+          [
+            "Velocidade da primeira cópia",
+            "Inferior a 6,5 segundos"
+          ],
+          [
+            "Zoom",
+            "25 - 400 % (em variações de 1%)"
+          ],
+          [
+            "Memória",
+            "Standard 1,5 GB + 160 GB HDD"
+          ],
+          [
+            "Capacidade de entrada de papel",
+            "Standard 2 bandeja(s) de 250 folhas; Bandeja de alimentação manual para 100; Máxima 1600 folhas"
+          ],
+          [
+            "Capacidade de saída de papel",
+            "650 folhas"
+          ],
+          [
+            "Formato de papel",
+            "A6 - A3"
+          ],
+          [
+            "Gramagem do papel",
+            "52 - 220 g/m ²"
+          ],
+          [
+            "Dimensões (L x P x A)",
+            "587 x 676 x 845 mm (incluind ARDF)"
+          ],
+          [
+            "Peso",
+            "Inferior a 100 kg (com ARDF)"
+          ],
+          [
+            "Fonte de alimentação",
+            "220 - 240 V, 50 - 60 Hz"
+          ],
+          [
+            "Consumo de energia",
+            "Máximo 1680 W"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Impressora (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de impressão",
+            "20 impressões por minuto"
+          ],
+          [
+            "Linguagem da impressora/resolução",
+            "Standard PCL5e, PCL6; Opção Adobe® PostScript®3™, PictBridge, IPDS"
+          ],
+          [
+            "Interface",
+            "Standard Interface USB Host, USB2.0, Ethernet 10Base-T/100Base-TX, IEEE 1284/ECP, Wireless LAN, Ethernet 1000 «Base-T"
+          ],
+          [
+            "Protocolo de rede",
+            "TCP/IP (IPv4, IPv6), IPX/SPX"
+          ],
+          [
+            "Ambientes suportados",
+            "Windows® 2000/XP/Server 2003/Vista/Server 2008/Server2008R2; NDPS Gateway; Macintosh OS X v10.2, SAP® R/3®; Sun® Solaris 2.6/7/8/9/10; HP-UX 10.x/11.x/11iv2/11iv3; RedHat® Linux 6.x/7.x/8.x/9.x/Enterprise; SCO OpenServer 5.0.6/5.0.7/6.0; IBM® AIX v4.3/5L v5.1/5L v5.2/5L v5.3; Novell® Netware® 3.12/3.2/4.1/4.11/5.0/5.1/6.0/6.5"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Scanner (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Velocidade de digitalização",
+            "Cor integral Máximo 10 originais por minuto; Preto Máximo 22 originais por minuto"
+          ],
+          [
+            "Resolução",
+            "Máximo 600 dpi"
+          ],
+          [
+            "Formato de original",
+            "A5 - A3"
+          ],
+          [
+            "Formatos de saída",
+            "TIFF, PDF, JPEG"
+          ],
+          [
+            "Drivers fornecidos",
+            "Network TWAIN"
+          ],
+          [
+            "Scan to e-mail",
+            "SMTP, POP3"
+          ],
+          [
+            "Scan-to-folder",
+            "SMB, FTP ou NCP"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Software (mp c2051ad)"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Web Image Monitor, SmartDeviceMonitor™, DeskTopBinder™ Lite/Professional/v.5, Web SmartDeviceMonitor™"
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Fax (mp c2051ad)"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Circuito",
+            "PSTN, PBX"
+          ],
+          [
+            "Compatibilidade",
+            "ITU-T (CCITT) G3"
+          ],
+          [
+            "Velocidade do modem",
+            "Máximo 33.6 Kbps"
+          ],
+          [
+            "Capacidade de memória",
+            "Máximo 28 MB"
+          ],
+          [
+            "Backup de memória",
+            "Sim"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Outras opções"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Outras Opções",
+            "Bandeja de papel de 500 folhas; 2 Bandejas de papel de 500 folhas; Finalizador inerno de 500 folhas Unidade de furação; Bandeja de saída em espinha Unidade de fax; PictBridge; Copy Data Security Unit; Porta de comunicação remota BN1; HDD Encryption Unit; Unidade de Browser"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "slug": "1-mpc2050",
+    "nome": "RICOH MPC2050",
+    "marca": "Ricoh",
+    "modelo": "MPC2050",
+    "condicao": "Usado",
+    "precoCentavos": 480000,
+    "resumo": "Multifuncional A3 Laser Color Ricoh Mp C2050 Seminova",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/1-mpc2050/foto-36.jpg",
+      "/produtos/1-mpc2050/foto-37.jpg",
+      "/produtos/1-mpc2050/foto-38.jpg",
+      "/produtos/1-mpc2050/foto-39.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "A Aficio MPC2050 de 20 ppm possui controlador GW com CPU de 533MHz, suporte a memoria adicional e interfaces expansíveis de rede. Esse controlador é equipado com 768MB de RAM, com unidade de disco rígido de 60GB padrão e oferece benefícios incluindo os recursos de seguransa para proteção de dados, resoluções de impressão mais altas, conjunto completo de recursos Digitalizar-para (Scan-to), armazenamento de documentos eletrônicos e suporte opcional a Macintosh."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Pronta para a rede esse modelo possibilita ser posicionado com um centro completo de comunicações para escritórios e grupos de trabalho corporativos de pequeno porte com recursos avançados de conexão a rede, integrado de recursos, segurança e produção de documentos."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Sem necessidade de opcionais a parte, o modelo MPC2050 na configuração standard estara pronto para digitalização em cores para cópia, bem como para envio eletronico e/ou armazenamento local para HD, impressão em rede compartilhando alta qualidade de imagem para grupos de trabalho inteiros - mesmo em redes mistas Windows e Macintosh. Além disso, possui ARDF de 50 folhas e duplex automático na configuracação Standard."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Somado a isso, o modelo Aficio MP C2050 pode ser equipada com uma Unidade de Acabamento Interna para fornecer grampeamento de 50 folhas e furação opcional tornando-se uma estação completa de produção de documentos com aumento mínimo na area ocupada pelo sistema."
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "Quando configurada como o modulo de Fax Super G3 opcional, o modelo MPC2050 possibilita enviar tanto arquivos digitais quando impressos, por linhas telefônicas e de transmissão de dados de rede através de recursos tais como LAN Fax, Internet Fax e IP Fax"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "slug": "16-spc430dn",
+    "nome": "RICOH SPC430DN",
+    "marca": "Ricoh",
+    "modelo": "SPC430DN",
+    "condicao": "Usado",
+    "precoCentavos": 200000,
+    "resumo": "Impressora Ricoh Colorida Spc430 Seminova Revisada",
+    "tipo": "impressoras",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/16-spc430dn/foto-60.jpg",
+      "/produtos/16-spc430dn/foto-59.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "VELOCIDADE DE IMPRESSÃO (Cor/PB): 37ppm (Carta) / 35ppm (A4) / Resolução de impressão: 1200 x 1200 dpi / Painel de controle de 4 linhas LCD com teclado alfanumérico / Modo Economy Color - Reduz a quantidade de toner usado para imprimir imagens de fundo, mantendo a densidade normal de caracteres do texto (texto em qualquer cor, não apenas preto). / HD de 80GB (opcional) / Memória RAM de 384MB (expansível até 768MB com opcional) / Duplex padrão (aproximadamente 100% da velocidade nominal) / 550 folhas + Bandeja de 100 folhas padrão / Capacidade de papel 2.300 folhas máxima e caster / Suporte a ampla gama de mídias, incluindo banners de até 124,5 x 21,6cm e 256g/m² / Gerenciamento de cor: Calibração de cores e Simulação de Pantone"
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Características"
+      },
+      {
+        "tipo": "paragrafo",
+        "texto": "A Aficio SPC430DN traz uma solução com última geração de arquitetura de controladores da Ricoh, que oferece maior valor agregado e produtividade. Ela combina excepcional qualidade de imagem, altas velocidades, capacidade de expansão e os mais recentes recursos de segurança, com agressivos fatores de custo por página (CPP) e manutenção integral pelo usuário, para manter a promessa de baixo custo total de propriedade. Com suas altas velocidades de impressão, controlador mais poderoso e maior fornecimento máximo de papel, a Aficio SPC430DN pronta para rede foi projetada para dar suporte à grupos de trabalho corporativos de tamanho médio com populações de usuários finais de 3 a 30 funcionários. Naturalmente ela também pode servir usuários individuais, desde que tenham volume suficiente para justificar a compra. Esse modelo suporta até 150.000 impressões por mês durante o uso em um período de pico, com uma faixa de volume recomendada de 4.000 a 20.000 impressões / mês no máximo. Suporta a maioria dos sistemas de rede e Sistemas operacionais, incluindo o Windows 7 e MAC OSX 10.6 Além disso, as garrafas individuais de toner CMYK possuem encaixe rápido (apenas um passo) e descomplicado a partir do topo, enquanto o percurso completo do papel - incluindo o duplex integrado - é acessível a partir da parte frontal da máquina, para fácil remoção de atolamentos. Todos esses elementos contribuem para o conceito de facilidade de uso / manutenção, design compacto e baixo custo total de propriedade da Aficio SPC430DN, tornando-a uma grande solução para pequenos escritórios e grupos de trabalho corporativos."
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "slug": "14-spc232dn",
+    "nome": "RICOH SPC232DN",
+    "marca": "Ricoh",
+    "modelo": "SPC232DN",
+    "condicao": "Usado",
+    "precoCentavos": 60000,
+    "resumo": "Impressora Ricoh Colorida Spc232dn Seminova Revisada",
+    "tipo": "impressoras",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/14-spc232dn/foto-53.jpg",
+      "/produtos/14-spc232dn/foto-54.jpg",
+      "/produtos/14-spc232dn/foto-55.jpg",
+      "/produtos/14-spc232dn/foto-56.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Suprimento Padrão de Papel Bandeja de 250 folhas Bandeja de Alimentação Manual de 1 folha Configuração De mesa Capacidade de Produção 150 folhas (face voltada para baixo) Aficio SP C232DN Código 406506 Tecnologia Digitalização a feixe de laser, impressão eletrofotográfica colorida a laser com revelação de toner mono-componente, método de 4 cilindros acoplados. Tamanho Máximo do Papel Ofício Tamanhos de Papel Bandeja Padrão e Bandeja de Alimentação Manual: Carta, A4, EXE, B5, Ofício, Meio carta, A5, A6, B6, Personalizado (Largura: 89 x 216 mm, Comprimento: 147,3 x 356 mm) Unidade de Alimentação de Papel Opcional: Carta, A4 Tempo de Aquecimento 48 segundos ou menos Tipos de Papel Aceitáveis Bandeja Padrão e Bandeja de Alimentação Manual: , Papel Comum, Papel reciclado, Envelopes, Papel Grosso, Etiquetas, Papel Fino, Papel Colorido, Papel Pré-impresso. Papel pré-perfurado, Papel Timbrado, Papel de Carta e Cartão , Unidade de Alimentaç¿ Velocidade da Primeira Impressão 14 segundos ou menos Capacidade Máxima de Papel 751 folhas Dimensões (L x P x A). 40 cm x 45 cm x 32 cm Requisitos de Alimentação Elétrica 120V, 60Hz Resolução 600 x 600 dpi (Padrão) (Modo Velocidade) 1200 x 600 dpi equivalente (Modo Padrão) 2400 x 600 dpi equivalente (Modo Fino) Suprimento de Papel Opcional Unidade de Alimentação de Papel de 500 folhas Regulamentos de Segurança UL60950-1, FCC Parte 15 Classe B, ENERGY STAR: Impressora Colorida ¿ Nível 1 Modo Economia de Energia 15W ou menos Peso 23 kgs incluindo os materiais de consumo. Gramaturas do Papel Bandeja Padrão e Bandeja de Alimentação Manual: , 60 a 160 g/m² Duplex Automático (Aprox. 60% da produtividade) Consumo Máximo de Energia: 1.300W ou menos Velocidade de Impressão (Carta) Preto e Branco: 21 páginas por minuto (Todos os modos) , Coloridas: 21 páginas por minuto (Todos os modos) Especificações da Controladora de Impressão Utilitários em software Web Image Monitor Smart Organizing Monitor Protocolos da Rede TCP/IP, AppleTalk, IPX/SPX CPU 300MHz Fontes 80 fontes HP Interfaces Opcionais IEEE 802.11b/g Sem Fio Interfaces Padrão USB 2.0, Ethernet 10/100Base-TX, USB Host para Interface a PictBridge¿ Memória 128 MB de RAM padrão; máximo de 640 MB de RAM Ambientes Suportados Windows 2000, XP, Vista, Server 2003/2008, Mac OS X v.10.2.8 ¿ 10.5, Novell NetWare v 4.x , Citrix MetaFrame, UNIX (Filtro da Ricoh Fase 11)"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "slug": "11-toner-ricoh-compativel",
+    "nome": "Toner Ricoh Compatível",
+    "marca": "Ricoh",
+    "modelo": "",
+    "condicao": "Novo",
+    "precoCentavos": 26000,
+    "resumo": "Toner Ricoh Af1060/1075/2060/2075/mp6500/7500",
+    "tipo": "suprimentos",
+    "impressao": "pb",
+    "fotos": [
+      "/produtos/11-toner-ricoh-compativel/foto-50.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Toner Ricoh Af1060/1075/2060/2075/mp6500/7500"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "slug": "4-toner",
+    "nome": "Toner Ricoh Compatível",
+    "marca": "Ricoh",
+    "modelo": "",
+    "condicao": "Novo",
+    "precoCentavos": 14000,
+    "resumo": "Toner Ricoh 1060/1075/2060/ Mp6500/7500/6001/8001 Compatível",
+    "tipo": "suprimentos",
+    "impressao": "pb",
+    "fotos": [
+      "/produtos/4-toner/foto-49.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "1060/1075/2060/ Mp6500/7500/6001/8001"
+      }
+    ]
+  }
+]
