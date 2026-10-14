@@ -17,6 +17,44 @@ export function IconeTelefone(props) {
   );
 }
 
+export function IconeFacebook(props) {
+  return (
+    <svg {...base} {...props} fill="currentColor">
+      <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1Z" />
+    </svg>
+  );
+}
+
+export function IconeInstagram(props) {
+  return (
+    <svg {...base} {...props} fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="3.8" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function IconeCarrinho(props) {
+  return (
+    <svg {...base} {...props} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2.5 3.5h2.6l2.3 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1l1.6-6.8H6.2" />
+      <circle cx="9.5" cy="19.6" r="1.4" />
+      <circle cx="17" cy="19.6" r="1.4" />
+    </svg>
+  );
+}
+
+// "Boneco" para entrar ou se cadastrar
+export function IconeUsuario(props) {
+  return (
+    <svg {...base} {...props} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
+    </svg>
+  );
+}
+
 export function IconeMenu(props) {
   return (
     <svg {...base} {...props} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

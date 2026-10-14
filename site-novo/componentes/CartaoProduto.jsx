@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatarPreco, urlProduto } from '@/lib/produtos';
+import { urlProduto } from '@/lib/produtos';
 import Tinta from './Tinta';
 
 // "MPC3502" -> "MP C3502"; "SPC430DN" -> "SP C430DN"; "MP5001" -> "MP 5001"
@@ -43,7 +43,7 @@ export default function CartaoProduto({ produto, preload = false }) {
           <Tinta impressao={produto.impressao} />
           <span className="cartao__condicao">{novo ? 'Novo' : 'Seminovo'}</span>
         </div>
-        <p className="cartao__preco">{formatarPreco(produto.precoCentavos)}</p>
+        <p className="cartao__orcamento">Pedir orçamento</p>
       </div>
     </article>
   );

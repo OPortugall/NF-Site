@@ -4,12 +4,6 @@ import { useMemo, useState } from 'react';
 import { IMPRESSAO, TIPOS, linkWhatsApp } from '@/lib/produtos';
 import CartaoProduto from './CartaoProduto';
 
-const ORDENS = {
-  relevancia: 'Mais relevantes',
-  menor: 'Menor preço',
-  maior: 'Maior preço',
-};
-
 function Filtro({ legenda, opcoes, valor, aoMudar, nome }) {
   return (
     <fieldset className="filtro">
@@ -29,16 +23,14 @@ function Filtro({ legenda, opcoes, valor, aoMudar, nome }) {
 export default function Catalogo({ produtos }) {
   const [tipo, setTipo] = useState('todos');
   const [impressao, setImpressao] = useState('todas');
-  const [ordem, setOrdem] = useState('relevancia');
 
-  const lista = useMemo(() => {
-    const filtrados = produtos.filter(
-      (p) => (tipo === 'todos' || p.tipo === tipo) && (impressao === 'todas' || p.impressao === impressao),
-    );
-    if (ordem === 'menor') return [...filtrados].sort((a, b) => a.precoCentavos - b.precoCentavos);
-    if (ordem === 'maior') return [...filtrados].sort((a, b) => b.precoCentavos - a.precoCentavos);
-    return filtrados;
-  }, [produtos, tipo, impressao, ordem]);
+  const lista = useMemo(
+    () =>
+      produtos.filter(
+        (p) => (tipo === 'todos' || p.tipo === tipo) && (impressao === 'todas' || p.impressao === impressao),
+      ),
+    [produtos, tipo, impressao],
+  );
 
   const limpar = () => {
     setTipo('todos');
@@ -56,14 +48,7 @@ export default function Catalogo({ produtos }) {
         <p aria-live="polite">
           {lista.length} {lista.length === 1 ? 'produto' : 'produtos'}
         </p>
-        <label className="catalogo__ordem">
-          Ordenar por
-          <select value={ordem} onChange={(e) => setOrdem(e.target.value)}>
-            {Object.entries(ORDENS).map(([k, r]) => (
-              <option key={k} value={k}>{r}</option>
-            ))}
-          </select>
-        </label>
+        <p>Preços sob consulta: peça seu orçamento sem custo.</p>
       </div>
 
       {lista.length > 0 ? (

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { empresa } from '@/dados/empresa';
 import { linkWhatsApp } from '@/lib/produtos';
-import Logo from './Logo';
-import { IconeTelefone, IconeWhatsApp } from './Icones';
+import { SeloNF } from './Logo';
+import { BotoesRedes } from './BotoesExternos';
+import { IconeWhatsApp } from './Icones';
 
 export default function Rodape() {
   return (
@@ -10,8 +11,9 @@ export default function Rodape() {
       <footer className="rodape">
         <div className="conteudo rodape__grade">
           <div className="rodape__marca">
-            <Logo claro />
+            <SeloNF tamanho={104} />
             <p>Venda, locação e assistência técnica de impressoras e copiadoras desde {empresa.fundacao}.</p>
+            <BotoesRedes claro />
           </div>
 
           <nav aria-label="Rodapé">
@@ -43,11 +45,6 @@ export default function Rodape() {
               {empresa.endereco.cidade}<br />
               CEP {empresa.endereco.cep}
             </address>
-            <ul className="rodape__redes">
-              {empresa.redes.map((r) => (
-                <li key={r.nome}><a href={r.url} rel="noopener" target="_blank">{r.nome}</a></li>
-              ))}
-            </ul>
           </div>
         </div>
         <div className="conteudo rodape__base">
@@ -56,15 +53,11 @@ export default function Rodape() {
         </div>
       </footer>
 
-      {/* Celular: atalhos de contato sempre ao alcance do polegar */}
-      <div className="barra-contato">
-        <a className="barra-contato__item barra-contato__item--whatsapp" href={linkWhatsApp('Olá! Vim pelo site e gostaria de um orçamento.')}>
-          <IconeWhatsApp /> WhatsApp
-        </a>
-        <a className="barra-contato__item" href={`tel:${empresa.telefones[0].numero}`}>
-          <IconeTelefone /> Ligar
-        </a>
-      </div>
+      {/* WhatsApp fixo no canto inferior esquerdo, acompanha a rolagem em todas as páginas */}
+      <a className="whatsapp-flutuante" href={linkWhatsApp('Olá! Vim pelo site e gostaria de um orçamento.')}>
+        <IconeWhatsApp width={30} height={30} />
+        <span className="visualmente-oculto">Conversar pelo WhatsApp</span>
+      </a>
     </>
   );
 }

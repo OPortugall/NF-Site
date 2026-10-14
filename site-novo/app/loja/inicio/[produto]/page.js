@@ -6,7 +6,6 @@ import Tinta from '@/componentes/Tinta';
 import { empresa } from '@/dados/empresa';
 import {
   TIPOS,
-  formatarPreco,
   linkWhatsApp,
   mensagemProduto,
   produtoPorSlug,
@@ -79,10 +78,13 @@ export default async function PaginaProduto({ params }) {
             <Tinta impressao={produto.impressao} />
             <span className="cartao__condicao">{produto.condicao === 'Novo' ? 'Novo' : 'Seminovo revisado'}</span>
           </div>
-          <p className="produto__preco">{formatarPreco(produto.precoCentavos)}</p>
+          <div className="produto__orcamento">
+            <p className="produto__orcamento-titulo">Preço sob consulta</p>
+            <p>Fale com a nossa equipe e receba o orçamento sem custo, com condições de pagamento e entrega.</p>
+          </div>
           <div className="produto__acoes">
             <a className="botao botao--whatsapp botao--largo" href={linkWhatsApp(mensagemProduto(produto))}>
-              Pedir pelo WhatsApp
+              Pedir orçamento pelo WhatsApp
             </a>
             <a className="botao botao--secundario botao--largo" href={`tel:${empresa.telefones[0].numero}`}>
               Ligar {empresa.telefones[0].rotulo}

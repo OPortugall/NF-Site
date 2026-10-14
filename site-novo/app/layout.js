@@ -22,7 +22,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#003a48',
+  themeColor: '#232323',
 };
 
 export default function LayoutRaiz({ children }) {

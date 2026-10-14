@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { empresa } from '@/dados/empresa';
-import { linkWhatsApp } from '@/lib/produtos';
 import Logo from './Logo';
 import { FaixaRegistro } from './Tinta';
-import { IconeFechar, IconeMenu, IconeWhatsApp } from './Icones';
+import { IconeCarrinho, IconeFechar, IconeMenu, IconeUsuario } from './Icones';
 
 const LINKS = [
   { href: '/loja', rotulo: 'Equipamentos' },
@@ -52,6 +51,11 @@ export default function Cabecalho() {
                 </Link>
               </li>
             ))}
+            <li className="menu__telefone">
+              <a className="menu__link" href={`tel:${empresa.telefones[0].numero}`}>
+                Ligar {empresa.telefones[0].rotulo}
+              </a>
+            </li>
           </ul>
         </nav>
 
@@ -59,10 +63,15 @@ export default function Cabecalho() {
           <a className="cabecalho__telefone" href={`tel:${empresa.telefones[0].numero}`}>
             {empresa.telefones[0].rotulo}
           </a>
-          <a className="botao botao--whatsapp botao--compacto" href={linkWhatsApp('Olá! Vim pelo site e gostaria de um orçamento.')}>
-            <IconeWhatsApp />
-            <span>WhatsApp</span>
-          </a>
+          {/* Entrar/cadastrar e carrinho: as páginas ainda não existem; os botões já ficam no lugar definitivo. */}
+          <button type="button" className="cabecalho__icone" aria-label="Entrar ou cadastrar (em breve)" title="Em breve">
+            <IconeUsuario />
+            <span className="cabecalho__icone-rotulo">Entrar</span>
+          </button>
+          <button type="button" className="cabecalho__icone" aria-label="Carrinho (em breve)" title="Em breve">
+            <IconeCarrinho />
+            <span className="cabecalho__icone-rotulo">Carrinho</span>
+          </button>
           <button
             type="button"
             className="cabecalho__menu-botao"

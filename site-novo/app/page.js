@@ -2,7 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
 import { empresa, institucional, marcas, servicos } from '@/dados/empresa';
-import { formatarPreco, linkWhatsApp, produtoPorSlug, todosOsProdutos, urlProduto } from '@/lib/produtos';
+import { BotoesRedes } from '@/componentes/BotoesExternos';
+import { linkWhatsApp, produtoPorSlug, todosOsProdutos, urlProduto } from '@/lib/produtos';
 
 const DESTAQUES = ['18-mpc3502', '15-mp5001', '1-mpc2050', '16-spc430dn'];
 
@@ -38,7 +39,7 @@ export default function PaginaInicial() {
             </div>
             <figcaption>
               <Link href={urlProduto(vitrine)}>
-                {tituloProduto(vitrine)} seminova revisada, {formatarPreco(vitrine.precoCentavos)}
+                {tituloProduto(vitrine)} seminova revisada: ver detalhes
               </Link>
             </figcaption>
           </figure>
@@ -116,6 +117,10 @@ export default function PaginaInicial() {
             <a className="botao botao--whatsapp" href={linkWhatsApp('Olá! Vim pelo site.')}>
               Conversar pelo WhatsApp
             </a>
+            <div className="contato__redes">
+              <p>Siga a NF nas redes sociais</p>
+              <BotoesRedes />
+            </div>
             <dl className="contato__dados">
               <div>
                 <dt>Telefones</dt>

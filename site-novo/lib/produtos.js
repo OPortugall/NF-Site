@@ -20,18 +20,13 @@ export function produtoPorSlug(slug) {
   return produtos.find((p) => p.slug === slug);
 }
 
-const real = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-export function formatarPreco(centavos) {
-  return real.format(centavos / 100);
-}
-
 export function linkWhatsApp(mensagem) {
   return `https://wa.me/${empresa.whatsapp.numero}?text=${encodeURIComponent(mensagem)}`;
 }
 
+// O site não mostra preços: o cliente pede orçamento e a equipe responde.
 export function mensagemProduto(produto) {
-  return `Olá! Tenho interesse no ${produto.nome} (${formatarPreco(produto.precoCentavos)}) que vi no site.`;
+  return `Olá! Gostaria de um orçamento do ${produto.nome} que vi no site.`;
 }
 
 // O endereço antigo da loja era /loja/inicio/<id>-<nome>.html; mantemos o mesmo.

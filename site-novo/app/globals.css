@@ -1,23 +1,29 @@
 /* ==========================================================================
    NF Soluções Digitais — sistema visual
-   Cores do logo (preto, petróleo, ciano) + as quatro tintas de impressão (CMYK),
-   usadas só na faixa de registro e no indicador de impressão.
+   Cores do logo novo: grafite (fundo do selo) + as tintas de impressão (CMYK) dos triângulos e do "F".
+   As tintas aparecem na marca, na faixa de registro e no indicador de impressão.
    ========================================================================== */
 
 :root {
-  /* Marca (medidas no arquivo do logo original) */
-  --petroleo: #003a48;
-  --petroleo-2: #0b4d5c;
-  --ciano-nf: #11a0af;          /* decorativo e elementos grandes; não usar em texto pequeno sobre branco */
-  --ciano-texto: #0a6f7a;       /* versão do ciano com contraste para texto e links (5,9:1 no branco) */
+  /* Marca (medidas no arquivo logo-NF.jpeg) */
+  --grafite: #232323;           /* fundo do selo: cabeçalhos escuros, rodapé, títulos */
+  --ciano-nf: #00ade6;          /* ciano do "F": decorativo e foco; não usar em texto pequeno sobre branco */
+  --ciano-texto: #00739a;       /* ciano escurecido para texto e links (5,4:1 no branco) */
 
   /* Neutros */
-  --tinta: #16252b;             /* texto */
-  --tinta-suave: #4a5a60;       /* texto secundário (7:1 no branco) */
-  --papel: #f4f6f5;             /* fundo de seção, branco frio de papel sulfite */
+  --tinta: #1c1c1c;             /* texto */
+  --tinta-suave: #575757;       /* texto secundário (7:1 no branco) */
+  --papel: #f5f5f4;             /* fundo de seção, branco de papel sulfite */
   --branco: #ffffff;
-  --linha: #d5dddf;
-  --linha-forte: #a9b6ba;
+  --linha: #dcdcdc;
+  --linha-forte: #ababab;
+  --logo-texto: var(--grafite);
+
+  /* TESTE: degradê com as tintas de impressão nos fundos escuros (seção "O que fazemos" e rodapé),
+     na mesma ordem da faixa do cabeçalho: ciano, magenta, amarelo e preto, da esquerda para a direita.
+     Tons escurecidos para o texto claro manter contraste (pior ponto: 5:1 com o cinza do rodapé).
+     Para voltar ao grafite liso: --fundo-escuro: var(--grafite); */
+  --fundo-escuro: linear-gradient(90deg, #005570 0%, #6b1544 36%, #5a500e 68%, #161616 100%);
 
   /* Tintas de impressão */
   --cmyk-c: #00a0dc;
@@ -49,7 +55,6 @@
 
   --largura: 1200px;
   --raio: 6px;
-  --altura-barra-contato: 0px;
 }
 
 /* ---------- base ---------- */
@@ -72,7 +77,6 @@ body {
   line-height: 1.55;
   color: var(--tinta);
   background: var(--branco);
-  padding-bottom: var(--altura-barra-contato);
 }
 
 img {
@@ -86,7 +90,7 @@ a {
 }
 
 a:hover {
-  color: var(--petroleo);
+  color: var(--grafite);
 }
 
 :focus-visible {
@@ -102,7 +106,7 @@ h3 {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: var(--petroleo);
+  color: var(--grafite);
   text-wrap: balance;
 }
 
@@ -131,7 +135,7 @@ p {
   top: -4rem;
   z-index: 100;
   padding: var(--e-3) var(--e-4);
-  background: var(--petroleo);
+  background: var(--grafite);
   color: var(--branco);
   border-radius: var(--raio);
 }
@@ -198,7 +202,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: var(--e-3);
-  color: var(--petroleo);
+  color: var(--logo-texto);
 }
 
 .logo__marca {
@@ -208,20 +212,22 @@ p {
 
 .logo__texto {
   font-size: 0.86rem;
-  font-weight: 700;
-  font-stretch: 85%;
-  line-height: 1.05;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-stretch: 100%;
+  line-height: 1.1;
+  letter-spacing: 0.09em;
   text-transform: uppercase; /* como no logo original */
 }
 
 .logo--claro {
-  --logo-preto: #fff;
   color: var(--branco);
 }
 
-.logo--claro .logo__marca polygon:nth-child(2) {
-  fill: #7fc6cf;
+.selo-nf {
+  display: block;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%; /* o arquivo é quadrado com o selo redondo; esconde os cantos claros */
 }
 
 /* ---------- botões ---------- */
@@ -254,12 +260,12 @@ p {
 
 .botao--secundario {
   background: transparent;
-  border-color: var(--petroleo);
-  color: var(--petroleo);
+  border-color: var(--grafite);
+  color: var(--grafite);
 }
 
 .botao--secundario:hover {
-  background: var(--petroleo);
+  background: var(--grafite);
   color: var(--branco);
 }
 
@@ -322,7 +328,7 @@ p {
 
 .menu__link:hover,
 .menu__link[aria-current='page'] {
-  color: var(--petroleo);
+  color: var(--grafite);
   border-bottom-color: var(--ciano-nf);
 }
 
@@ -340,6 +346,37 @@ p {
   white-space: nowrap;
 }
 
+.cabecalho__icone {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--e-1) var(--e-2);
+  border: 0;
+  border-radius: var(--raio);
+  background: none;
+  color: var(--tinta);
+  font: inherit;
+  font-size: var(--texto-xs);
+  cursor: pointer;
+}
+
+.cabecalho__icone svg {
+  width: 24px;
+  height: 24px;
+}
+
+.cabecalho__icone:hover {
+  color: var(--ciano-texto);
+}
+
+.menu__telefone {
+  display: none;
+}
+
 .cabecalho__menu-botao {
   display: none;
   align-items: center;
@@ -350,7 +387,7 @@ p {
   border: 1px solid var(--linha);
   border-radius: var(--raio);
   background: var(--branco);
-  color: var(--petroleo);
+  color: var(--grafite);
   cursor: pointer;
 }
 
@@ -367,8 +404,14 @@ p {
   .cabecalho__acoes {
     margin-left: auto;
   }
-  .cabecalho__acoes .botao--whatsapp {
-    display: none; /* no celular o WhatsApp fica na barra de baixo */
+  .cabecalho__acoes {
+    gap: var(--e-1);
+  }
+  .cabecalho__icone-rotulo {
+    display: none;
+  }
+  .menu__telefone {
+    display: list-item;
   }
   .cabecalho__menu-botao {
     display: inline-flex;
@@ -495,8 +538,8 @@ p {
 }
 
 .secao--escura {
-  background: var(--petroleo);
-  color: #e3eef0;
+  background: var(--fundo-escuro);
+  color: #e6e6e6;
 }
 
 .secao--escura .secao__titulo {
@@ -541,7 +584,7 @@ p {
 
 .cartao:hover,
 .cartao:focus-within {
-  border-color: var(--petroleo);
+  border-color: var(--grafite);
 }
 
 .cartao__foto {
@@ -629,11 +672,10 @@ p {
   color: var(--tinta-suave);
 }
 
-.cartao__preco {
-  font-size: var(--texto-l);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--tinta);
+.cartao__orcamento {
+  font-size: var(--texto-s);
+  font-weight: 600;
+  color: var(--ciano-texto);
 }
 
 @media (max-width: 560px) {
@@ -646,9 +688,7 @@ p {
   .cartao__resumo {
     display: none;
   }
-  .cartao__preco {
-    font-size: var(--texto-m);
-  }
+
 }
 
 /* ---------- serviços ---------- */
@@ -744,7 +784,7 @@ p {
 
 .empresa__pilares dt {
   font-weight: 700;
-  color: var(--petroleo);
+  color: var(--grafite);
 }
 
 .empresa__pilares dd {
@@ -810,8 +850,8 @@ p {
 
 /* ---------- rodapé ---------- */
 .rodape {
-  background: var(--petroleo);
-  color: #cfe0e3;
+  background: var(--fundo-escuro);
+  color: #d4d4d4;
   font-size: var(--texto-s);
 }
 
@@ -843,8 +883,7 @@ p {
   color: var(--branco);
 }
 
-.rodape__lista,
-.rodape__redes {
+.rodape__lista {
   display: grid;
   gap: var(--e-2);
   margin: 0;
@@ -852,10 +891,8 @@ p {
   list-style: none;
 }
 
-.rodape__redes {
-  display: flex;
-  gap: var(--e-4);
-  margin-top: var(--e-4);
+.rodape__marca .redes {
+  margin-top: var(--e-5);
 }
 
 .rodape__endereco {
@@ -885,42 +922,33 @@ p {
   }
 }
 
-/* ---------- barra de contato (celular) ---------- */
-.barra-contato {
-  display: none;
+/* ---------- WhatsApp flutuante (canto inferior esquerdo, acompanha a rolagem) ---------- */
+.whatsapp-flutuante {
+  position: fixed;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--whatsapp);
+  color: var(--branco);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  transition: background-color 120ms, transform 120ms;
 }
 
-@media (max-width: 860px) {
-  :root {
-    --altura-barra-contato: 64px;
-  }
-  .barra-contato {
-    position: fixed;
-    inset: auto 0 0;
-    z-index: 60;
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: var(--e-2);
-    padding: var(--e-2) var(--e-3) calc(var(--e-2) + env(safe-area-inset-bottom));
-    background: var(--branco);
-    border-top: 1px solid var(--linha);
-  }
-  .barra-contato__item {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--e-2);
-    min-height: 48px;
-    border: 2px solid var(--petroleo);
-    border-radius: var(--raio);
-    color: var(--petroleo);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .barra-contato__item--whatsapp {
-    background: var(--whatsapp);
-    border-color: var(--whatsapp);
-    color: var(--branco);
+.whatsapp-flutuante:hover {
+  background: var(--whatsapp-escuro);
+  color: var(--branco);
+  transform: scale(1.05);
+}
+
+@media (max-width: 560px) {
+  .whatsapp-flutuante {
+    width: 54px;
+    height: 54px;
   }
 }
 
@@ -1015,8 +1043,8 @@ p {
 }
 
 .filtro__opcao input:checked + span {
-  background: var(--petroleo);
-  border-color: var(--petroleo);
+  background: var(--grafite);
+  border-color: var(--grafite);
   color: var(--branco);
 }
 
@@ -1121,7 +1149,7 @@ p {
 }
 
 .galeria__miniatura[aria-current='true'] {
-  border: 2px solid var(--petroleo);
+  border: 2px solid var(--grafite);
 }
 
 .produto__tipo {
@@ -1150,14 +1178,21 @@ p {
   margin-top: var(--e-4);
 }
 
-.produto__preco {
+.produto__orcamento {
   margin-top: var(--e-5);
   padding-top: var(--e-5);
   border-top: 1px solid var(--linha);
-  font-size: clamp(2rem, 1.6rem + 1.4vw, 2.6rem);
+  color: var(--tinta-suave);
+  max-width: 44ch;
+}
+
+.produto__orcamento-titulo {
+  margin-bottom: var(--e-1);
+  font-size: var(--texto-xl);
+  font-stretch: 75%;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+  line-height: 1.1;
+  color: var(--grafite);
 }
 
 .produto__acoes {
@@ -1243,4 +1278,61 @@ p {
     grid-template-columns: 1fr;
     gap: var(--e-1);
   }
+}
+
+/* ---------- botões das redes sociais ---------- */
+.redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.redes__botao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: 44px;
+  padding: var(--e-2) var(--e-4);
+  border: 1px solid var(--linha-forte);
+  border-radius: 999px;
+  color: var(--tinta);
+  font-size: var(--texto-s);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 120ms, border-color 120ms, color 120ms;
+}
+
+.redes__botao--facebook:hover {
+  background: #1877f2;
+  border-color: #1877f2;
+  color: #fff;
+}
+
+.redes__botao--instagram:hover {
+  background: #c13584;
+  border-color: #c13584;
+  color: #fff;
+}
+
+.redes--claro .redes__botao {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--branco);
+}
+
+.rodape .redes__botao:hover {
+  text-decoration: none;
+}
+
+.contato__redes {
+  margin-top: var(--e-5);
+}
+
+.contato__redes > p {
+  margin-bottom: var(--e-2);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  color: var(--tinta-suave);
 }

@@ -123,7 +123,7 @@ def main():
             'marca': 'Ricoh' if 'ricoh' in linha['nome'].lower() else '',
             'modelo': linha['modelo'].upper(),
             'condicao': linha['condicao'],
-            'precoCentavos': preco_em_centavos(linha['preco']),
+            # Sem preço: a empresa prefere que o cliente peça orçamento. O preço antigo continua em produtos.csv.
             'resumo': linha['descricao_curta'],
             'tipo': tipo,
             'impressao': impressao,
@@ -131,7 +131,10 @@ def main():
             'descricao': ler_descricao_completa(md, ignorar=(linha['nome'], linha['modelo'], linha['nome'].replace('RICOH ', ''))),
         })
 
-    produtos.sort(key=lambda p: (p['tipo'] == 'suprimentos', -p['precoCentavos']))
+    # ordem de exibição: equipamentos antes dos suprimentos; dentro de cada grupo, do maior para o menor preço antigo
+    preco = {int(l['id']): preco_em_centavos(l['preco'])
+             for l in csv.DictReader(open(os.path.join(ORIGEM, 'produtos.csv'), encoding='utf-8-sig'), delimiter=';')}
+    produtos.sort(key=lambda p: (p['tipo'] == 'suprimentos', -preco[p['id']]))
     os.makedirs(os.path.join(DESTINO, 'dados'), exist_ok=True)
     with open(os.path.join(DESTINO, 'dados', 'produtos.json'), 'w', encoding='utf-8', newline='\n') as f:
         json.dump(produtos, f, ensure_ascii=False, indent=2)

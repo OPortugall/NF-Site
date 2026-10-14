@@ -4,7 +4,7 @@ import { linkWhatsApp, todosOsProdutos } from '@/lib/produtos';
 
 export const metadata = {
   title: 'Equipamentos e suprimentos',
-  description: 'Multifuncionais, copiadoras, impressoras e toners seminovos revisados, com preço à vista.',
+  description: 'Multifuncionais, copiadoras, impressoras e toners seminovos revisados. Peça seu orçamento.',
 };
 
 export default function PaginaLoja() {
