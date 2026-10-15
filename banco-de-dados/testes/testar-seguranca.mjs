@@ -20,7 +20,7 @@ import mysql from 'mysql2/promise';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const BANCO = 'nf_solucoes_teste';
-const TOTAL_TABELAS = 8;
+const TOTAL_TABELAS = 9;
 const USUARIO_SITE = 'nf_site_teste';
 const HOST = process.env.DB_HOST ?? '127.0.0.1';
 const PORTA = Number(process.env.DB_PORT ?? 3306);
@@ -414,6 +414,63 @@ grupo('11. Exclusão de conta (direito de exclusão, LGPD)');
     'Os orçamentos dele ficam no histórico da empresa, mas sem ligação com os dados pessoais');
   const [[{ prod }]] = await site.execute('SELECT COUNT(*) AS prod FROM produtos WHERE id = ?', [idProduto]);
   registrar(prod === 1, 'O produto em que ele tinha interesse continua no catálogo');
+}
+
+// ---------------------------------------------------------------------------
+grupo('12. Limite de tentativas de login (força bruta)');
+// ---------------------------------------------------------------------------
+{
+  // Usa o mesmo módulo que o site vai usar (site-novo/lib/limite-login.js).
+  const limite = await import(new URL('../../site-novo/lib/limite-login.js', import.meta.url));
+  const segredo = randomBytes(32).toString('hex');
+  const consulta = async (sql, params) => (await site.execute(sql, params))[0];
+  const tentar = async (email, ip, sucesso = false) => {
+    const b = await limite.verificarBloqueio(consulta, { email, ip }, segredo);
+    if (!b.bloqueado) await limite.registrarTentativa(consulta, { email, ip, sucesso }, segredo);
+    return b;
+  };
+
+  for (let i = 0; i < 4; i++) await tentar('vitima@empresa.com.br', '200.1.1.1');
+  const quarta = await limite.verificarBloqueio(consulta, { email: 'vitima@empresa.com.br', ip: '200.1.1.1' }, segredo);
+  registrar(!quarta.bloqueado, '4 senhas erradas: ainda pode tentar');
+  await tentar('vitima@empresa.com.br', '200.1.1.1');
+  const quinta = await limite.verificarBloqueio(consulta, { email: 'vitima@empresa.com.br', ip: '200.1.1.1' }, segredo);
+  registrar(quinta.bloqueado && quinta.motivo === 'email', '5 senhas erradas no mesmo e-mail: bloqueado', `liberado em ${Math.ceil(quinta.tentarEmSegundos / 60)} min`);
+  const outroIp = await limite.verificarBloqueio(consulta, { email: 'VITIMA@empresa.com.br ', ip: '177.9.9.9' }, segredo);
+  registrar(outroIp.bloqueado, 'Trocar de IP ou escrever o e-mail em maiúsculas não escapa do bloqueio');
+  const outroEmail = await limite.verificarBloqueio(consulta, { email: 'outra@empresa.com.br', ip: '200.1.1.1' }, segredo);
+  registrar(!outroEmail.bloqueado, 'Outros clientes continuam podendo entrar');
+
+  await site.execute('UPDATE tentativas_login SET criado_em = criado_em - INTERVAL 16 MINUTE');
+  const depois = await limite.verificarBloqueio(consulta, { email: 'vitima@empresa.com.br', ip: '200.1.1.1' }, segredo);
+  registrar(!depois.bloqueado, 'Depois de 15 minutos, o e-mail é liberado sozinho');
+
+  for (let i = 0; i < 4; i++) await tentar('cliente@empresa.com.br', '10.0.0.5');
+  await tentar('cliente@empresa.com.br', '10.0.0.5', true);
+  await tentar('cliente@empresa.com.br', '10.0.0.5');
+  const zerou = await limite.verificarBloqueio(consulta, { email: 'cliente@empresa.com.br', ip: '10.0.0.5' }, segredo);
+  registrar(!zerou.bloqueado && zerou.errosEmail === 1, 'Um login certo zera a contagem do e-mail', `${zerou.errosEmail} erro depois do acerto`);
+
+  for (let i = 0; i < 20; i++) await tentar(`alvo${i}@empresa.com.br`, '45.6.7.8');
+  const robo = await limite.verificarBloqueio(consulta, { email: 'mais-um@empresa.com.br', ip: '45.6.7.8' }, segredo);
+  registrar(robo.bloqueado && robo.motivo === 'ip', 'Robô testando 20 e-mails diferentes do mesmo IP: IP bloqueado');
+  // o robô acerta a senha da própria conta, do MESMO IP bloqueado
+  await limite.registrarTentativa(consulta, { email: 'robo-dono@empresa.com.br', ip: '45.6.7.8', sucesso: true }, segredo);
+  const naoZeraIp = await limite.verificarBloqueio(consulta, { email: 'mais-um@empresa.com.br', ip: '45.6.7.8' }, segredo);
+  registrar(naoZeraIp.bloqueado, 'O robô não consegue "zerar" o bloqueio do IP entrando numa conta própria');
+
+  const [linhas] = await site.execute("SELECT COUNT(*) AS n FROM tentativas_login WHERE chave_email LIKE '%@%' OR chave_ip LIKE '%.%'");
+  registrar(linhas[0].n === 0, 'O banco não guarda e-mails nem IPs, só códigos (LGPD)');
+  await deveRecusar('Gravar e-mail em texto na tabela de tentativas', () => site.execute(
+    'INSERT INTO tentativas_login (chave_email, chave_ip) VALUES (?, ?)', ['vitima@empresa.com.br', limite.chave('1.1.1.1', segredo)]), /ck_tentativas_chaves/);
+  let erroSegredo = '';
+  try { limite.chave('x', 'curto'); } catch (e) { erroSegredo = e.message; }
+  registrar(/Segredo/.test(erroSegredo), 'O módulo se recusa a funcionar sem um segredo forte configurado');
+
+  await site.execute('UPDATE tentativas_login SET criado_em = criado_em - INTERVAL 2 DAY WHERE chave_ip = ?', [limite.chave('200.1.1.1', segredo)]);
+  await limite.limparTentativasAntigas(consulta);
+  const [[{ antigas }]] = await site.execute('SELECT COUNT(*) AS antigas FROM tentativas_login WHERE criado_em < NOW() - INTERVAL 1 DAY');
+  registrar(antigas === 0, 'Registros com mais de 1 dia são apagados');
 }
 
 // ---------------------------------------------------------------------------

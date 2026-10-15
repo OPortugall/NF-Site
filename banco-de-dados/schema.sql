@@ -13,6 +13,7 @@
 --  * Excluir um usuário apaga também os endereços e interesses dele (direito de exclusão, LGPD).
 --  * Fotos só podem apontar para arquivos do próprio site (nada de links externos ou "javascript:").
 --  * Links de e-mail (confirmação e nova senha) guardados só como hash, com validade curta e uso único.
+--  * Tentativas de login registradas (sem guardar e-mail nem IP) para bloquear força bruta.
 -- =============================================================================
 
 SET NAMES utf8mb4;
@@ -253,4 +254,32 @@ CREATE TABLE tokens_usuario (
     )
   ),
   CONSTRAINT ck_tokens_uso CHECK (usado_em IS NULL OR usado_em >= criado_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Tentativas de login (contra robôs que testam senhas: "força bruta")
+--
+-- Regra (aplicada pelo site em site-novo/lib/limite-login.js):
+--   * 5 senhas erradas para o mesmo e-mail em 15 minutos: aquele e-mail fica bloqueado
+--     por 15 minutos (um login certo zera a contagem do e-mail);
+--   * 20 senhas erradas vindas do mesmo endereço de internet (IP) em 15 minutos:
+--     aquele IP fica bloqueado, mesmo trocando de e-mail.
+-- Privacidade (LGPD): o e-mail e o IP não são guardados, só um código (HMAC-SHA256 com
+-- uma chave secreta do servidor), e os registros são apagados depois de 1 dia.
+-- -----------------------------------------------------------------------------
+CREATE TABLE tentativas_login (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  chave_email  CHAR(64)    NOT NULL COMMENT 'HMAC-SHA256 do e-mail digitado',
+  chave_ip     CHAR(64)    NOT NULL COMMENT 'HMAC-SHA256 do IP de origem',
+  sucesso      TINYINT(1)  NOT NULL DEFAULT 0,
+  criado_em    DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (id),
+  KEY ix_tentativas_email (chave_email, criado_em),
+  KEY ix_tentativas_ip (chave_ip, criado_em),
+  KEY ix_tentativas_data (criado_em),
+  CONSTRAINT ck_tentativas_chaves CHECK (
+    CAST(chave_email AS BINARY) REGEXP '^[0-9a-f]{64}$' AND CAST(chave_ip AS BINARY) REGEXP '^[0-9a-f]{64}$'
+  ),
+  CONSTRAINT ck_tentativas_sucesso CHECK (sucesso IN (0, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

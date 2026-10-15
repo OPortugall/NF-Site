@@ -1,6 +1,6 @@
 # Resultado da bateria de testes do banco de dados
 
-Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
+Executado em 15/10/2026, 16:00:43. 125 testes: **125 passaram, 0 falharam.**
 
 ## 1. Configuração do servidor
 
@@ -9,7 +9,7 @@ Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
 | ✅ | Versão do banco: 11.4.13-MariaDB |  |
 | ✅ | Modo estrito ligado (dados inválidos são recusados, não cortados) | IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION |
 | ✅ | Leitura de arquivos locais (LOAD DATA LOCAL) desligada |  |
-| ✅ | 8 tabelas com InnoDB (transações e chaves estrangeiras) e utf8mb4 (acentos e emojis) |  |
+| ✅ | 9 tabelas com InnoDB (transações e chaves estrangeiras) e utf8mb4 (acentos e emojis) |  |
 
 ## 2. Usuários: dados válidos e inválidos
 
@@ -93,7 +93,7 @@ Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
 | ✅ | Login com "'; DROP TABLE usuarios; -- " não encontra ninguém |  |
 | ✅ | Nome com comando SQL é guardado como texto comum |  |
 | ✅ | Vários comandos numa só chamada são bloqueados pela conexão do site | You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the |
-| ✅ | Depois dos ataques, as 8 tabelas continuam lá |  |
+| ✅ | Depois dos ataques, as 9 tabelas continuam lá |  |
 | ✅ | Demonstração: SQL montado juntando texto devolveria TODOS os 5 usuários (por isso o site só usa parâmetros) |  |
 
 ## 7. Permissões do usuário do site (privilégio mínimo)
@@ -136,7 +136,7 @@ Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
 | ✅ | Código sequencial curto ("NF-0001") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código em minúsculas | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código com letra confusa ("O") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
-| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-KSTK81MP' for key 'uq_orcamentos_codigo' |
+| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-EEBHN8WR' for key 'uq_orcamentos_codigo' |
 | ✅ | Orçamento novo entra com situação "novo" |  |
 | ✅ | Situação inexistente ("pago") | recusado: Data truncated for column 'status' at row 1 |
 | ✅ | Orçamento de cliente que não existe | recusado: Cannot add or update a child row: a foreign key constraint fails (`nf_solucoes_teste`.`orcamentos`, CONSTRAINT |
@@ -155,7 +155,7 @@ Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
 | ✅ | Guardar o código em si, em vez do hash | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Hash em formato inválido (maiúsculas) | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Tipo de link inexistente | recusado: Data truncated for column 'tipo' at row 1 |
-| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry 'a03d2eaebd80503351a502e0ec5e3c147489e35261a437809d592140c8d5b813' for key 'uq_tokens_hash' |
+| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry '22e4e044486e66815e203401d2ef52dc86f8c2edbde934eb099d3dcf02c2fd6b' for key 'uq_tokens_hash' |
 | ✅ | Quem vê o banco não consegue usar os links (o código não está guardado) |  |
 | ✅ | O link funciona na primeira vez |  |
 | ✅ | O mesmo link não funciona uma segunda vez (uso único) |  |
@@ -169,3 +169,20 @@ Executado em 15/10/2026, 10:47:20. 113 testes: **113 passaram, 0 falharam.**
 | ✅ | Os links de e-mail pendentes dele também são apagados |  |
 | ✅ | Os orçamentos dele ficam no histórico da empresa, mas sem ligação com os dados pessoais |  |
 | ✅ | O produto em que ele tinha interesse continua no catálogo |  |
+
+## 12. Limite de tentativas de login (força bruta)
+
+| | Teste | Detalhe |
+|---|---|---|
+| ✅ | 4 senhas erradas: ainda pode tentar |  |
+| ✅ | 5 senhas erradas no mesmo e-mail: bloqueado | liberado em 15 min |
+| ✅ | Trocar de IP ou escrever o e-mail em maiúsculas não escapa do bloqueio |  |
+| ✅ | Outros clientes continuam podendo entrar |  |
+| ✅ | Depois de 15 minutos, o e-mail é liberado sozinho |  |
+| ✅ | Um login certo zera a contagem do e-mail | 1 erro depois do acerto |
+| ✅ | Robô testando 20 e-mails diferentes do mesmo IP: IP bloqueado |  |
+| ✅ | O robô não consegue "zerar" o bloqueio do IP entrando numa conta própria |  |
+| ✅ | O banco não guarda e-mails nem IPs, só códigos (LGPD) |  |
+| ✅ | Gravar e-mail em texto na tabela de tentativas | recusado: CONSTRAINT `ck_tentativas_chaves` failed for `nf_solucoes_teste`.`tentativas_login` |
+| ✅ | O módulo se recusa a funcionar sem um segredo forte configurado |  |
+| ✅ | Registros com mais de 1 dia são apagados |  |

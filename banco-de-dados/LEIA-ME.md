@@ -12,7 +12,7 @@ bateria de testes de segurança.
 |---|---|
 | `schema.sql` | Cria as tabelas, com as regras de segurança dentro do próprio banco |
 | `usuario-do-site.sql` | Conta técnica que o site usa para se conectar, só com permissão de ler e gravar dados (em servidor próprio; na Hostinger, veja o comentário no arquivo) |
-| `testes/testar-seguranca.mjs` | Bateria de testes (113) de integridade, senhas, injeção de SQL, permissões, orçamentos e links de e-mail |
+| `testes/testar-seguranca.mjs` | Bateria de testes (125) de integridade, senhas, injeção de SQL, permissões, orçamentos, links de e-mail e limite de login |
 | `testes/ultimo-resultado.md` | Resultado da última execução dos testes |
 
 ## Tabelas
@@ -22,6 +22,8 @@ usuarios ─┬─< enderecos               (um cliente, vários endereços: mat
           ├─< usuario_interesses >─ produtos ─< produto_fotos
           ├─< orcamentos ─< orcamento_itens >─ produtos
           └─< tokens_usuario          (links de confirmação de e-mail e de nova senha)
+
+tentativas_login                      (limite contra força bruta; sem ligação com usuários)
 ```
 
 **usuarios:** id, primeiro_nome, sobrenome, tipo_pessoa (PF/PJ), documento (CPF ou CNPJ),
@@ -52,6 +54,10 @@ momento do pedido), modalidade (compra/locacao), quantidade (1 a 99).
 **tokens_usuario:** id, usuario_id, tipo (confirmar_email/redefinir_senha), token_hash, criado_em,
 expira_em, usado_em. Guarda só o hash do código enviado por e-mail; validade máxima de 1 hora
 (nova senha) e 48 horas (confirmação); cada link vale uma vez.
+
+**tentativas_login:** id, chave_email, chave_ip, sucesso, criado_em. Guarda só códigos (HMAC) do
+e-mail e do IP, nunca os valores. Usada por `site-novo/lib/limite-login.js`: 5 erros no mesmo
+e-mail ou 20 no mesmo IP em 15 minutos bloqueiam por 15 minutos; registros apagados após 1 dia.
 
 ## Criar o banco na Hostinger
 
@@ -85,7 +91,8 @@ O banco já barra muita coisa sozinho, mas algumas proteções são do site:
 - Salvar o e-mail em **minúsculas** (o banco recusa se vier com maiúsculas).
 - Senha com **argon2id** (o banco recusa texto puro, MD5 e SHA).
 - **Nunca** aceitar `role` vindo do formulário: todo cadastro novo é `cliente`.
-- Limitar tentativas de login (contra robôs que testam senhas).
+- Limitar tentativas de login com `site-novo/lib/limite-login.js`, NA ROTA DO SERVIDOR (no navegador não protege),
+  com o segredo em variável de ambiente (`LIMITE_LOGIN_SEGREDO`, 32+ caracteres) e resposta HTTP 429 quando bloqueado.
 - Locação só para clientes PJ e nunca para suprimentos (os produtos ainda estão no código).
 - Gerar o código do orçamento e o código dos links de e-mail com sorteio seguro
   (`crypto.randomBytes`), e calcular a validade dos links com `NOW()` do próprio banco.
