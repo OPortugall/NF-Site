@@ -1,5 +1,7 @@
 import { Archivo } from 'next/font/google';
 import Cabecalho from '@/componentes/Cabecalho';
+import { GavetaCarrinho } from '@/componentes/Carrinho';
+import { Provedores } from '@/componentes/Provedores';
 import Rodape from '@/componentes/Rodape';
 import './globals.css';
 
@@ -29,10 +31,13 @@ export default function LayoutRaiz({ children }) {
   return (
     <html lang="pt-BR" className={archivo.variable}>
       <body>
-        <a className="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
-        <Cabecalho />
-        <main id="conteudo">{children}</main>
-        <Rodape />
+        <Provedores>
+          <a className="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+          <Cabecalho />
+          <main id="conteudo">{children}</main>
+          <Rodape />
+          <GavetaCarrinho />
+        </Provedores>
       </body>
     </html>
   );

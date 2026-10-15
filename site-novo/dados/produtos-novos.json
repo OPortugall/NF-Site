@@ -1,0 +1,271 @@
+[
+  {
+    "id": 1003,
+    "slug": "konica-minolta-bizhub-c361i",
+    "nome": "Konica Minolta bizhub C361i",
+    "marca": "Konica Minolta",
+    "modelo": "bizhub C361i",
+    "condicao": "Novo",
+    "resumo": "Multifuncional colorida A3 de 36 páginas por minuto, com painel touch de 10,1\"",
+    "tipo": "multifuncionais",
+    "impressao": "colorida",
+    "fotos": [
+      "/produtos/konica-minolta-bizhub-c361i/foto-1.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-2.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-3.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-4.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-5.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-6.jpg",
+      "/produtos/konica-minolta-bizhub-c361i/foto-7.jpg"
+    ],
+    "destaque": {
+      "imagem": "/produtos/konica-minolta-bizhub-c361i/destaque.png",
+      "fundo": "transparente"
+    },
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Multifuncional colorida para escritórios: copia, imprime e digitaliza em cores ou preto e branco a até 36 páginas por minuto, de A6 a SRA3. Painel touch de 10,1\" com uso parecido com o de um celular, impressão pelo celular e recursos avançados de segurança de dados."
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Tipo",
+            "Multifuncional colorida a laser (copiadora, impressora e scanner)"
+          ],
+          [
+            "Velocidade",
+            "Até 36 páginas por minuto em A4 e 18 em A3, em cores ou preto e branco"
+          ],
+          [
+            "Primeira página",
+            "4,6 s em preto e branco; 6,1 s em cores"
+          ],
+          [
+            "Resolução de impressão",
+            "1.800 (equivalente) x 600 dpi; 1.200 x 1.200 dpi"
+          ],
+          [
+            "Formatos de papel",
+            "A6 a SRA3, formatos personalizados e banner de até 1.200 x 297 mm"
+          ],
+          [
+            "Gramatura",
+            "52 a 300 g/m²"
+          ],
+          [
+            "Capacidade de papel",
+            "1.150 folhas (2 bandejas de 500 + manual de 150); até 6.650 com opcionais"
+          ],
+          [
+            "Alimentador de originais (opcional)",
+            "Até 100 originais, A6 a A3"
+          ],
+          [
+            "Painel",
+            "Touch colorido de 10,1\""
+          ],
+          [
+            "Memória e armazenamento",
+            "8 GB de memória e SSD de 256 GB (1 TB opcional)"
+          ],
+          [
+            "Conectividade",
+            "Rede Ethernet, USB e Wi-Fi (opcional); AirPrint, Mopria e app Konica Minolta Mobile Print"
+          ],
+          [
+            "Rendimento do toner",
+            "Até 28.000 páginas por cor"
+          ],
+          [
+            "Volume mensal recomendado",
+            "33.000 páginas"
+          ],
+          [
+            "Acabamento (opcional)",
+            "Grampeamento, furação, dobra e criação de livretos"
+          ],
+          [
+            "Dimensões e peso",
+            "615 x 688 x 779 mm, cerca de 84 kg (sem opcionais)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": 1001,
+    "slug": "adgl-cc3348-titanium",
+    "nome": "ADGL CC3348 Titanium",
+    "marca": "ADGL",
+    "modelo": "CC3348 Titanium",
+    "condicao": "Novo",
+    "resumo": "Mesa de corte digital de alta precisão, com alimentação automática e painel touch de 4,3\"",
+    "tipo": "acabamento",
+    "impressao": null,
+    "fotos": [
+      "/produtos/adgl-cc3348-titanium/foto-1.jpg",
+      "/produtos/adgl-cc3348-titanium/foto-2.jpg",
+      "/produtos/adgl-cc3348-titanium/foto-3.jpg",
+      "/produtos/adgl-cc3348-titanium/foto-4.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Mesa de corte digital de alta precisão para recortar e vincar folhas impressas automaticamente. Ideal para quem produz etiquetas, adesivos, embalagens e papelaria personalizada em escala."
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Destaques"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Corte digital de alta precisão",
+          "Ideal para diversos materiais",
+          "Alta produtividade",
+          "Estrutura robusta e confiável",
+          "Software intuitivo e fácil operação"
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Alimentação",
+            "Automática, com capacidade para até 100 folhas de adesivo"
+          ],
+          [
+            "Corte",
+            "Alta precisão e velocidade, para máxima produtividade"
+          ],
+          [
+            "Painel",
+            "Touch de 4,3\", interface intuitiva"
+          ],
+          [
+            "Tamanho máximo da folha",
+            "33 x 48 cm"
+          ],
+          [
+            "Gramatura",
+            "Até 320 g/m², inclusive laminado"
+          ],
+          [
+            "Ferramentas",
+            "Lâmina de corte e ferramenta de vinco"
+          ]
+        ]
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Ideal para"
+      },
+      {
+        "tipo": "lista",
+        "itens": [
+          "Etiquetas e rótulos",
+          "Adesivos personalizados",
+          "Embalagens",
+          "Papelaria personalizada",
+          "Comunicação visual"
+        ]
+      }
+    ],
+    "destaque": {
+      "imagem": "/produtos/adgl-cc3348-titanium/foto-1.jpg",
+      "fundo": "escuro"
+    }
+  },
+  {
+    "id": 1002,
+    "slug": "anycubic-kobra-s1-v2-combo",
+    "nome": "Anycubic Kobra S1 V2 Combo",
+    "marca": "Anycubic",
+    "modelo": "Kobra S1 V2 Combo",
+    "condicao": "Novo",
+    "resumo": "Impressora 3D FDM fechada, multicolorida, com estação ACE Pro de secagem e troca automática de filamento",
+    "tipo": "impressoras-3d",
+    "impressao": null,
+    "fotos": [
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-1.jpg",
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-2.jpg",
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-3.jpg",
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-4.jpg",
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-5.jpg",
+      "/produtos/anycubic-kobra-s1-v2-combo/foto-6.jpg"
+    ],
+    "descricao": [
+      {
+        "tipo": "paragrafo",
+        "texto": "Impressora 3D de estrutura CoreXY totalmente fechada, para peças em até 4 cores com a estação ACE Pro (8 cores com duas estações). A ACE Pro seca o filamento enquanto imprime e troca de cor automaticamente."
+      },
+      {
+        "tipo": "titulo",
+        "texto": "Especificações"
+      },
+      {
+        "tipo": "specs",
+        "linhas": [
+          [
+            "Tecnologia",
+            "FDM, estrutura CoreXY fechada"
+          ],
+          [
+            "Volume de impressão",
+            "250 x 250 x 250 mm"
+          ],
+          [
+            "Velocidade",
+            "300 mm/s recomendada, até 600 mm/s"
+          ],
+          [
+            "Aceleração",
+            "Até 20.000 mm/s²"
+          ],
+          [
+            "Temperatura do bico",
+            "Até 320 °C"
+          ],
+          [
+            "Temperatura da mesa",
+            "Até 120 °C"
+          ],
+          [
+            "Bico",
+            "0,4 mm (opções de 0,2, 0,6 e 0,8 mm), troca rápida sem ferramentas"
+          ],
+          [
+            "Multicolor",
+            "4 cores com a ACE Pro inclusa; até 8 com uma segunda estação"
+          ],
+          [
+            "Filamentos",
+            "PLA, PETG, ABS, ASA e TPU"
+          ],
+          [
+            "Nivelamento",
+            "Automático (LeviQ 3.0)"
+          ],
+          [
+            "Ruído",
+            "A partir de 44 dB no modo silencioso"
+          ]
+        ]
+      }
+    ],
+    "destaque": {
+      "imagem": "/produtos/anycubic-kobra-s1-v2-combo/destaque.png",
+      "fundo": "transparente"
+    }
+  }
+]

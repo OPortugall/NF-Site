@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { IMPRESSAO, TIPOS, linkWhatsApp } from '@/lib/produtos';
+import { FILTROS_TIPO, IMPRESSAO, linkWhatsApp } from '@/lib/produtos';
 import CartaoProduto from './CartaoProduto';
 
 function Filtro({ legenda, opcoes, valor, aoMudar, nome }) {
@@ -20,14 +20,14 @@ function Filtro({ legenda, opcoes, valor, aoMudar, nome }) {
   );
 }
 
-export default function Catalogo({ produtos }) {
-  const [tipo, setTipo] = useState('todos');
+export default function Catalogo({ produtos, tipoInicial = 'todos' }) {
+  const [tipo, setTipo] = useState(tipoInicial);
   const [impressao, setImpressao] = useState('todas');
 
   const lista = useMemo(
     () =>
       produtos.filter(
-        (p) => (tipo === 'todos' || p.tipo === tipo) && (impressao === 'todas' || p.impressao === impressao),
+        (p) => (tipo === 'todos' || FILTROS_TIPO[tipo].tipos.includes(p.tipo)) && (impressao === 'todas' || p.impressao === impressao),
       ),
     [produtos, tipo, impressao],
   );
@@ -40,7 +40,7 @@ export default function Catalogo({ produtos }) {
   return (
     <div className="catalogo">
       <div className="catalogo__filtros">
-        <Filtro legenda="Tipo" nome="tipo" opcoes={{ todos: 'Todos', ...TIPOS }} valor={tipo} aoMudar={setTipo} />
+        <Filtro legenda="Tipo" nome="tipo" opcoes={{ todos: 'Todos', ...Object.fromEntries(Object.entries(FILTROS_TIPO).map(([k, f]) => [k, f.rotulo])) }} valor={tipo} aoMudar={setTipo} />
         <Filtro legenda="Impressão" nome="impressao" opcoes={{ todas: 'Todas', ...IMPRESSAO }} valor={impressao} aoMudar={setImpressao} />
       </div>
 
@@ -51,6 +51,8 @@ export default function Catalogo({ produtos }) {
         <p>Preços sob consulta: peça seu orçamento sem custo.</p>
       </div>
 
+      {/* Título para leitores de tela: liga o <h1> da página aos <h3> dos cartões, sem pular nível */}
+      <h2 className="visualmente-oculto">Produtos</h2>
       {lista.length > 0 ? (
         <div className="grade-produtos">
           {lista.map((p, i) => (

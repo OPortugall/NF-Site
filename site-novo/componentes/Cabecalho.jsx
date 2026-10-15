@@ -6,7 +6,9 @@ import { useEffect, useState } from 'react';
 import { empresa } from '@/dados/empresa';
 import Logo from './Logo';
 import { FaixaRegistro } from './Tinta';
-import { IconeCarrinho, IconeFechar, IconeMenu, IconeUsuario } from './Icones';
+import { BotaoCarrinho } from './Carrinho';
+import { IconeFechar, IconeMenu, IconeUsuario } from './Icones';
+import { useSessao } from './Provedores';
 
 const LINKS = [
   { href: '/loja', rotulo: 'Equipamentos' },
@@ -18,16 +20,26 @@ const LINKS = [
 
 export default function Cabecalho() {
   const [aberto, setAberto] = useState(false);
+  const [contaAberta, setContaAberta] = useState(false);
   const caminho = usePathname();
+  const { cliente, sair } = useSessao();
 
-  // Fecha o menu do celular ao trocar de página ou apertar Esc.
-  useEffect(() => setAberto(false), [caminho]);
+  // Fecha os menus ao trocar de página ou apertar Esc.
   useEffect(() => {
-    if (!aberto) return;
-    const aoTeclar = (e) => e.key === 'Escape' && setAberto(false);
+    setAberto(false);
+    setContaAberta(false);
+  }, [caminho]);
+  useEffect(() => {
+    if (!aberto && !contaAberta) return;
+    const aoTeclar = (e) => {
+      if (e.key === 'Escape') {
+        setAberto(false);
+        setContaAberta(false);
+      }
+    };
     window.addEventListener('keydown', aoTeclar);
     return () => window.removeEventListener('keydown', aoTeclar);
-  }, [aberto]);
+  }, [aberto, contaAberta]);
 
   return (
     <header className="cabecalho">
@@ -63,15 +75,39 @@ export default function Cabecalho() {
           <a className="cabecalho__telefone" href={`tel:${empresa.telefones[0].numero}`}>
             {empresa.telefones[0].rotulo}
           </a>
-          {/* Entrar/cadastrar e carrinho: as páginas ainda não existem; os botões já ficam no lugar definitivo. */}
-          <button type="button" className="cabecalho__icone" aria-label="Entrar ou cadastrar (em breve)" title="Em breve">
-            <IconeUsuario />
-            <span className="cabecalho__icone-rotulo">Entrar</span>
-          </button>
-          <button type="button" className="cabecalho__icone" aria-label="Carrinho (em breve)" title="Em breve">
-            <IconeCarrinho />
-            <span className="cabecalho__icone-rotulo">Carrinho</span>
-          </button>
+          {cliente ? (
+            <div className="conta">
+              <button
+                type="button"
+                className="cabecalho__icone"
+                aria-expanded={contaAberta}
+                aria-controls="menu-conta"
+                onClick={() => setContaAberta((a) => !a)}
+              >
+                <IconeUsuario />
+                <span className="cabecalho__icone-rotulo">Olá, {cliente.nome}</span>
+                <span className="visualmente-oculto">: menu da conta</span>
+              </button>
+              {contaAberta && (
+                <div id="menu-conta" className="conta__menu">
+                  <p>
+                    {cliente.email}
+                    <br />
+                    Cadastro com {cliente.tipo === 'cnpj' ? 'CNPJ (compra e locação)' : 'CPF (compra)'}
+                  </p>
+                  <button type="button" className="botao botao--secundario botao--compacto" onClick={() => { sair(); setContaAberta(false); }}>
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/entrar" className="cabecalho__icone" aria-current={caminho === '/entrar' ? 'page' : undefined}>
+              <IconeUsuario />
+              <span className="cabecalho__icone-rotulo">Entrar</span>
+            </Link>
+          )}
+          <BotaoCarrinho />
           <button
             type="button"
             className="cabecalho__menu-botao"

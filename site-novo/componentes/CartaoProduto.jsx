@@ -1,16 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { urlProduto } from '@/lib/produtos';
+import { TIPOS, formatarModelo, tituloProduto, urlProduto } from '@/lib/produtos';
+import { BotoesAdicionar } from './Carrinho';
 import Tinta from './Tinta';
 
-// "MPC3502" -> "MP C3502"; "SPC430DN" -> "SP C430DN"; "MP5001" -> "MP 5001"
-export function formatarModelo(modelo) {
-  return modelo.replace(/^(MP|SP)(C?)(\d)/, (_, linha, c, d) => `${linha} ${c}${d}`);
-}
-
-export function tituloProduto(produto) {
-  return produto.modelo ? `${produto.marca} ${formatarModelo(produto.modelo)}` : produto.nome;
-}
+export { formatarModelo, tituloProduto };
 
 export default function CartaoProduto({ produto, preload = false }) {
   const novo = produto.condicao === 'Novo';
@@ -40,10 +34,10 @@ export default function CartaoProduto({ produto, preload = false }) {
         </h3>
         <p className="cartao__resumo">{produto.resumo}</p>
         <div className="cartao__rodape">
-          <Tinta impressao={produto.impressao} />
+          {produto.impressao ? <Tinta impressao={produto.impressao} /> : <span className="tinta">{TIPOS[produto.tipo]}</span>}
           <span className="cartao__condicao">{novo ? 'Novo' : 'Seminovo'}</span>
         </div>
-        <p className="cartao__orcamento">Pedir orçamento</p>
+        <BotoesAdicionar produto={produto} />
       </div>
     </article>
   );

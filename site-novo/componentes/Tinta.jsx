@@ -5,6 +5,7 @@ import { IMPRESSAO } from '@/lib/produtos';
 const CORES = ['c', 'm', 'y', 'k'];
 
 export default function Tinta({ impressao }) {
+  if (!impressao) return null; // equipamentos que não imprimem em papel (impressora 3D, plotter de recorte)
   const tintas = impressao === 'colorida' ? CORES : ['k'];
   return (
     <span className="tinta">

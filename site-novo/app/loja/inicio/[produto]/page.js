@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
+import { BotoesAdicionar } from '@/componentes/Carrinho';
 import Galeria from '@/componentes/Galeria';
 import Tinta from '@/componentes/Tinta';
 import { empresa } from '@/dados/empresa';
@@ -55,7 +56,6 @@ export default async function PaginaProduto({ params }) {
   const relacionados = todosOsProdutos()
     .filter((p) => p.tipo === produto.tipo && p.slug !== produto.slug)
     .slice(0, 4);
-  const equipamento = produto.tipo !== 'suprimentos';
 
   return (
     <div className="conteudo pagina">
@@ -82,20 +82,15 @@ export default async function PaginaProduto({ params }) {
             <p className="produto__orcamento-titulo">Preço sob consulta</p>
             <p>Fale com a nossa equipe e receba o orçamento sem custo, com condições de pagamento e entrega.</p>
           </div>
+          <BotoesAdicionar produto={produto} completo />
           <div className="produto__acoes">
             <a className="botao botao--whatsapp botao--largo" href={linkWhatsApp(mensagemProduto(produto))}>
               Pedir orçamento pelo WhatsApp
             </a>
-            <a className="botao botao--secundario botao--largo" href={`tel:${empresa.telefones[0].numero}`}>
-              Ligar {empresa.telefones[0].rotulo}
-            </a>
-          </div>
-          {equipamento && (
-            <p className="produto__nota">
-              Prefere alugar? Este modelo também pode entrar num plano de locação, com assistência técnica incluída.{' '}
-              <a href={linkWhatsApp(`Olá! Gostaria de saber sobre a locação do ${produto.nome}.`)}>Consultar locação</a>
+            <p className="produto__ligar">
+              Prefere falar por telefone? <a href={`tel:${empresa.telefones[0].numero}`}>Ligue {empresa.telefones[0].rotulo}</a>
             </p>
-          )}
+          </div>
         </div>
       </div>
 
