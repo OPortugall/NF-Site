@@ -98,10 +98,22 @@ def carregar_permitidos():
     return permitidos
 
 
+def sql_de_estrutura(caminho):
+    """Libera .sql só na pasta banco-de-dados/ e só se não tiver dados (nenhum INSERT/LOAD DATA).
+    Um backup (dump) de banco sempre tem INSERT, então continua barrado."""
+    if not caminho.startswith('banco-de-dados/'):
+        return False
+    with open(os.path.join(RAIZ, caminho), encoding='utf-8', errors='replace') as f:
+        texto = f.read()
+    return not re.search(r'\b(INSERT\s+INTO|LOAD\s+DATA|REPLACE\s+INTO)\b', texto, re.I)
+
+
 def verificar_arquivos_proibidos(arquivos):
     for caminho in arquivos:
         nome = caminho.rsplit('/', 1)[-1]
-        if extensao(caminho) in EXTENSOES_PROIBIDAS:
+        if extensao(caminho) == '.sql' and sql_de_estrutura(caminho):
+            pass  # estrutura do banco (tabelas e permissões), sem nenhum dado: pode ser publicada
+        elif extensao(caminho) in EXTENSOES_PROIBIDAS:
             erro('arquivos proibidos', caminho, f'extensão {extensao(caminho)} não pode ser publicada (backup, executável, dump ou log)')
         if nome.lower() in NOMES_PROIBIDOS or re.search(r'(old|_|backup)[-_]?configuration\.php$', nome, re.I):
             erro('arquivos proibidos', caminho, 'arquivo de configuração/log do servidor (pode conter senhas)')

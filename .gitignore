@@ -5,3 +5,8 @@
 graphify-out/
 
 __pycache__/
+
+# Variáveis de ambiente: senhas do banco e chaves de API (nunca vão para o GitHub)
+.env
+.env.*
+!.env.example
