@@ -7,17 +7,18 @@ import { linkWhatsApp, produtoPorSlug, todosOsProdutos } from '@/lib/produtos';
 
 // Banner da abertura: uma coluna por linha de produtos, com a palavra exatamente acima da máquina.
 // Cada coluna leva à loja já filtrada no seu setor ("tipo" = filtro da loja).
-// "cor" é a tinta do arco de neon atrás da imagem (ciano, magenta, amarelo e preto, como na faixa do topo).
+// "cor" é o tom do painel (ciano, magenta, amarelo e preto, como na faixa do topo).
+// "banner" é a imagem recortada (fundo transparente) que aparece no painel.
 const VITRINE = [
-  { rotulo: 'Copiadoras', produto: 'konica-minolta-bizhub-c361i', cor: 'ciano', tipo: 'impressoras-e-copiadoras' },
-  { rotulo: 'Impressoras 3D', produto: 'anycubic-kobra-s1-v2-combo', cor: 'magenta', tipo: 'impressoras-3d' },
-  { rotulo: 'Equipamentos Gráficos', produto: 'adgl-cc3348-titanium', cor: 'amarelo', tipo: 'acabamento' },
+  { rotulo: 'Copiadoras', produto: 'konica-minolta-bizhub-c361i', cor: 'ciano', tipo: 'impressoras-e-copiadoras', banner: '/destaques/banner-copiadoras.png' },
+  { rotulo: 'Impressoras 3D', produto: 'anycubic-kobra-s1-v2-combo', cor: 'magenta', tipo: 'impressoras-3d', banner: '/destaques/banner-impressoras-3d.png' },
+  { rotulo: 'Equipamentos Gráficos', produto: 'adgl-cc3348-titanium', cor: 'amarelo', tipo: 'acabamento', banner: '/destaques/banner-graficos.png' },
   {
     rotulo: 'Suprimentos',
     cor: 'preto',
     tipo: 'suprimentos',
     // Não é um produto: só ilustra a coluna. Foto oficial das garrafas Epson EcoTank T544.
-    imagem: '/destaques/suprimentos-tintas-epson-t544.png',
+    banner: '/destaques/banner-suprimentos-filamentos.png',
     nome: 'Tintas e toners',
     resumo: 'Tintas, toners e peças para as principais marcas de impressoras e copiadoras',
   },
@@ -31,13 +32,12 @@ export default function PaginaInicial() {
   const destaques = DESTAQUES.map(produtoPorSlug);
   const vitrine = VITRINE.map((v) => {
     const link = `/loja?tipo=${v.tipo}`;
-    if (!v.produto) return { ...v, link, fundo: 'transparente' };
+    if (!v.produto) return { ...v, link, imagem: v.banner };
     const p = produtoPorSlug(v.produto);
     return {
       ...v,
       link,
-      imagem: p.destaque?.imagem ?? p.fotos[0],
-      fundo: p.destaque?.fundo ?? 'transparente',
+      imagem: v.banner,
       nome: tituloProduto(p),
       resumo: p.resumo,
     };
@@ -58,13 +58,13 @@ export default function PaginaInicial() {
             {vitrine.map((v) => (
               <li key={v.rotulo} className={`vitrine__item vitrine__item--${v.cor}`}>
                 <h2 className="vitrine__rotulo">{v.rotulo}</h2>
-                <div className={`vitrine__foto vitrine__foto--${v.fundo}`}>
-                  <Image src={v.imagem} alt="" fill sizes="(max-width: 900px) 50vw, 300px" preload />
+                <div className="vitrine__foto">
+                  <Image src={v.imagem} alt={v.nome} fill sizes="(max-width: 900px) 50vw, 300px" preload />
                 </div>
                 <div className="vitrine__texto">
-                  <Link href={v.link} className="vitrine__link" aria-label={`${v.rotulo}: ver na loja`}>{v.nome}</Link>
-                  <span className="vitrine__resumo">{v.resumo}</span>
-                  <span className="vitrine__ver" aria-hidden="true">Ver {v.rotulo.toLowerCase()}</span>
+                  <Link href={v.link} className="vitrine__link">
+                    Ver {v.rotulo.toLowerCase()} <span aria-hidden="true">›</span>
+                  </Link>
                 </div>
               </li>
             ))}
