@@ -182,7 +182,7 @@ function validar(d, empresa) {
   if (!d.uf) e.uf = 'Escolha o estado.';
   if (!REGRAS_SENHA.every((r) => r.ok(d.senha))) e.senha = 'A senha ainda não cumpre todas as regras abaixo.';
   if (d.confirmacao !== d.senha || !d.confirmacao) e.confirmacao = 'As senhas não são iguais.';
-  if (!d.aceite) e.aceite = 'Para criar a conta, é preciso concordar com a Política de Privacidade.';
+  if (!d.aceite) e.aceite = 'Para criar a conta, é preciso concordar com os Termos de Uso e a Política de Privacidade.';
   return e;
 }
 
@@ -455,7 +455,10 @@ function FormCriar({ aoConcluir }) {
       <div className={`campo campo--aceite ${erros.aceite ? 'campo--erro' : ''}`}>
         <label className="aceite">
           <input type="checkbox" checked={d.aceite} onChange={(e) => muda('aceite', e.target.checked)} aria-invalid={erros.aceite ? true : undefined} aria-describedby={erros.aceite ? 'erro-aceite' : undefined} />
-          <span>Li e concordo com a Política de Privacidade e autorizo o uso dos meus dados para atendimento e orçamentos.</span>
+          <span>
+            Li e concordo com os <a href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e
+            a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.
+          </span>
         </label>
         {erros.aceite && <p id="erro-aceite" className="campo__erro">{erros.aceite}</p>}
       </div>

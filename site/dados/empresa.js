@@ -25,6 +25,21 @@ export const empresa = {
   ],
 };
 
+// Dados jurídicos usados na Política de Privacidade e nos Termos de Uso.
+// Valores entre [A PREENCHER: ...] aparecem destacados nas páginas até serem preenchidos.
+export const juridico = {
+  // Grafia exatamente como está no cadastro da Receita Federal ("SOLICOES" mesmo); não corrigir.
+  razaoSocial: 'NF COMERCIO E SOLICOES DIGITAIS LTDA',
+  cnpj: '13.025.128/0001-51',
+  // Encarregado pelo tratamento de dados (LGPD, art. 41). Pode ser o sócio/dono da empresa.
+  // Microempresas e empresas de pequeno porte podem dispensar a indicação (Resolução CD/ANPD nº 2/2022),
+  // mas precisam manter este canal de contato.
+  encarregado: '[A PREENCHER: nome do responsável pelos dados]',
+  emailPrivacidade: 'contato@nfsolucoesdigitais.com.br',
+  foro: 'São José dos Campos – SP',
+  atualizadoEm: '16 de outubro de 2026',
+};
+
 // Marcas com que a NF trabalha (rodapé do site e da loja antigos).
 export const marcas = [
   { nome: 'Ricoh', logo: '/marcas/ricoh.png' },
