@@ -10,3 +10,5 @@ __pycache__/
 .env
 .env.*
 !.env.example
+# modelos de configuração por ambiente (sem valores reais)
+!.env.*.example

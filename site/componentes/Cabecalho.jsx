@@ -9,6 +9,7 @@ import { FaixaRegistro } from './Tinta';
 import { BotaoCarrinho } from './Carrinho';
 import { IconeFechar, IconeMenu, IconeUsuario } from './Icones';
 import { useSessao } from './Provedores';
+import { CONTAS_ATIVAS } from '@/lib/ambiente';
 
 const LINKS = [
   { href: '/loja', rotulo: 'Equipamentos' },
@@ -75,39 +76,43 @@ export default function Cabecalho() {
           <a className="cabecalho__telefone" href={`tel:${empresa.telefones[0].numero}`}>
             {empresa.telefones[0].rotulo}
           </a>
-          {cliente ? (
-            <div className="conta">
-              <button
-                type="button"
-                className="cabecalho__icone"
-                aria-expanded={contaAberta}
-                aria-controls="menu-conta"
-                onClick={() => setContaAberta((a) => !a)}
-              >
+          {CONTAS_ATIVAS && (
+            <>
+            {cliente ? (
+              <div className="conta">
+                <button
+                  type="button"
+                  className="cabecalho__icone"
+                  aria-expanded={contaAberta}
+                  aria-controls="menu-conta"
+                  onClick={() => setContaAberta((a) => !a)}
+                >
+                  <IconeUsuario />
+                  <span className="cabecalho__icone-rotulo">Olá, {cliente.nome}</span>
+                  <span className="visualmente-oculto">: menu da conta</span>
+                </button>
+                {contaAberta && (
+                  <div id="menu-conta" className="conta__menu">
+                    <p>
+                      {cliente.email}
+                      <br />
+                      Cadastro com {cliente.tipo === 'cnpj' ? 'CNPJ (compra e locação)' : 'CPF (compra)'}
+                    </p>
+                    <button type="button" className="botao botao--secundario botao--compacto" onClick={() => { sair(); setContaAberta(false); }}>
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/entrar" className="cabecalho__icone" aria-current={caminho === '/entrar' ? 'page' : undefined}>
                 <IconeUsuario />
-                <span className="cabecalho__icone-rotulo">Olá, {cliente.nome}</span>
-                <span className="visualmente-oculto">: menu da conta</span>
-              </button>
-              {contaAberta && (
-                <div id="menu-conta" className="conta__menu">
-                  <p>
-                    {cliente.email}
-                    <br />
-                    Cadastro com {cliente.tipo === 'cnpj' ? 'CNPJ (compra e locação)' : 'CPF (compra)'}
-                  </p>
-                  <button type="button" className="botao botao--secundario botao--compacto" onClick={() => { sair(); setContaAberta(false); }}>
-                    Sair
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link href="/entrar" className="cabecalho__icone" aria-current={caminho === '/entrar' ? 'page' : undefined}>
-              <IconeUsuario />
-              <span className="cabecalho__icone-rotulo">Entrar</span>
-            </Link>
+                <span className="cabecalho__icone-rotulo">Entrar</span>
+              </Link>
+            )}
+            <BotaoCarrinho />
+            </>
           )}
-          <BotaoCarrinho />
           <button
             type="button"
             className="cabecalho__menu-botao"

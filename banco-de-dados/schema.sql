@@ -259,7 +259,7 @@ CREATE TABLE tokens_usuario (
 -- -----------------------------------------------------------------------------
 -- Tentativas de login (contra robôs que testam senhas: "força bruta")
 --
--- Regra (aplicada pelo site em site-novo/lib/limite-login.js):
+-- Regra (aplicada pelo site em site/lib/limite-login.js):
 --   * 5 senhas erradas para o mesmo e-mail em 15 minutos: aquele e-mail fica bloqueado
 --     por 15 minutos (um login certo zera a contagem do e-mail);
 --   * 20 senhas erradas vindas do mesmo endereço de internet (IP) em 15 minutos:

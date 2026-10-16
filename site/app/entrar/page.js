@@ -1,4 +1,6 @@
+import { notFound } from 'next/navigation';
 import Acesso from '@/componentes/Acesso';
+import { CONTAS_ATIVAS } from '@/lib/ambiente';
 
 export const metadata = {
   title: 'Entrar ou criar conta',
@@ -6,6 +8,7 @@ export const metadata = {
 };
 
 export default async function PaginaEntrar({ searchParams }) {
+  if (!CONTAS_ATIVAS) notFound(); // na vitrine (produção, por enquanto) esta página não existe
   const { aba } = await searchParams;
   return (
     <div className="conteudo pagina pagina--estreita">

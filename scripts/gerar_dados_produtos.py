@@ -1,11 +1,11 @@
-"""Gera os dados dos produtos do site novo (site-novo/) a partir de reconstrucao/loja/.
+"""Gera os dados dos produtos do site (site/) a partir de reconstrucao/loja/.
 
 Uso:
-    python scripts/gerar_dados_site_novo.py
+    python scripts/gerar_dados_produtos.py
 
 - Lê reconstrucao/loja/produtos.csv e a ficha produto.md de cada produto.
-- Grava site-novo/dados/produtos.json.
-- Copia as fotos para site-novo/public/produtos/<slug>/.
+- Grava site/dados/produtos.json.
+- Copia as fotos para site/public/produtos/<slug>/.
 """
 import csv
 import json
@@ -16,7 +16,7 @@ import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGEM = os.path.join(RAIZ, 'reconstrucao', 'loja')
-DESTINO = os.path.join(RAIZ, 'site-novo')
+DESTINO = os.path.join(RAIZ, 'site')
 
 
 # Foto de capa quando a primeira foto da loja antiga não mostra o produto (ex.: SP C430DN abria com uma foto de toners).

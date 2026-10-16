@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { TIPOS, formatarModelo, tituloProduto, urlProduto } from '@/lib/produtos';
 import { BotoesAdicionar } from './Carrinho';
+import { CONTAS_ATIVAS } from '@/lib/ambiente';
 import Tinta from './Tinta';
 
 export { formatarModelo, tituloProduto };
@@ -37,7 +38,11 @@ export default function CartaoProduto({ produto, preload = false }) {
           {produto.impressao ? <Tinta impressao={produto.impressao} /> : <span className="tinta">{TIPOS[produto.tipo]}</span>}
           <span className="cartao__condicao">{novo ? 'Novo' : 'Seminovo'}</span>
         </div>
-        <BotoesAdicionar produto={produto} />
+        {CONTAS_ATIVAS ? (
+          <BotoesAdicionar produto={produto} />
+        ) : (
+          <span className="cartao__orcamento">Ver detalhes e pedir orçamento</span>
+        )}
       </div>
     </article>
   );

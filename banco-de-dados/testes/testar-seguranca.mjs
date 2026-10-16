@@ -420,8 +420,8 @@ grupo('11. Exclusão de conta (direito de exclusão, LGPD)');
 grupo('12. Limite de tentativas de login (força bruta)');
 // ---------------------------------------------------------------------------
 {
-  // Usa o mesmo módulo que o site vai usar (site-novo/lib/limite-login.js).
-  const limite = await import(new URL('../../site-novo/lib/limite-login.js', import.meta.url));
+  // Usa o mesmo módulo que o site vai usar (site/lib/limite-login.js).
+  const limite = await import(new URL('../../site/lib/limite-login.js', import.meta.url));
   const segredo = randomBytes(32).toString('hex');
   const consulta = async (sql, params) => (await site.execute(sql, params))[0];
   const tentar = async (email, ip, sucesso = false) => {

@@ -1,8 +1,10 @@
 import { Archivo } from 'next/font/google';
 import Cabecalho from '@/componentes/Cabecalho';
+import FaixaAmbiente from '@/componentes/FaixaAmbiente';
 import { GavetaCarrinho } from '@/componentes/Carrinho';
 import { Provedores } from '@/componentes/Provedores';
 import Rodape from '@/componentes/Rodape';
+import { CONTAS_ATIVAS, EH_PRODUCAO } from '@/lib/ambiente';
 import './globals.css';
 
 // Archivo: uma família só, com eixo de largura. Semicondensada nos títulos e nomes de modelo
@@ -21,6 +23,8 @@ export const metadata = {
   },
   description:
     'Venda, locação e assistência técnica de impressoras, copiadoras e multifuncionais Ricoh, Brother, Canon, HP, Kyocera e outras marcas em São José dos Campos.',
+  // Teste e desenvolvimento nunca aparecem no Google
+  robots: EH_PRODUCAO ? undefined : { index: false, follow: false },
 };
 
 export const viewport = {
@@ -33,10 +37,11 @@ export default function LayoutRaiz({ children }) {
       <body>
         <Provedores>
           <a className="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+          <FaixaAmbiente />
           <Cabecalho />
           <main id="conteudo">{children}</main>
           <Rodape />
-          <GavetaCarrinho />
+          {CONTAS_ATIVAS && <GavetaCarrinho />}
         </Provedores>
       </body>
     </html>

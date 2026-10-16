@@ -2192,3 +2192,23 @@ p {
   padding: 0;
 }
 
+
+
+/* ---------- faixa de ambiente (só em teste e desenvolvimento) ---------- */
+.faixa-ambiente {
+  padding: 6px var(--e-4);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.faixa-ambiente--teste {
+  background: #ffcd00;
+  color: #1c1c1c;
+}
+
+.faixa-ambiente--desenvolvimento {
+  background: #00739a;
+  color: #fff;
+}

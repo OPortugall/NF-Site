@@ -1,6 +1,19 @@
 // Cabeçalhos de segurança enviados em todas as páginas.
 const emDesenvolvimento = process.env.NODE_ENV === 'development';
 
+// ---------- ambiente (veja lib/ambiente.js e os arquivos .env.*.example) ----------
+const ambiente = process.env.NEXT_PUBLIC_AMBIENTE || 'desenvolvimento';
+if (!['producao', 'teste', 'desenvolvimento'].includes(ambiente)) {
+  throw new Error(`NEXT_PUBLIC_AMBIENTE inválido: "${ambiente}". Use producao, teste ou desenvolvimento.`);
+}
+// Segredos nunca podem ir para o navegador: barra a compilação se alguém criar NEXT_PUBLIC_ com nome de segredo.
+const publicasPerigosas = Object.keys(process.env).filter(
+  (n) => n.startsWith('NEXT_PUBLIC_') && /SENHA|SEGREDO|SECRET|TOKEN|PASSWORD|CHAVE|KEY|DATABASE/i.test(n),
+);
+if (publicasPerigosas.length) {
+  throw new Error(`Variáveis com segredo não podem começar com NEXT_PUBLIC_ (iriam para o navegador): ${publicasPerigosas.join(', ')}`);
+}
+
 // Content-Security-Policy: de onde o navegador pode carregar cada tipo de recurso.
 // Só o próprio site, mais os serviços que ele realmente usa.
 const politica = [
@@ -27,10 +40,14 @@ const cabecalhos = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' }, // sempre HTTPS (vale no domínio real)
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+  // Fora da produção, o Google não indexa nada (nem imagens e arquivos)
+  ...(ambiente === 'producao' ? [] : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]),
 ];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Pasta da compilação: permite compilar os dois ambientes lado a lado no computador (padrão: .next)
+  distDir: process.env.PASTA_BUILD || '.next',
   poweredByHeader: false, // não anuncia que o site usa Next.js
   async headers() {
     return [{ source: '/:path*', headers: cabecalhos }];

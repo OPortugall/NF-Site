@@ -2,7 +2,7 @@ import produtosDaLojaAntiga from '@/dados/produtos.json';
 import produtosNovos from '@/dados/produtos-novos.json';
 import { empresa } from '@/dados/empresa';
 
-// produtos.json é gerado a partir da loja antiga (scripts/gerar_dados_site_novo.py);
+// produtos.json é gerado a partir da loja antiga (scripts/gerar_dados_produtos.py);
 // produtos-novos.json é editado à mão com os produtos cadastrados depois.
 const produtos = [...produtosNovos, ...produtosDaLojaAntiga];
 

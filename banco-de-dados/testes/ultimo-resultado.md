@@ -1,6 +1,6 @@
 # Resultado da bateria de testes do banco de dados
 
-Executado em 15/10/2026, 16:00:43. 125 testes: **125 passaram, 0 falharam.**
+Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 
 ## 1. Configuração do servidor
 
@@ -136,7 +136,7 @@ Executado em 15/10/2026, 16:00:43. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Código sequencial curto ("NF-0001") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código em minúsculas | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código com letra confusa ("O") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
-| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-EEBHN8WR' for key 'uq_orcamentos_codigo' |
+| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-ULS4U6EJ' for key 'uq_orcamentos_codigo' |
 | ✅ | Orçamento novo entra com situação "novo" |  |
 | ✅ | Situação inexistente ("pago") | recusado: Data truncated for column 'status' at row 1 |
 | ✅ | Orçamento de cliente que não existe | recusado: Cannot add or update a child row: a foreign key constraint fails (`nf_solucoes_teste`.`orcamentos`, CONSTRAINT |
@@ -155,7 +155,7 @@ Executado em 15/10/2026, 16:00:43. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Guardar o código em si, em vez do hash | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Hash em formato inválido (maiúsculas) | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Tipo de link inexistente | recusado: Data truncated for column 'tipo' at row 1 |
-| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry '22e4e044486e66815e203401d2ef52dc86f8c2edbde934eb099d3dcf02c2fd6b' for key 'uq_tokens_hash' |
+| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry 'bfd84fdeb84eccee9a98798b98397669a822c07a007bd9a4dd33553466e05f88' for key 'uq_tokens_hash' |
 | ✅ | Quem vê o banco não consegue usar os links (o código não está guardado) |  |
 | ✅ | O link funciona na primeira vez |  |
 | ✅ | O mesmo link não funciona uma segunda vez (uso único) |  |

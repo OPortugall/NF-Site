@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
 import { BotoesAdicionar } from '@/componentes/Carrinho';
+import { CONTAS_ATIVAS } from '@/lib/ambiente';
 import Galeria from '@/componentes/Galeria';
 import Tinta from '@/componentes/Tinta';
 import { empresa } from '@/dados/empresa';
@@ -9,6 +10,7 @@ import {
   TIPOS,
   linkWhatsApp,
   mensagemProduto,
+  produtoAlugavel,
   produtoPorSlug,
   todosOsProdutos,
 } from '@/lib/produtos';
@@ -82,11 +84,17 @@ export default async function PaginaProduto({ params }) {
             <p className="produto__orcamento-titulo">Preço sob consulta</p>
             <p>Fale com a nossa equipe e receba o orçamento sem custo, com condições de pagamento e entrega.</p>
           </div>
-          <BotoesAdicionar produto={produto} completo />
+          {CONTAS_ATIVAS && <BotoesAdicionar produto={produto} completo />}
           <div className="produto__acoes">
             <a className="botao botao--whatsapp botao--largo" href={linkWhatsApp(mensagemProduto(produto))}>
               Pedir orçamento pelo WhatsApp
             </a>
+            {!CONTAS_ATIVAS && produtoAlugavel(produto) && (
+              <p className="produto__locacao-aviso">
+                Empresas também podem alugar este equipamento, com assistência técnica incluída.{' '}
+                <a href={linkWhatsApp(`Olá! Gostaria de saber sobre a locação do ${produto.nome}.`)}>Consultar locação</a>
+              </p>
+            )}
             <p className="produto__ligar">
               Prefere falar por telefone? <a href={`tel:${empresa.telefones[0].numero}`}>Ligue {empresa.telefones[0].rotulo}</a>
             </p>

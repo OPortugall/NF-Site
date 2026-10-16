@@ -111,6 +111,8 @@ def sql_de_estrutura(caminho):
 def verificar_arquivos_proibidos(arquivos):
     for caminho in arquivos:
         nome = caminho.rsplit('/', 1)[-1]
+        if re.fullmatch(r'\.env(\..+)?', nome) and not nome.endswith('.example'):
+            erro('arquivos proibidos', caminho, 'arquivo .env com configuração real (senhas ficam só no servidor; publique apenas os .example)')
         if extensao(caminho) == '.sql' and sql_de_estrutura(caminho):
             pass  # estrutura do banco (tabelas e permissões), sem nenhum dado: pode ser publicada
         elif extensao(caminho) in EXTENSOES_PROIBIDAS:
@@ -166,6 +168,11 @@ def ler_csv(caminho):
 def verificar_conteudo(arquivos):
     conjunto = set(arquivos)
     for caminho in arquivos:
+        if extensao(caminho) in ('.js', '.jsx', '.mjs', '.ts', '.tsx') or caminho.rsplit('/', 1)[-1].startswith('.env'):
+            texto = open(os.path.join(RAIZ, caminho), encoding='utf-8', errors='replace').read()
+            for m in re.finditer(r'NEXT_PUBLIC_[A-Z0-9_]*(SENHA|SEGREDO|SECRET|TOKEN|PASSWORD|CHAVE|KEY|DATABASE)[A-Z0-9_]*', texto):
+                erro('conteúdo', caminho, f'{m.group(0)}: segredo com prefixo NEXT_PUBLIC_ iria para o navegador',
+                     texto.count(chr(10), 0, m.start()) + 1)
         if extensao(caminho) == '.csv':
             try:
                 linhas = ler_csv(caminho)

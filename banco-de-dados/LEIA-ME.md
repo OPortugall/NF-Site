@@ -56,7 +56,7 @@ expira_em, usado_em. Guarda só o hash do código enviado por e-mail; validade m
 (nova senha) e 48 horas (confirmação); cada link vale uma vez.
 
 **tentativas_login:** id, chave_email, chave_ip, sucesso, criado_em. Guarda só códigos (HMAC) do
-e-mail e do IP, nunca os valores. Usada por `site-novo/lib/limite-login.js`: 5 erros no mesmo
+e-mail e do IP, nunca os valores. Usada por `site/lib/limite-login.js`: 5 erros no mesmo
 e-mail ou 20 no mesmo IP em 15 minutos bloqueiam por 15 minutos; registros apagados após 1 dia.
 
 ## Criar o banco na Hostinger
@@ -91,7 +91,7 @@ O banco já barra muita coisa sozinho, mas algumas proteções são do site:
 - Salvar o e-mail em **minúsculas** (o banco recusa se vier com maiúsculas).
 - Senha com **argon2id** (o banco recusa texto puro, MD5 e SHA).
 - **Nunca** aceitar `role` vindo do formulário: todo cadastro novo é `cliente`.
-- Limitar tentativas de login com `site-novo/lib/limite-login.js`, NA ROTA DO SERVIDOR (no navegador não protege),
+- Limitar tentativas de login com `site/lib/limite-login.js`, NA ROTA DO SERVIDOR (no navegador não protege),
   com o segredo em variável de ambiente (`LIMITE_LOGIN_SEGREDO`, 32+ caracteres) e resposta HTTP 429 quando bloqueado.
 - Locação só para clientes PJ e nunca para suprimentos (os produtos ainda estão no código).
 - Gerar o código do orçamento e o código dos links de e-mail com sorteio seguro
