@@ -1,16 +1,14 @@
 import Catalogo from '@/componentes/Catalogo';
 import { marcas } from '@/dados/empresa';
-import { FILTROS_TIPO, linkWhatsApp, todosOsProdutos } from '@/lib/produtos';
+import { linkWhatsApp, todosOsProdutos } from '@/lib/produtos';
 
 export const metadata = {
   title: 'Equipamentos e suprimentos',
   description: 'Multifuncionais, copiadoras, impressoras e toners seminovos revisados. Peça seu orçamento.',
 };
 
-// /loja?tipo=suprimentos abre o catálogo já filtrado (usado pelo banner da página inicial).
-export default async function PaginaLoja({ searchParams }) {
-  const { tipo } = await searchParams;
-  const tipoInicial = tipo in FILTROS_TIPO ? tipo : 'todos';
+// /loja?tipo=suprimentos abre o catálogo já filtrado: o Catalogo lê o filtro da URL no navegador.
+export default function PaginaLoja() {
   return (
     <div className="conteudo pagina">
       <header className="pagina__cabeca">
@@ -21,7 +19,7 @@ export default async function PaginaLoja({ searchParams }) {
           <a href={linkWhatsApp('Olá! Procuro um equipamento que não encontrei no site.')}>Pergunte pelo WhatsApp</a>.
         </p>
       </header>
-      <Catalogo produtos={todosOsProdutos()} tipoInicial={tipoInicial} />
+      <Catalogo produtos={todosOsProdutos()} />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useId, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useId, useRef, useState } from 'react';
 import { useCarrinho, useSessao } from './Provedores';
 import {
   REGRAS_SENHA,
@@ -21,7 +21,7 @@ import { TIPOS, todosOsProdutos, tituloProduto } from '@/lib/produtos';
 const emailValido = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
 
-export default function Acesso({ abaInicial }) {
+function PainelAcesso({ abaInicial }) {
   const [aba, setAba] = useState(abaInicial);
   const [concluido, setConcluido] = useState(null); // dados do cadastro feito (para mostrar a mensagem ao admin)
 
@@ -536,5 +536,19 @@ function CadastroConcluido({ dados }) {
         </div>
       </section>
     </div>
+  );
+}
+
+// /entrar?aba=criar abre direto no cadastro (lido no navegador: o site é estático)
+function AcessoDaUrl() {
+  const aba = useSearchParams().get('aba') === 'criar' ? 'criar' : 'entrar';
+  return <PainelAcesso key={aba} abaInicial={aba} />;
+}
+
+export default function Acesso() {
+  return (
+    <Suspense fallback={<PainelAcesso abaInicial="entrar" />}>
+      <AcessoDaUrl />
+    </Suspense>
   );
 }

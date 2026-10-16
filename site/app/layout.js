@@ -4,7 +4,8 @@ import FaixaAmbiente from '@/componentes/FaixaAmbiente';
 import { GavetaCarrinho } from '@/componentes/Carrinho';
 import { Provedores } from '@/componentes/Provedores';
 import Rodape from '@/componentes/Rodape';
-import { CONTAS_ATIVAS, EH_PRODUCAO } from '@/lib/ambiente';
+import { AMBIENTE, CONTAS_ATIVAS, EH_PRODUCAO } from '@/lib/ambiente';
+import { URL_DO_SITE } from '@/lib/seguranca.mjs';
 import './globals.css';
 
 // Archivo: uma família só, com eixo de largura. Semicondensada nos títulos e nomes de modelo
@@ -17,6 +18,8 @@ const archivo = Archivo({
 });
 
 export const metadata = {
+  // Base dos links canônicos e do compartilhamento (cada ambiente tem seu endereço)
+  metadataBase: new URL(URL_DO_SITE[AMBIENTE]),
   title: {
     default: 'NF Soluções Digitais | Impressoras e copiadoras em São José dos Campos',
     template: '%s | NF Soluções Digitais',
