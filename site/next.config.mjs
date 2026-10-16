@@ -52,6 +52,13 @@ const nextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: cabecalhos }];
   },
+  // Endereços das páginas legais da loja antiga (PrestaShop), para links e buscadores não darem erro
+  async redirects() {
+    return [
+      { source: '/loja/content/2-politica-privacidade', destination: '/privacidade', permanent: true },
+      { source: '/loja/content/3-termos-de-utilizacao', destination: '/termos', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

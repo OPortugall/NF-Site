@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { empresa } from '@/dados/empresa';
+import { empresa, juridico } from '@/dados/empresa';
 import { linkWhatsApp } from '@/lib/produtos';
 import { SeloNF } from './Logo';
 import { BotoesRedes } from './BotoesExternos';
@@ -48,7 +48,11 @@ export default function Rodape() {
           </div>
         </div>
         <div className="conteudo rodape__base">
-          <p>© {new Date().getFullYear()} {empresa.nome}</p>
+          <p>© {new Date().getFullYear()} {empresa.nome} · CNPJ {juridico.cnpj}</p>
+          <ul className="rodape__legal">
+            <li><Link href="/privacidade">Política de Privacidade</Link></li>
+            <li><Link href="/termos">Termos de Uso</Link></li>
+          </ul>
           <p>{empresa.horario}</p>
         </div>
       </footer>
