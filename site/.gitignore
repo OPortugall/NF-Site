@@ -6,3 +6,7 @@ out/
 .env*
 !.env.example
 !.env.*.example
+# versões reduzidas das fotos (geradas por scripts/otimizar-imagens.mjs)
+public/otim/
+# site pronto para enviar à hospedagem (gerado por scripts/compilar.mjs)
+publicar/

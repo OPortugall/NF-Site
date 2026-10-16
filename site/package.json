@@ -2,11 +2,14 @@
   "name": "nf-solucoes-site",
   "version": "0.1.0",
   "private": true,
-  "description": "Teste do redesenho do site da NF Soluções Digitais (site e loja com uma identidade única)",
+  "description": "Site da NF Soluções Digitais (vitrine e loja), gerado como site estático para a hospedagem cPanel",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "node scripts/otimizar-imagens.mjs && next dev",
+    "imagens": "node scripts/otimizar-imagens.mjs",
+    "compilar:producao": "node scripts/compilar.mjs producao",
+    "compilar:teste": "node scripts/compilar.mjs teste",
+    "ver:producao": "node scripts/ver.mjs producao",
+    "ver:teste": "node scripts/ver.mjs teste"
   },
   "engines": {
     "node": ">=20"
@@ -15,5 +18,8 @@
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
   }
 }

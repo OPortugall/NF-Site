@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { FILTROS_TIPO, IMPRESSAO, linkWhatsApp } from '@/lib/produtos';
 import CartaoProduto from './CartaoProduto';
 
@@ -20,9 +21,10 @@ function Filtro({ legenda, opcoes, valor, aoMudar, nome }) {
   );
 }
 
-export default function Catalogo({ produtos, tipoInicial = 'todos' }) {
+function CatalogoFiltrado({ produtos, tipoInicial }) {
   const [tipo, setTipo] = useState(tipoInicial);
   const [impressao, setImpressao] = useState('todas');
+
 
   const lista = useMemo(
     () =>
@@ -71,5 +73,22 @@ export default function Catalogo({ produtos, tipoInicial = 'todos' }) {
         </div>
       )}
     </div>
+  );
+}
+
+// /loja?tipo=suprimentos abre o catálogo já filtrado (links do banner da página inicial).
+// O site é estático: na compilação o HTML sai com todos os produtos (o que o Google lê) e,
+// no navegador, o filtro vem da URL pelo roteador do Next.js, já no primeiro desenho.
+function CatalogoDaUrl({ produtos }) {
+  const daUrl = useSearchParams().get('tipo');
+  const tipo = daUrl in FILTROS_TIPO ? daUrl : 'todos';
+  return <CatalogoFiltrado key={tipo} produtos={produtos} tipoInicial={tipo} />;
+}
+
+export default function Catalogo({ produtos }) {
+  return (
+    <Suspense fallback={<CatalogoFiltrado produtos={produtos} tipoInicial="todos" />}>
+      <CatalogoDaUrl produtos={produtos} />
+    </Suspense>
   );
 }
