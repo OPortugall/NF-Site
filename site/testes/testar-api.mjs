@@ -9,7 +9,7 @@
 // =============================================================================
 
 import { createServer } from 'node:http';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
   apagarBanco, apagarPasta, conectarAdmin, criarBanco, escreverConfig, iniciarPhp, pastaTemporaria,
@@ -459,13 +459,17 @@ try {
     ok(login.status === 503, 'Banco fora do ar → 503 com mensagem genérica', `HTTP ${login.status}`);
     const vazou = (t) => /SQLSTATE|PDO|Access denied|mysql|\.php|stack|trace|C:\\|\/home\//i.test(t);
     ok(!vazou(login.texto) && !vazou(semBanco.texto), 'Sem detalhes técnicos (SQL, caminhos, senhas) na resposta');
-    ok(/\[api-nf\] banco indisponível/.test(phpSemBanco.log), 'O detalhe fica só no log do servidor');
+    const logSemBanco = path.join(pastaSemBanco, 'api-desenvolvimento.log');
+    ok(existsSync(logSemBanco) && /\[api-nf\] banco indisponível/.test(readFileSync(logSemBanco, 'utf8')),
+      'O detalhe fica só no log, gravado na pasta da configuração (fora do site)');
     const semConfig = await new Navegador(`http://127.0.0.1:${PORTA_SEM_CONFIG}`).sessao();
     ok(semConfig.status === 503 && !vazou(semConfig.texto), 'Sem arquivo de configuração → 503 genérico (a API não funciona "aberta")');
   });
 
   await passo('log limpo', async () => {
-    const problemas = phpPrincipal.log.split('\n').filter((l) => /PHP (Warning|Notice|Deprecated|Fatal|Parse)|\[api-nf\]/.test(l));
+    const logPrincipal = path.join(pastaPrincipal, 'api-desenvolvimento.log');
+    const textoLog = phpPrincipal.log + (existsSync(logPrincipal) ? readFileSync(logPrincipal, 'utf8') : '');
+    const problemas = textoLog.split('\n').filter((l) => /PHP (Warning|Notice|Deprecated|Fatal|Parse)|\[api-nf\]/.test(l));
     ok(problemas.length === 0, 'Nenhum aviso ou erro de PHP durante os testes', problemas.slice(0, 3).join(' | '));
   });
 } finally {

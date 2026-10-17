@@ -11,6 +11,7 @@ import { existsSync } from 'node:fs';
 import { cp, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { REDIRECIONAMENTOS, cabecalhosDeSeguranca } from '../lib/seguranca.mjs';
+import { criarZip } from './zip.mjs';
 
 const RAIZ = path.resolve(import.meta.dirname, '..');
 const ambiente = process.argv[2];
@@ -97,6 +98,11 @@ DirectorySlash Off
 ErrorDocument 404 /404.html
 AddDefaultCharset utf-8
 AddType image/webp .webp
+
+# Arquivos de configuração que o cPanel cria na pasta do site (php.ini, .user.ini) nunca são servidos
+<FilesMatch "^(php\\.ini|\\.user\\.ini|\\.ht.*|error_log)$">
+  Require all denied
+</FilesMatch>
 ${
   ambiente === 'teste'
     ? `
@@ -163,4 +169,7 @@ if (existsSync(estaticos)) {
   );
 }
 
-console.log(`\n✔ Pronto: publicar/${ambiente}/ (envie TODO o conteúdo, inclusive o .htaccess, para a pasta do site)`);
+// Pacote para o cPanel, com permissões 644/755 (veja scripts/zip.mjs)
+const zip = criarZip(destino, path.join(RAIZ, 'publicar', `site-${ambiente}.zip`));
+console.log(`\n✔ Pronto: publicar/site-${ambiente}.zip (${zip.itens} itens, ${(zip.bytes / 1048576).toFixed(1)} MB).`);
+console.log('  Envie este zip ao cPanel e extraia na pasta do site. Não use zips feitos no Windows.');

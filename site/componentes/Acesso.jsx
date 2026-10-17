@@ -23,7 +23,7 @@ const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO R
 
 function PainelAcesso({ abaInicial }) {
   const [aba, setAba] = useState(abaInicial);
-  const [concluido, setConcluido] = useState(null); // dados do cadastro feito (para mostrar a mensagem ao admin)
+  const [concluido, setConcluido] = useState(null); // { nome, tipo } da conta recém-criada
 
   if (concluido) return <CadastroConcluido dados={concluido} />;
 
@@ -297,8 +297,7 @@ function FormCriar({ aoConcluir }) {
       if (Object.keys(r.campos).length) focarErro();
       return;
     }
-    const { senha, aceite, ...semSenha } = paraEnviar; // a senha nunca entra na mensagem
-    aoConcluir({ ...semSenha, interesses, situacaoCnpj: r.dados.situacaoCnpj });
+    aoConcluir({ nome: r.dados.cliente.nome, tipo: r.dados.cliente.tipo });
     window.scrollTo({ top: 0 });
   };
 
@@ -513,29 +512,8 @@ function StatusCnpj({ empresa }) {
   return <p className={`aviso aviso--${s.classe} campo--largo`} role="status">{s.texto}</p>;
 }
 
-// ---------- depois do cadastro: prévia da mensagem ao administrador ----------
+// ---------- depois do cadastro ----------
 function CadastroConcluido({ dados }) {
-  const produtos = dados.interesses.map((s) => todosOsProdutos().find((p) => p.slug === s)).filter(Boolean);
-  const linhas = [
-    '🆕 Novo cliente cadastrado no site',
-    '',
-    `Nome: ${dados.nome} ${dados.sobrenome}`,
-    `Tipo: ${dados.tipo === 'cnpj' ? 'Empresa (compra e locação)' : 'Pessoa física (compra)'}`,
-    `${dados.tipo.toUpperCase()}: ${dados.documento}`,
-    ...(dados.tipo === 'cnpj'
-      ? [
-          `Razão social: ${dados.razaoSocial}`,
-          ...(dados.nomeFantasia ? [`Nome fantasia: ${dados.nomeFantasia}`] : []),
-          `Situação na Receita: ${dados.situacaoCnpj}`,
-        ]
-      : []),
-    `E-mail: ${dados.email}`,
-    `Telefone: ${dados.telefone}`,
-    `Endereço: ${dados.rua}, ${dados.numero}${dados.complemento ? ` (${dados.complemento})` : ''}, ${dados.bairro}, ${dados.cidade}/${dados.uf}, CEP ${dados.cep}`,
-    '',
-    'Produtos de interesse:',
-    ...(produtos.length ? produtos.map((p) => `• ${tituloProduto(p)}`) : ['• Nenhum marcado']),
-  ];
   return (
     <div className="acesso">
       <h1 className="pagina__titulo acesso__titulo">Conta criada</h1>
@@ -545,17 +523,6 @@ function CadastroConcluido({ dados }) {
       <div className="acesso__acoes">
         <Link href="/loja" className="botao botao--principal">Ver equipamentos</Link>
       </div>
-
-      <section className="previa-admin" aria-labelledby="titulo-previa">
-        <h2 id="titulo-previa" className="previa-admin__titulo">Mensagem que a equipe da NF vai receber</h2>
-        <p className="campo__ajuda">
-          Sua conta já está gravada. O envio automático desta mensagem ao e-mail da empresa entra na próxima etapa do site.
-          A senha nunca é enviada.
-        </p>
-        <div className="bolha-whatsapp">
-          <pre>{linhas.join('\n')}</pre>
-        </div>
-      </section>
     </div>
   );
 }

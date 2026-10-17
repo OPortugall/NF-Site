@@ -66,7 +66,9 @@ A pasta `publicar/<ambiente>/` é o site inteiro. Envie **todo** o conteúdo del
 ### Produção (nfsolucoesdigitais.com.br)
 
 1. `npm run compilar:producao`.
-2. Compacte o **conteúdo** de `publicar/producao/` num `.zip` (selecione tudo dentro da pasta).
+2. Use o pacote `publicar/site-producao.zip`, gerado pela compilação. **Não compacte no Windows**: o zip
+   do Windows não guarda permissões e o cPanel extrai tudo como 666/777 (qualquer conta do servidor
+   poderia alterar o site). O da compilação sai com 644 (arquivos) e 755 (pastas).
 3. cPanel → **Gerenciador de arquivos** → crie a pasta `/nfsolucoesdigitais.com.br-site`
    (pasta nova: o site antigo continua intacto na pasta de antes) → **Carregar** o zip → **Extrair** → apague o zip.
 4. cPanel → **Domínios** → `nfsolucoesdigitais.com.br` → **Gerenciar** → troque a **raiz do documento**
@@ -84,7 +86,7 @@ substitua o conteúdo da pasta atual.
    e crie o usuário e a senha da equipe. O cPanel guarda as senhas em
    `/home/raioxper/.htpasswds/teste.nfsolucoesdigitais.com.br/passwd` (padrão da compilação; se for outro
    caminho, compile com `HTPASSWD_TESTE=<caminho>`).
-3. `npm run compilar:teste` e envie o conteúdo de `publicar/teste/` para essa pasta, como na produção.
+3. `npm run compilar:teste` e envie `publicar/site-teste.zip` para essa pasta (extrair), como na produção.
    O `.htaccess` gerado já contém as linhas da senha.
 4. cPanel → **Status SSL/TLS** → rode o AutoSSL para o subdomínio ganhar HTTPS.
 
@@ -124,7 +126,7 @@ API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # 
    `/home/raioxper/config-nf/sessoes-teste` e `origens` = `['https://teste.nfsolucoesdigitais.com.br']`.
    Permissão do arquivo: **600**.
 3. phpMyAdmin → banco `raioxper_nfteste` → **Importar** → `banco-de-dados/schema.sql`.
-4. `npm run compilar:teste` e envie `publicar/teste/` (já contém `api/` e `api/_ambiente.php`).
+4. `npm run compilar:teste` e envie `publicar/site-teste.zip` (já contém `api/` e `api/_ambiente.php`).
 
 Para a produção, o mesmo com `producao.php`, banco `raioxper_nf`, usuário `raioxper_nfapp` e
 `NEXT_PUBLIC_CONTAS_ATIVAS=true` na compilação — só depois de aprovado no teste.

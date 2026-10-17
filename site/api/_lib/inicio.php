@@ -32,6 +32,8 @@ function nf_config(): array
     if (!is_file($arquivo)) {
         throw new RuntimeException("Configuração não encontrada: {$arquivo}");
     }
+    // O log de erros da API fica junto da configuração, fora da pasta pública do site
+    ini_set('error_log', dirname($arquivo) . "/api-{$ambiente}.log");
     $c = require $arquivo;
 
     // Falha fechada: sem configuração completa e segura, a API não atende.

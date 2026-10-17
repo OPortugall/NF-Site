@@ -2133,35 +2133,6 @@ p {
   margin-top: var(--e-5);
 }
 
-.previa-admin {
-  margin-top: var(--e-7);
-  padding: var(--e-5);
-  border-radius: var(--raio);
-  background: #ece5dd; /* fundo da conversa do WhatsApp */
-}
-
-.previa-admin__titulo {
-  font-size: var(--texto-l);
-  margin-bottom: var(--e-2);
-}
-
-.bolha-whatsapp {
-  margin-top: var(--e-4);
-  max-width: 460px;
-  padding: var(--e-3) var(--e-4);
-  border-radius: 0 var(--raio) var(--raio) var(--raio);
-  background: var(--branco);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
-}
-
-.bolha-whatsapp pre {
-  margin: 0;
-  font-family: inherit;
-  font-size: var(--texto-s);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
 /* ---------- consulta do CNPJ ---------- */
 .status-cnpj {
   display: grid;
