@@ -1,0 +1,23 @@
+# API: todo pedido vai para index.php, que decide a rota (inclusive _lib/ e arquivos
+# que não existem, que respondem 404). Nenhum outro .php desta pasta é executado direto.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /api/
+
+# Sempre HTTPS (as regras da pasta de cima não valem aqui dentro)
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [L]
+</IfModule>
+
+# Reforço: mesmo que a reescrita falhe, estes arquivos nunca são servidos
+<FilesMatch "^(_ambiente\.php|.*\.(ini|log|md|sql|txt|json))$">
+  Require all denied
+</FilesMatch>

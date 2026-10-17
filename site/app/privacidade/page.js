@@ -238,7 +238,7 @@ export default function PaginaPrivacidade() {
         <p>
           O site não usa cookies de publicidade nem ferramentas de estatística ou rastreamento.
           {CONTAS_ATIVAS
-            ? ' Guardamos no seu próprio navegador só o necessário para o site funcionar: a sessão de quem entrou na conta e os itens do carrinho. Você pode apagar esses dados nas configurações do navegador.'
+            ? ' Usamos só o essencial para o site funcionar: um cookie de sessão (nf_sessao), que mantém você conectado à sua conta por até 7 dias e protege os formulários contra uso indevido, e os itens do carrinho, guardados no seu próprio navegador. Você pode apagar esses dados nas configurações do navegador.'
             : ' Ele não guarda nada no seu navegador para identificar você.'}
         </p>
         <p>

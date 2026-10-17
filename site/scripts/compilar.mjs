@@ -8,7 +8,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { cp, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { REDIRECIONAMENTOS, cabecalhosDeSeguranca } from '../lib/seguranca.mjs';
 
@@ -47,9 +47,24 @@ rodar(`Compilando o ambiente "${ambiente}"`, [path.join('node_modules', 'next', 
   NEXT_TELEMETRY_DISABLED: '1',
 });
 
+const contasAtivas = (process.env.NEXT_PUBLIC_CONTAS_ATIVAS || PADROES[ambiente].contas) === 'true';
+
 // Na vitrine o login não existe: não publica a página /entrar (o servidor responde 404)
-if (PADROES[ambiente].contas === 'false' && process.env.NEXT_PUBLIC_CONTAS_ATIVAS !== 'true') {
+if (!contasAtivas) {
   for (const f of ['entrar.html', 'entrar.txt', 'entrar']) await rm(path.join(destino, f), { recursive: true, force: true });
+}
+
+// API (PHP): só vai junto quando as contas estão ligadas. Sem o modelo de configuração;
+// _ambiente.php diz à API qual arquivo de /home/<usuario>/config-nf/ usar.
+if (contasAtivas) {
+  await cp(path.join(RAIZ, 'api'), path.join(destino, 'api'), {
+    recursive: true,
+    filter: (origem) => !/config\.exemplo\.php$|_ambiente\.php$/.test(origem),
+  });
+  await writeFile(path.join(destino, 'api', '_ambiente.php'), `<?php
+// Gerado por scripts/compilar.mjs
+return '${ambiente}';
+`);
 }
 
 // Arquivos de navegação do Next.js: ele grava loja/__next.loja/__PAGE__.txt, mas o navegador pede

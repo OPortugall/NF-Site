@@ -88,6 +88,47 @@ substitua o conteúdo da pasta atual.
    O `.htaccess` gerado já contém as linhas da senha.
 4. cPanel → **Status SSL/TLS** → rode o AutoSSL para o subdomínio ganhar HTTPS.
 
+## API (PHP) — contas
+
+As contas (cadastro, login, sessão) ficam numa API em PHP na pasta `api/`, que vai junto com o
+site **só quando as contas estão ligadas** (hoje: só no ambiente de teste). O resto do site continua estático.
+
+| Rota | Método | O que faz |
+|---|---|---|
+| `/api/sessao` | GET | cliente logado (ou `null`) e o código CSRF |
+| `/api/cadastrar` | POST | cria a conta (confere CPF/CNPJ, e o CNPJ na Receita) e já entra |
+| `/api/entrar` | POST | e-mail e senha |
+| `/api/sair` | POST | encerra a sessão |
+
+Proteções: tudo passa por `api/index.php` (o resto de `api/` nunca é executado direto); só JSON; código
+CSRF em todo POST; só aceita pedidos do próprio site (Origin/Sec-Fetch-Site); sessão em cookie HttpOnly,
+SameSite=Lax e `__Host-` com HTTPS, guardada numa pasta privada; senhas em argon2id; limite de tentativas
+(5 por e-mail e 20 por IP em 15 min; 5 cadastros por IP por hora); consultas preparadas (PDO); erros sem
+detalhes técnicos para o visitante. Os segredos ficam num arquivo **fora do site** (modelo: `api/config.exemplo.php`).
+
+### Testar no computador
+
+Precisa do MariaDB e do PHP 8.3 locais (pasta de ferramentas) e das credenciais do banco **local**:
+
+```
+DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run testar:api     # 142 testes da API
+DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run api:local      # API em :8081 (banco nf_local)
+API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # site + API
+```
+
+### Publicar a API no ambiente de teste
+
+1. Crie `/home/raioxper/config-nf/` (fora de qualquer site) com permissão **700**.
+2. Dentro dela, crie `teste.php` a partir de `api/config.exemplo.php`, com o banco `raioxper_nfteste`,
+   o usuário `raioxper_nftst` e a senha dele, um `segredo` novo, `pasta_sessoes` =
+   `/home/raioxper/config-nf/sessoes-teste` e `origens` = `['https://teste.nfsolucoesdigitais.com.br']`.
+   Permissão do arquivo: **600**.
+3. phpMyAdmin → banco `raioxper_nfteste` → **Importar** → `banco-de-dados/schema.sql`.
+4. `npm run compilar:teste` e envie `publicar/teste/` (já contém `api/` e `api/_ambiente.php`).
+
+Para a produção, o mesmo com `producao.php`, banco `raioxper_nf`, usuário `raioxper_nfapp` e
+`NEXT_PUBLIC_CONTAS_ATIVAS=true` na compilação — só depois de aprovado no teste.
+
 ## Páginas
 
 - `/`: banner com as quatro categorias, equipamentos em estoque, serviços, marcas, empresa e contato

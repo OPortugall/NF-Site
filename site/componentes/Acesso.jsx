@@ -122,17 +122,22 @@ function FormEntrar({ irParaCriar }) {
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState({});
   const [falha, setFalha] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
-  const enviar = (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
+    if (enviando) return;
     const novos = {};
     if (!emailValido(email)) novos.email = 'Digite um e-mail válido, como nome@empresa.com.br.';
     if (!senha) novos.senha = 'Digite sua senha.';
     setErros(novos);
     setFalha('');
     if (Object.keys(novos).length) return;
-    if (entrar(email)) router.push('/loja');
-    else setFalha('Não encontramos uma conta com esse e-mail. Confira o endereço ou crie uma conta.');
+    setEnviando(true);
+    const r = await entrar(email.trim(), senha);
+    setEnviando(false);
+    if (r.ok) router.push('/loja');
+    else setFalha(r.erro);
   };
 
   return (
@@ -144,7 +149,9 @@ function FormEntrar({ irParaCriar }) {
       </Campo>
       <CampoSenha rotulo="Senha" valor={senha} aoMudar={setSenha} erro={erros.senha} autoComplete="current-password" />
       {falha && <p className="aviso aviso--erro" role="alert">{falha}</p>}
-      <button type="submit" className="botao botao--principal botao--largo">Entrar</button>
+      <button type="submit" className="botao botao--principal botao--largo" disabled={enviando} aria-busy={enviando}>
+        {enviando ? 'Entrando…' : 'Entrar'}
+      </button>
       <p className="formulario__rodape">
         Ainda não tem conta? <button type="button" className="link-botao" onClick={irParaCriar}>Criar conta</button>
       </p>
@@ -193,6 +200,8 @@ function FormCriar({ aoConcluir }) {
   const [d, setD] = useState(VAZIO);
   const [interesses, setInteresses] = useState(() => [...new Set(itens.map((i) => i.slug))]);
   const [erros, setErros] = useState({});
+  const [falha, setFalha] = useState('');
+  const [enviando, setEnviando] = useState(false);
   const [cepStatus, setCepStatus] = useState('');
   const [empresa, setEmpresa] = useState(null); // consulta do CNPJ: { estado, dados? }
   const ultimoCnpj = useRef('');
@@ -265,22 +274,31 @@ function FormCriar({ aoConcluir }) {
     }
   };
 
-  const enviar = (e) => {
+  const focarErro = () => requestAnimationFrame(() => formulario.current?.querySelector('[aria-invalid="true"]')?.focus());
+
+  const enviar = async (e) => {
     e.preventDefault();
+    if (enviando) return;
     const novos = validar(d, empresa);
     setErros(novos);
+    setFalha('');
     if (Object.keys(novos).length) {
-      // leva o foco ao primeiro campo com problema
-      requestAnimationFrame(() => formulario.current?.querySelector('[aria-invalid="true"]')?.focus());
+      focarErro(); // leva o foco ao primeiro campo com problema
       return;
     }
-    cadastrar({ nome: d.nome.trim(), email: d.email.trim(), tipo: d.tipo });
-    const { senha, confirmacao, aceite, ...semSenha } = d; // a senha nunca entra na mensagem
-    aoConcluir({
-      ...semSenha,
-      interesses,
-      situacaoCnpj: d.tipo === 'cnpj' ? (empresa?.estado === 'ok' ? `${empresa.dados.situacao} (conferido em ${empresa.dados.fonte})` : 'não conferida (consulta indisponível)') : null,
-    });
+    setEnviando(true);
+    const { confirmacao, ...paraEnviar } = d; // a confirmação da senha só serve aqui na tela
+    const r = await cadastrar(paraEnviar);
+    setEnviando(false);
+    if (!r.ok) {
+      // O servidor confere tudo de novo (e o CNPJ na Receita): mostra os erros nos campos
+      setErros(r.campos);
+      setFalha(Object.keys(r.campos).length ? '' : r.erro);
+      if (Object.keys(r.campos).length) focarErro();
+      return;
+    }
+    const { senha, aceite, ...semSenha } = paraEnviar; // a senha nunca entra na mensagem
+    aoConcluir({ ...semSenha, interesses, situacaoCnpj: r.dados.situacaoCnpj });
     window.scrollTo({ top: 0 });
   };
 
@@ -463,7 +481,10 @@ function FormCriar({ aoConcluir }) {
         {erros.aceite && <p id="erro-aceite" className="campo__erro">{erros.aceite}</p>}
       </div>
 
-      <button type="submit" className="botao botao--principal botao--largo">Criar conta</button>
+      {falha && <p className="aviso aviso--erro" role="alert">{falha}</p>}
+      <button type="submit" className="botao botao--principal botao--largo" disabled={enviando} aria-busy={enviando}>
+        {enviando ? 'Criando conta…' : 'Criar conta'}
+      </button>
     </form>
   );
 }
@@ -528,8 +549,8 @@ function CadastroConcluido({ dados }) {
       <section className="previa-admin" aria-labelledby="titulo-previa">
         <h2 id="titulo-previa" className="previa-admin__titulo">Mensagem que a equipe da NF vai receber</h2>
         <p className="campo__ajuda">
-          Prévia da demonstração. Quando o servidor existir, esta mensagem será enviada ao WhatsApp e ao e-mail da empresa
-          automaticamente. A senha nunca é enviada.
+          Sua conta já está gravada. O envio automático desta mensagem ao e-mail da empresa entra na próxima etapa do site.
+          A senha nunca é enviada.
         </p>
         <div className="bolha-whatsapp">
           <pre>{linhas.join('\n')}</pre>

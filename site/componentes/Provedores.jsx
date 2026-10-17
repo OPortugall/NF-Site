@@ -1,18 +1,19 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { CONTAS_ATIVAS } from '@/lib/ambiente';
+import { cadastrarNaApi, entrarNaApi, lerSessao, sairDaApi } from '@/lib/api';
 
 /*
- * Estado do cliente e do carrinho, guardado no próprio navegador.
+ * Estado do cliente e do carrinho.
  *
- * DEMONSTRAÇÃO: enquanto o banco de dados não existe, a "conta" é só uma marcação local
- * (nome, e-mail e tipo de cadastro). Nenhuma senha, CPF, CNPJ, telefone ou endereço é guardado.
- * Quando o banco existir, a sessão passa a vir do servidor.
+ * Sessão: vem do servidor (API em PHP, cookie HttpOnly). O navegador só guarda o carrinho.
+ * Na vitrine (contas desligadas) a API nem é chamada.
  */
 
-const CHAVE_SESSAO = 'nf-sessao-demo';
-const CHAVE_CONTAS = 'nf-contas-demo';
 const CHAVE_CARRINHO = 'nf-carrinho';
+// Chaves da demonstração antiga (conta só no navegador): apagadas ao abrir o site
+const CHAVES_ANTIGAS = ['nf-sessao-demo', 'nf-contas-demo'];
 
 const ContextoSessao = createContext(null);
 const ContextoCarrinho = createContext(null);
@@ -46,9 +47,19 @@ export function Provedores({ children }) {
   const [ultimaAdicao, setUltimaAdicao] = useState(null); // { slug, modalidade, vez } para a animação
 
   useEffect(() => {
-    setCliente(ler(CHAVE_SESSAO, null));
     setItens(ler(CHAVE_CARRINHO, []));
-    setCarregado(true);
+    CHAVES_ANTIGAS.forEach((c) => gravar(c, null));
+    if (!CONTAS_ATIVAS) {
+      setCarregado(true);
+      return;
+    }
+    let ativo = true;
+    lerSessao().then((r) => {
+      if (!ativo) return;
+      setCliente(r.ok ? r.dados.cliente : null);
+      setCarregado(true);
+    });
+    return () => { ativo = false; };
   }, []);
 
   useEffect(() => {
@@ -64,26 +75,23 @@ export function Provedores({ children }) {
     }
   }, [podeAlugar, carregado, itens]);
 
-  const cadastrar = useCallback((dados) => {
-    const contas = ler(CHAVE_CONTAS, {});
-    const sessao = { nome: dados.nome, email: dados.email.toLowerCase(), tipo: dados.tipo };
-    contas[sessao.email] = sessao;
-    gravar(CHAVE_CONTAS, contas);
-    gravar(CHAVE_SESSAO, sessao);
-    setCliente(sessao);
+  // As três devolvem a resposta da API: { ok, erro, campos, dados }
+  const cadastrar = useCallback(async (dados) => {
+    const r = await cadastrarNaApi(dados);
+    if (r.ok) setCliente(r.dados.cliente);
+    return r;
   }, []);
 
-  const entrar = useCallback((email) => {
-    const conta = ler(CHAVE_CONTAS, {})[email.trim().toLowerCase()];
-    if (!conta) return false;
-    gravar(CHAVE_SESSAO, conta);
-    setCliente(conta);
-    return true;
+  const entrar = useCallback(async (email, senha) => {
+    const r = await entrarNaApi(email, senha);
+    if (r.ok) setCliente(r.dados.cliente);
+    return r;
   }, []);
 
-  const sair = useCallback(() => {
-    gravar(CHAVE_SESSAO, null);
+  const sair = useCallback(async () => {
+    const r = await sairDaApi();
     setCliente(null);
+    return r;
   }, []);
 
   const adicionar = useCallback((slug, modalidade = 'compra') => {
