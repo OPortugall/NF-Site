@@ -8,7 +8,8 @@
 # aqui no arquivo (não vêm de variáveis), para um erro de configuração nunca apontar para outra pasta.
 #
 # Segredos necessários (Settings → Secrets and variables → Actions), veja o LEIA-ME do site:
-#   SSH_HOST, SSH_PORT, SSH_USER, SSH_KEY (chave privada só para publicar), SSH_KNOWN_HOSTS
+#   SSH_HOST, SSH_PORT, SSH_USER, SSH_KNOWN_HOSTS (do repositório) e SSH_KEY (de cada AMBIENTE:
+#   uma chave para "teste" e outra para "producao", cada uma presa à sua pasta no servidor)
 
 name: Publicação
 
@@ -67,6 +68,22 @@ jobs:
           # Servidor conferido pela impressão digital guardada: sem isso, um servidor falso poderia receber o site
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
 
+      - name: Confirmar que a chave está presa à pasta do site
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # Com o rrsync, qualquer comando que não seja rsync é recusado. Se este "echo" funcionar, a chave
+          # dá acesso à conta inteira e o envio para "./" cairia na pasta principal: aborta antes de enviar.
+          if ssh -4 -p "$SSH_PORT" -i ~/.ssh/publicar -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+               -o BatchMode=yes -o HostKeyAlgorithms=ssh-ed25519 "$SSH_USER@$SSH_HOST" "echo chave-sem-restricao" 2>/dev/null \
+             | grep -q chave-sem-restricao; then
+            echo "::error::A chave SSH deste ambiente não está presa a uma pasta (rrsync). Envio cancelado."
+            exit 1
+          fi
+          echo "Chave restrita: ok"
+
       - name: Enviar para o cPanel (rsync)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -81,7 +98,10 @@ jobs:
             --exclude='/.well-known/' --exclude='/cgi-bin/' \
             --exclude='/php.ini' --exclude='/.user.ini' --exclude='error_log' \
             -e "ssh -4 -p $SSH_PORT -i ~/.ssh/publicar -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes -o HostKeyAlgorithms=ssh-ed25519" \
-            "site/publicar/$AMBIENTE/" "$SSH_USER@$SSH_HOST:$DESTINO/"
+            "site/publicar/$AMBIENTE/" "$SSH_USER@$SSH_HOST:./"
+          # "./" = a pasta presa à chave no servidor (rrsync -wo no authorized_keys): a chave do teste
+          # só escreve em ~/teste.nfsolucoesdigitais.com.br e a da produção só em ~/nfsolucoesdigitais.com.br-site.
+          echo "Publicado em ~/$DESTINO"
 
       - name: Conferir o site no ar
         run: |

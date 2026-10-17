@@ -108,6 +108,16 @@ Segredos do repositório (Settings → Secrets and variables → Actions): `SSH_
 `SSH_KNOWN_HOSTS` (impressão digital do servidor, de `ssh-keyscan -p 65002 cpl84.hosting24.com`).
 Ambientes (Settings → Environments): `teste` e `producao`, este com você como revisor obrigatório.
 
+Cada ambiente tem a **sua** chave (`SSH_KEY` como segredo do ambiente), presa no servidor à pasta dele pelo
+`rrsync` oficial do rsync (`~/bin/rrsync`, versão 3.4.4) no `~/.ssh/authorized_keys`:
+
+```
+restrict,command="/bin/python3 /home/raioxper/bin/rrsync -wo /home/raioxper/teste.nfsolucoesdigitais.com.br" ssh-ed25519 AAAA… publicar-github-nf
+restrict,command="/bin/python3 /home/raioxper/bin/rrsync -wo /home/raioxper/nfsolucoesdigitais.com.br-site" ssh-ed25519 AAAA… publicar-github-nf-producao
+```
+
+Assim as chaves só enviam arquivos (sem terminal, sem ler nada) e cada uma só para a sua pasta.
+
 ## API (PHP) — contas
 
 As contas (cadastro, login, sessão) ficam numa API em PHP na pasta `api/`, que vai junto com o
