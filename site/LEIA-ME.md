@@ -90,6 +90,24 @@ substitua o conteúdo da pasta atual.
    O `.htaccess` gerado já contém as linhas da senha.
 4. cPanel → **Status SSL/TLS** → rode o AutoSSL para o subdomínio ganhar HTTPS.
 
+## Publicação automática (GitHub → cPanel)
+
+O workflow `.github/workflows/publicar.yml` compila e envia o site por SSH (rsync) a cada push:
+
+| Ramo | Vai para | Aprovação |
+|---|---|---|
+| `teste` | `~/teste.nfsolucoesdigitais.com.br` | automática |
+| `main` | `~/nfsolucoesdigitais.com.br-site` (produção) | precisa aprovar em Actions (ambiente `producao`) |
+
+Só publica se a Verificação passar. O rsync apaga no servidor o que saiu do site (restos de versões
+antigas), mas nunca `.well-known`, `cgi-bin`, `php.ini`, `.user.ini` e `error_log`; permissões sempre 755/644.
+A configuração da API (`~/config-nf/`) fica fora das pastas publicadas e nunca é tocada.
+
+Segredos do repositório (Settings → Secrets and variables → Actions): `SSH_HOST` (`cpl84.hosting24.com`),
+`SSH_PORT` (`65002`), `SSH_USER` (`raioxper`), `SSH_KEY` (chave privada criada só para publicar) e
+`SSH_KNOWN_HOSTS` (impressão digital do servidor, de `ssh-keyscan -p 65002 cpl84.hosting24.com`).
+Ambientes (Settings → Environments): `teste` e `producao`, este com você como revisor obrigatório.
+
 ## API (PHP) — contas
 
 As contas (cadastro, login, sessão) ficam numa API em PHP na pasta `api/`, que vai junto com o

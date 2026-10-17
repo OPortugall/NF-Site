@@ -1,0 +1,96 @@
+# Publicação automática do site no cPanel (via SSH + rsync).
+#
+#   push no ramo "teste" → compila o ambiente de teste  → envia para ~/teste.nfsolucoesdigitais.com.br
+#   push no ramo "main"  → compila a produção (vitrine) → envia para ~/nfsolucoesdigitais.com.br-site
+#                          (só depois de aprovado no GitHub: ambiente "producao" com revisor obrigatório)
+#
+# Só publica se a Verificação (gitleaks + verificar.py) passar. As pastas de destino estão fixas
+# aqui no arquivo (não vêm de variáveis), para um erro de configuração nunca apontar para outra pasta.
+#
+# Segredos necessários (Settings → Secrets and variables → Actions), veja o LEIA-ME do site:
+#   SSH_HOST, SSH_PORT, SSH_USER, SSH_KEY (chave privada só para publicar), SSH_KNOWN_HOSTS
+
+name: Publicação
+
+on:
+  push:
+    branches: [teste, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Uma publicação por ramo de cada vez; a seguinte espera a anterior terminar
+concurrency:
+  group: publicar-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  verificacao:
+    name: Verificação
+    uses: ./.github/workflows/verificacao.yml
+
+  publicar:
+    name: Publicar (${{ github.ref_name == 'main' && 'produção' || 'teste' }})
+    needs: verificacao
+    if: github.ref_name == 'teste' || github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+    env:
+      AMBIENTE: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+      DESTINO: ${{ github.ref_name == 'main' && 'nfsolucoesdigitais.com.br-site' || 'teste.nfsolucoesdigitais.com.br' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: site
+        run: npm ci --no-audit --no-fund
+
+      - name: Compilar o site (${{ env.AMBIENTE }})
+        working-directory: site
+        run: node scripts/compilar.mjs "$AMBIENTE"
+
+      - name: Preparar a chave SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_KEY" && test -n "$SSH_KNOWN_HOSTS" || { echo "Faltam os segredos SSH_KEY/SSH_KNOWN_HOSTS"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/publicar && chmod 600 ~/.ssh/publicar
+          # Servidor conferido pela impressão digital guardada: sem isso, um servidor falso poderia receber o site
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+
+      - name: Enviar para o cPanel (rsync)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # --delete apaga no servidor o que saiu do site (restos de versões antigas), mas nunca
+          # os arquivos do próprio cPanel listados em --exclude. Permissões sempre 755/644.
+          # Chave do servidor: sempre a ED25519 (a mesma de SSH_KNOWN_HOSTS, conferida no Terminal do
+          # cPanel). Sem isso, o SSH pode escolher o certificado RSA do servidor, que tem outra impressão digital.
+          rsync -rlptzv --delete --chmod=D755,F644 \
+            --exclude='/.well-known/' --exclude='/cgi-bin/' \
+            --exclude='/php.ini' --exclude='/.user.ini' --exclude='error_log' \
+            -e "ssh -4 -p $SSH_PORT -i ~/.ssh/publicar -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes -o HostKeyAlgorithms=ssh-ed25519" \
+            "site/publicar/$AMBIENTE/" "$SSH_USER@$SSH_HOST:$DESTINO/"
+
+      - name: Conferir o site no ar
+        run: |
+          if [ "$AMBIENTE" = producao ]; then url=https://nfsolucoesdigitais.com.br/; esperado=200
+          else url=https://teste.nfsolucoesdigitais.com.br/; esperado=401; fi   # o teste pede senha
+          codigo=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$url")
+          echo "$url respondeu $codigo (esperado $esperado)"
+          test "$codigo" = "$esperado"
+
+      - name: Apagar a chave da máquina do GitHub
+        if: always()
+        run: rm -f ~/.ssh/publicar
