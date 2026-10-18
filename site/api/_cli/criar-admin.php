@@ -19,24 +19,44 @@ if (PHP_SAPI !== 'cli') {
 define('NF_API', true);
 require dirname(__DIR__) . '/_lib/inicio.php';
 
+// Qualquer erro inesperado aparece na tela (em vez de o script parar sem mensagem)
+set_exception_handler(static function (Throwable $e): void {
+    fwrite(STDERR, "\n✖ Erro: " . $e->getMessage() . "\n");
+    exit(1);
+});
+
 function perguntar(string $rotulo): string
 {
     echo $rotulo, ': ';
     return trim((string) fgets(STDIN));
 }
 
+// Esconde a digitação com "stty" quando o servidor permite chamar comandos (shell_exec). Na hospedagem,
+// shell_exec costuma estar bloqueada: aí a senha aparece enquanto é digitada e a tela é limpa logo depois.
+function pode_esconder(): bool
+{
+    static $pode = null;
+    if ($pode === null) {
+        $bloqueadas = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+        $pode = stream_isatty(STDIN) && function_exists('shell_exec') && !in_array('shell_exec', $bloqueadas, true);
+    }
+    return $pode;
+}
+
 function perguntar_senha(string $rotulo): string
 {
-    echo $rotulo, ': ';
-    $tty = stream_isatty(STDIN);
-    if ($tty) {
-        shell_exec('stty -echo');
+    $esconder = pode_esconder();
+    echo $rotulo, $esconder ? ' (não aparece na tela)' : ' (vai aparecer; a tela é limpa em seguida)', ': ';
+    if ($esconder) {
+        @shell_exec('stty -echo');
     }
     $s = rtrim((string) fgets(STDIN), "\r\n");
-    if ($tty) {
-        shell_exec('stty echo');
+    if ($esconder) {
+        @shell_exec('stty echo');
+        echo "\n";
+    } elseif (stream_isatty(STDOUT)) {
+        echo "\033[3J\033[H\033[2J"; // limpa a tela e o histórico de rolagem do terminal
     }
-    echo "\n";
     return $s;
 }
 
@@ -81,7 +101,7 @@ $cpf = nf_so_digitos(perguntar('CPF'));
 if (!nf_cpf_valido($cpf)) {
     sair_com_erro('CPF inválido.');
 }
-$senha = perguntar_senha('Senha (não aparece na tela)');
+$senha = perguntar_senha('Senha');
 if (!nf_senha_valida($senha)) {
     sair_com_erro('A senha precisa de 8 a 128 caracteres, com pelo menos uma letra e um número.');
 }
