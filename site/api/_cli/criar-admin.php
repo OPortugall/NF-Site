@@ -85,6 +85,7 @@ if ($existente !== null) {
     if (strtolower(perguntar('Já existe um cliente com este e-mail. Tornar administrador? (s/n)')) !== 's') {
         sair_com_erro('Nada foi alterado.');
     }
+    nf_banco($config, true); // conexão nova: a anterior pode ter caído enquanto a pessoa digitava
     nf_consulta($config, "UPDATE usuarios SET role = 'admin' WHERE id = ?", [$existente['id']]);
     nf_auditar($config, null, 'admin_criado_terminal', 'admin', (int) $existente['id']);
     echo "\n✔ Conta promovida a administrador. Entre em /admin e cadastre o app autenticador.\n";
@@ -109,6 +110,8 @@ if (!hash_equals($senha, perguntar_senha('Repita a senha'))) {
     sair_com_erro('As senhas não conferem.');
 }
 
+// Conexão nova: o servidor do banco fecha a anterior se a digitação demorar ("MySQL server has gone away")
+nf_banco($config, true);
 try {
     nf_consulta($config,
         "INSERT INTO usuarios (primeiro_nome, sobrenome, tipo_pessoa, documento, email, telefone, senha_hash, role, aceite_privacidade_em)
