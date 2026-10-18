@@ -93,19 +93,9 @@ function nf_conferir_cnpj_cliente(array $config, string $cnpj): ?string
     return $r['estado'] === 'ok' ? $r['situacao'] : null;
 }
 
-// Catálogo { slug: nome } gerado na compilação (scripts/catalogo-api.mjs).
-function nf_catalogo(): array
-{
-    static $catalogo = null;
-    if ($catalogo === null) {
-        $arquivo = dirname(__DIR__) . '/_dados/catalogo.json';
-        $catalogo = is_file($arquivo) ? (json_decode((string) file_get_contents($arquivo), true) ?: []) : [];
-    }
-    return $catalogo;
-}
-
-// Produtos de interesse: só slugs que existem no catálogo; nomes vêm do catálogo, nunca do navegador.
-function nf_validar_interesses(mixed $lista): array
+// Produtos de interesse: só produtos do catálogo atual que aparecem no site; nomes vêm do catálogo,
+// nunca do navegador.
+function nf_validar_interesses(array $config, mixed $lista): array
 {
     if ($lista === null) {
         return [];
@@ -113,11 +103,11 @@ function nf_validar_interesses(mixed $lista): array
     if (!is_array($lista) || !array_is_list($lista) || count($lista) > NF_MAX_INTERESSES) {
         nf_erro(422, 'Lista de produtos de interesse inválida.');
     }
-    $catalogo = nf_catalogo();
+    $catalogo = nf_catalogo_atual($config);
     $saida = [];
     foreach ($lista as $slug) {
-        if (is_string($slug) && isset($catalogo[$slug]) && !isset($saida[$slug])) {
-            $saida[$slug] = ['slug' => $slug, 'nome' => $catalogo[$slug]];
+        if (is_string($slug) && ($catalogo[$slug]['ativo'] ?? false) && !isset($saida[$slug])) {
+            $saida[$slug] = ['slug' => $slug, 'nome' => $catalogo[$slug]['nome'], 'id' => $catalogo[$slug]['id']];
         }
     }
     return array_values($saida);
@@ -155,8 +145,8 @@ function nf_gravar_cliente_novo(array $config, array $v, ?string $situacaoCnpj, 
             [$id, $u['tipo_pessoa'] === 'PJ' ? 'Matriz' : 'Principal', $en['cep'], $en['rua'], $en['numero'],
              $en['complemento'], $en['bairro'], $en['cidade'], $en['uf']]);
         foreach ($interesses as $i) {
-            nf_consulta($config, 'INSERT INTO usuario_interesses (usuario_id, produto_slug, produto_nome) VALUES (?, ?, ?)',
-                [$id, $i['slug'], $i['nome']]);
+            nf_consulta($config, 'INSERT INTO usuario_interesses (usuario_id, produto_id, produto_slug, produto_nome) VALUES (?, ?, ?, ?)',
+                [$id, $i['id'] ?? null, $i['slug'], $i['nome']]);
         }
         $banco->commit();
         return $id;

@@ -7,7 +7,7 @@ export const dynamic = 'force-static';
 export default function robots() {
   if (!EH_PRODUCAO) return { rules: { userAgent: '*', disallow: '/' } };
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/entrar', '/admin', '/api/'] },
+    rules: { userAgent: '*', allow: '/', disallow: ['/entrar', '/conta', '/admin', '/api/'] },
     sitemap: `${URL_DO_SITE[AMBIENTE]}/sitemap.xml`,
   };
 }

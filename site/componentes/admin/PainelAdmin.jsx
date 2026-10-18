@@ -5,22 +5,31 @@ import { adminEnviar, adminLer } from '@/lib/api';
 import Auditoria from './Auditoria';
 import Clientes from './Clientes';
 import FichaCliente from './FichaCliente';
+import FichaOrcamento from './FichaOrcamento';
+import FichaProduto from './FichaProduto';
 import LoginAdmin from './LoginAdmin';
 import Notificacoes from './Notificacoes';
+import Orcamentos from './Orcamentos';
+import Produtos from './Produtos';
 import Resumo from './Resumo';
 
 // Painel administrativo (página única). As telas mudam pelo endereço depois do "#":
-//   #resumo · #clientes · #cliente/12 · #novo-cliente · #notificacoes · #auditoria
+//   #resumo · #clientes · #cliente/12 · #novo-cliente · #orcamentos · #orcamento/7
+//   #produtos · #produto/3 · #novo-produto · #notificacoes · #auditoria
 // Toda chamada que volta "401 admin" (sessão expirada) leva de volta ao login.
 
-// Cada área tem a sua tinta de impressão (CMYK): clientes = ciano, alertas = magenta,
-// estoque = amarelo, histórico = preto. O início mostra as quatro.
+// Cada área tem a sua tinta de impressão (CMYK): clientes = ciano, pedidos e alertas = magenta,
+// produtos e estoque = amarelo, histórico = preto. O início mostra as quatro.
 const MENU = [
   ['resumo', 'Início', 'cmyk'],
   ['clientes', 'Clientes', 'c'],
+  ['orcamentos', 'Pedidos', 'm'],
+  ['produtos', 'Produtos', 'y'],
   ['notificacoes', 'Notificações', 'm'],
   ['auditoria', 'Histórico', 'k'],
 ];
+// Telas de detalhe → item do menu que fica marcado
+const AREA = { cliente: 'clientes', 'novo-cliente': 'clientes', orcamento: 'orcamentos', produto: 'produtos', 'novo-produto': 'produtos' };
 
 // Faixa de registro (a mesma do topo do site), sem importar o catálogo de produtos
 export function FaixaRegistro() {
@@ -87,11 +96,16 @@ export default function PainelAdmin() {
   if (rota.tela === 'clientes') tela = <Clientes api={api} ir={ir} />;
   else if (rota.tela === 'cliente' && rota.id) tela = <FichaCliente key={rota.id} id={rota.id} api={api} ir={ir} />;
   else if (rota.tela === 'novo-cliente') tela = <FichaCliente novo api={api} ir={ir} />;
+  else if (rota.tela === 'orcamentos') tela = <Orcamentos api={api} ir={ir} />;
+  else if (rota.tela === 'orcamento' && rota.id) tela = <FichaOrcamento key={rota.id} id={rota.id} api={api} ir={ir} />;
+  else if (rota.tela === 'produtos') tela = <Produtos api={api} ir={ir} />;
+  else if (rota.tela === 'produto' && rota.id) tela = <FichaProduto key={rota.id} id={rota.id} api={api} ir={ir} />;
+  else if (rota.tela === 'novo-produto') tela = <FichaProduto novo api={api} ir={ir} />;
   else if (rota.tela === 'notificacoes') tela = <Notificacoes api={api} ir={ir} aoMudar={atualizarContador} />;
   else if (rota.tela === 'auditoria') tela = <Auditoria api={api} ir={ir} />;
   else tela = <Resumo api={api} ir={ir} />;
 
-  const ativa = rota.tela === 'cliente' || rota.tela === 'novo-cliente' ? 'clientes' : rota.tela;
+  const ativa = AREA[rota.tela] || rota.tela;
   return (
     <div className="adm">
       <div className="adm-cabeca">

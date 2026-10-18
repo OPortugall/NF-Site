@@ -74,7 +74,7 @@ export default function PaginaPrivacidade() {
               </li>
               <li>
                 <strong>Pedidos de orçamento pelo site:</strong> os produtos escolhidos, quantidades, modalidade (compra ou
-                locação), endereço e observações.
+                locação), endereço e observações. Você acompanha a situação de cada pedido em “Minha conta”.
               </li>
               <li>
                 <strong>Produtos de interesse:</strong> os equipamentos que você marca no cadastro, para a equipe da NF
@@ -211,7 +211,15 @@ export default function PaginaPrivacidade() {
           <li><strong>Conversas e orçamentos que não viraram negócio:</strong> até 2 anos, para retomar o atendimento.</li>
           {CONTAS_ATIVAS && (
             <>
-              <li><strong>Conta:</strong> enquanto ela existir. Se você pedir a exclusão, apagamos os dados da conta.</li>
+              <li>
+                <strong>Conta:</strong> enquanto ela existir. Você pode excluí-la quando quiser, em “Minha conta”: o
+                cadastro, os endereços e os produtos de interesse são apagados na hora.
+              </li>
+              <li>
+                <strong>Depois da exclusão da conta:</strong> os pedidos de orçamento ficam no histórico da NF sem ligação
+                com o seu nome; a equipe recebe um aviso com seu nome, e-mail e telefone, para encerrar algum atendimento
+                em aberto, que é apagado do painel em 90 dias.
+              </li>
               <li><strong>Tentativas de login:</strong> 24 horas.</li>
               <li><strong>Registro de alterações feitas pela equipe no seu cadastro:</strong> até 5 anos, sem senhas e com o IP só de forma cifrada.</li>
               <li><strong>Códigos de confirmação e troca de senha:</strong> até 48 horas, e deixam de valer depois do uso.</li>
@@ -250,6 +258,7 @@ export default function PaginaPrivacidade() {
           <li>eliminação dos dados tratados com base no seu consentimento, e a retirada desse consentimento;</li>
           <li>informação sobre com quem compartilhamos seus dados;</li>
           <li>informação sobre a possibilidade de não dar consentimento e o que acontece nesse caso;</li>
+          {CONTAS_ATIVAS && <li>exclusão da sua conta, que você mesmo faz em “Minha conta”, no site;</li>}
           <li>oposição a um tratamento que descumpra a lei.</li>
         </ul>
         <p>

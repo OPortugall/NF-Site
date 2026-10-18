@@ -28,8 +28,10 @@ export default function Auditoria({ api }) {
                     <td>{r.admin}</td>
                     <td>
                       {ACOES[r.acao] || r.acao}
-                      {r.alvoTipo === 'cliente' && r.alvoId && r.acao !== 'cliente_excluir' && <> · <a href={`#cliente/${r.alvoId}`}>cliente #{r.alvoId}</a></>}
-                      {r.acao === 'cliente_excluir' && <> · cliente #{r.alvoId}</>}
+                      {r.alvoTipo === 'cliente' && r.alvoId && !['cliente_excluir', 'cliente_autoexcluir'].includes(r.acao) && <> · <a href={`#cliente/${r.alvoId}`}>cliente #{r.alvoId}</a></>}
+                      {['cliente_excluir', 'cliente_autoexcluir'].includes(r.acao) && <> · cliente #{r.alvoId}</>}
+                      {r.alvoTipo === 'orcamento' && r.alvoId && <> · <a href={`#orcamento/${r.alvoId}`}>pedido #{r.alvoId}</a></>}
+                      {r.alvoTipo === 'produto' && r.alvoId && r.acao !== 'produto_excluir' && <> · <a href={`#produto/${r.alvoId}`}>produto #{r.alvoId}</a></>}
                     </td>
                     <td className="adm-suave">{descreverDetalhes(r.acao, r.detalhes)}</td>
                   </tr>

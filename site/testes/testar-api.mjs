@@ -9,7 +9,9 @@
 // =============================================================================
 
 import { createServer } from 'node:http';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import sharp from 'sharp';
 import path from 'node:path';
 import {
   apagarBanco, apagarPasta, conectarAdmin, criarBanco, escreverConfig, iniciarPhp, pastaTemporaria,
@@ -21,6 +23,9 @@ const PORTA = 8091;
 const PORTA_SEGURA = 8092; // mesma API com a configuração de produção (cookie seguro)
 const PORTA_SEM_BANCO = 8093; // banco fora do ar
 const PORTA_SEM_CONFIG = 8094; // configuração ausente
+const PORTA_SEM_CONTAS = 8095; // vitrine: contas de cliente desligadas
+const PORTA_SEM_GITHUB = 8096; // mesma sessão do principal, sem o bloco "github" na configuração
+const PORTA_GITHUB = 8098; // falso GitHub (publicação pelo painel)
 const PORTA_CNPJ = 8099;
 const BASE = `http://127.0.0.1:${PORTA}`;
 
@@ -112,6 +117,28 @@ const servidorCnpj = createServer((req, res) => {
 });
 await new Promise((r) => servidorCnpj.listen(PORTA_CNPJ, '127.0.0.1', r));
 
+// ---------- falso GitHub (Actions) ----------
+const github = { runs: [], pedidos: [] };
+const servidorGithub = createServer((req, res) => {
+  let corpo = '';
+  req.on('data', (d) => { corpo += d; });
+  req.on('end', () => {
+    github.pedidos.push({ metodo: req.method, url: req.url, auth: req.headers.authorization, corpo });
+    if (req.method === 'GET' && req.url.startsWith('/repos/dono/NF-Site/actions/workflows/publicar.yml/runs?')) {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      return res.end(JSON.stringify({ workflow_runs: github.runs }));
+    }
+    if (req.method === 'POST' && req.url === '/repos/dono/NF-Site/actions/workflows/publicar.yml/dispatches') {
+      res.writeHead(204);
+      return res.end();
+    }
+    res.writeHead(404);
+    res.end('{}');
+  });
+});
+await new Promise((r) => servidorGithub.listen(PORTA_GITHUB, '127.0.0.1', r));
+const TOKEN_GITHUB = `github_pat_teste_${randomBytes(12).toString('hex')}`;
+
 // ---------- ambiente ----------
 const admin = await conectarAdmin();
 const senhaBanco = await criarBanco(admin, BANCO, USUARIO);
@@ -123,9 +150,20 @@ const base = { dsn, usuario: USUARIO, senha: senhaBanco, urlCnpj };
 const pastaPrincipal = path.join(pasta, 'principal');
 const pastaSegura = path.join(pasta, 'segura');
 const pastaSemBanco = path.join(pasta, 'sem-banco');
-for (const p of [pastaPrincipal, pastaSegura, pastaSemBanco]) (await import('node:fs')).mkdirSync(p);
+const pastaSemContas = path.join(pasta, 'sem-contas');
+const pastaSemGithub = path.join(pasta, 'sem-github');
+for (const p of [pastaPrincipal, pastaSegura, pastaSemBanco, pastaSemContas, pastaSemGithub]) (await import('node:fs')).mkdirSync(p);
+const segredoPrincipal = randomBytes(32).toString('hex');
+const pastaSite = path.join(pastaPrincipal, 'site'); // fotos enviadas pelo painel
 
-const phpPrincipal = await iniciarPhp({ porta: PORTA, config: escreverConfig(pastaPrincipal, { ...base, origens: [BASE] }) });
+const phpPrincipal = await iniciarPhp({ porta: PORTA, config: escreverConfig(pastaPrincipal, {
+  ...base, origens: [BASE], segredo: segredoPrincipal, pastaSite,
+  github: { token: TOKEN_GITHUB, repositorio: 'dono/NF-Site', ramo: 'teste', api: `http://127.0.0.1:${PORTA_GITHUB}` },
+}) });
+const phpSemContas = await iniciarPhp({ porta: PORTA_SEM_CONTAS, contas: false, config: escreverConfig(pastaSemContas, { ...base }) });
+const phpSemGithub = await iniciarPhp({ porta: PORTA_SEM_GITHUB, config: escreverConfig(pastaSemGithub, {
+  ...base, segredo: segredoPrincipal, pastaSessoes: path.join(pastaPrincipal, 'sessoes'),
+}) });
 const phpSeguro = await iniciarPhp({ porta: PORTA_SEGURA, config: escreverConfig(pastaSegura, { ...base, cookieSeguro: true, origens: [] }) });
 const phpSemBanco = await iniciarPhp({ porta: PORTA_SEM_BANCO, config: escreverConfig(pastaSemBanco, { ...base, senha: 'senha-errada' }) });
 const phpSemConfig = await iniciarPhp({ porta: PORTA_SEM_CONFIG, config: path.join(pasta, 'nao-existe.php') });
@@ -670,6 +708,381 @@ try {
   });
 
   // ===========================================================================
+  grupo('11. Catálogo e estoque públicos');
+  // ===========================================================================
+  await passo('catálogo vazio', async () => {
+    const anon = new Navegador();
+    const c = await anon.req('GET', '/api/catalogo');
+    ok(c.status === 200 && Array.isArray(c.dados?.produtos) && c.dados.produtos.length === 0, 'Banco sem produtos: catálogo vazio (o site usa os arquivos)');
+    const e = await anon.req('GET', '/api/estoque');
+    ok(e.status === 200 && e.dados?.estoque && Object.keys(e.dados.estoque).length === 0, 'Estoque vazio enquanto o banco não tem produtos');
+    ok((await anon.req('POST', '/api/catalogo', { json: {} })).status === 405, 'Catálogo só aceita GET');
+  });
+
+  // ===========================================================================
+  grupo('12. Pedidos de orçamento (cliente)');
+  // ===========================================================================
+  let clientePedidos; // PF
+  let navPedidos;
+  let navEmpresa;
+  let codigoPF;
+  await passo('pedidos do cliente', async () => {
+    await zerarTentativas();
+    const anon = await novo();
+    for (const [m, rota] of [['GET', '/api/conta'], ['GET', '/api/orcamentos'], ['POST', '/api/orcamento-criar'], ['POST', '/api/orcamento-cancelar'], ['POST', '/api/conta-excluir']]) {
+      const r = await anon.req(m, rota, m === 'POST' ? { json: {} } : {});
+      ok(r.status === 401 && r.dados?.codigo === 'login', `Sem login: ${m} ${rota} → 401`, `HTTP ${r.status}`);
+    }
+    clientePedidos = cadastroPF({ nome: 'Carla', sobrenome: 'Pedidos', telefone: '(12) 98888-7777' });
+    navPedidos = await novo();
+    ok((await navPedidos.post('/api/cadastrar', clientePedidos)).status === 201, 'Cliente PF cadastrado');
+    const conta = await navPedidos.req('GET', '/api/conta');
+    ok(conta.status === 200 && conta.dados?.cliente?.sobrenome === 'Pedidos' && conta.dados.cliente.endereco?.cidade === 'São José dos Campos'
+      && !('senha_hash' in conta.dados.cliente) && !('id' in conta.dados.cliente.endereco), 'GET conta: dados do cadastro, sem senha nem ids internos');
+
+    const vazio = await navPedidos.post('/api/orcamento-criar', { itens: [] });
+    ok(vazio.status === 422, 'Carrinho vazio → 422');
+    const qtd = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: 0 }] });
+    ok(qtd.status === 422, 'Quantidade 0 → 422');
+    const qtd2 = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: '2' }] });
+    ok(qtd2.status === 422, 'Quantidade em texto → 422');
+    const inexistente = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: 'nao-existe', modalidade: 'compra', quantidade: 1 }] });
+    ok(inexistente.status === 422 && inexistente.dados?.itens?.[0]?.slug === 'nao-existe', 'Produto que não existe → 422 apontando o item');
+    const locacaoPF = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'locacao', quantidade: 1 }] });
+    ok(locacaoPF.status === 422 && /CNPJ/.test(locacaoPF.dados?.erro), 'Pessoa física não pede locação → 422');
+    const demais = await navPedidos.post('/api/orcamento-criar', { itens: Array.from({ length: 31 }, () => ({ slug: '15-mp5001', modalidade: 'compra', quantidade: 1 })) });
+    ok(demais.status === 422, 'Mais de 30 itens → 422');
+    const obsRuim = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: 1 }], observacoes: 'x'.repeat(1001) });
+    ok(obsRuim.status === 422 && obsRuim.dados?.campos?.observacoes, 'Observações com mais de 1.000 caracteres → 422');
+
+    const certo = await navPedidos.post('/api/orcamento-criar', {
+      itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: 2 }, { slug: '4-toner', modalidade: 'compra', quantidade: 3 },
+        { slug: '15-mp5001', modalidade: 'compra', quantidade: 1 }],
+      observacoes: 'Entregar pela manhã.\nLigar antes.',
+    });
+    codigoPF = certo.dados?.codigo;
+    ok(certo.status === 201 && /^NF-[0-9A-HJ-NP-Z]{8}$/.test(codigoPF || ''), 'Pedido criado → 201 com código NF-XXXXXXXX', `HTTP ${certo.status} ${certo.texto.slice(0, 120)}`);
+    const [o] = await linhas(`SELECT id, usuario_id, endereco_id, status, observacoes_cliente FROM ${BANCO}.orcamentos WHERE codigo = ?`, [codigoPF]);
+    const itens = await linhas(`SELECT produto_slug, produto_nome, modalidade, quantidade FROM ${BANCO}.orcamento_itens WHERE orcamento_id = ? ORDER BY id`, [o?.id]);
+    ok(o?.status === 'novo' && o.endereco_id && o.observacoes_cliente === 'Entregar pela manhã.\nLigar antes.', 'Pedido gravado com endereço principal e observações (com quebra de linha)');
+    ok(itens.length === 2 && itens[0].quantidade === 3 && itens[0].produto_nome === 'Ricoh MP 5001', 'Itens repetidos somados; nome do produto vem do catálogo', JSON.stringify(itens));
+    const [notif] = await linhas(`SELECT tipo, orcamento_id, resumo FROM ${BANCO}.notificacoes WHERE orcamento_id = ?`, [o?.id]);
+    ok(notif?.tipo === 'novo_orcamento' && notif.resumo.includes(codigoPF) && notif.resumo.includes('Carla Pedidos'), 'Notificação de pedido no painel, ligada ao pedido');
+    const aviso = emails().find((e) => e.includes(`Pedido de orçamento ${codigoPF}`));
+    ok(aviso && aviso.includes('To: equipe@nf.test') && aviso.includes('3x Ricoh MP 5001 (compra)') && aviso.includes(`/admin#orcamento/${o?.id}`),
+      'E-mail para a equipe com os itens e o link do painel');
+
+    const lista = await navPedidos.req('GET', '/api/orcamentos');
+    const meu = lista.dados?.orcamentos?.[0];
+    ok(lista.status === 200 && lista.dados.orcamentos.length === 1 && meu.codigo === codigoPF && meu.status === 'novo' && meu.itens.length === 2,
+      'GET orcamentos: o cliente vê o pedido, a situação e os itens');
+    ok(!('id' in meu) && !('observacoesInternas' in meu) && !lista.texto.includes('observacoes_internas'), 'O cliente não vê ids nem anotações internas');
+
+    // Empresa: locação liberada
+    navEmpresa = await novo();
+    const cadPJ = await navEmpresa.post('/api/cadastrar', cadastroPJ(cnpj(), { nome: 'Eduardo', sobrenome: 'Empresa' }));
+    ok(cadPJ.status === 201, 'Cliente PJ cadastrado', `HTTP ${cadPJ.status} ${cadPJ.texto.slice(0, 100)}`);
+    const loc = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'locacao', quantidade: 1 }] });
+    ok(loc.status === 201, 'Empresa pede locação → 201');
+    const tonerLoc = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: '4-toner', modalidade: 'locacao', quantidade: 1 }] });
+    ok(tonerLoc.status === 422, 'Suprimento não é alugado (nem para empresa) → 422');
+
+    // Um cliente não vê nem cancela o pedido do outro
+    const outros = await navEmpresa.req('GET', '/api/orcamentos');
+    ok(outros.dados?.orcamentos?.every((x) => x.codigo !== codigoPF), 'Um cliente não vê os pedidos de outro');
+    const cancelarAlheio = await navEmpresa.post('/api/orcamento-cancelar', { codigo: codigoPF });
+    ok(cancelarAlheio.status === 404, 'Um cliente não cancela o pedido de outro (404)');
+    ok((await navPedidos.post('/api/orcamento-cancelar', { codigo: "NF-' OR 1=1" })).status === 404, 'Código em formato inválido → 404');
+
+    // Limite: 10 pedidos por hora
+    const [u] = await linhas(`SELECT id FROM ${BANCO}.usuarios WHERE email = ?`, [clientePedidos.email]);
+    clientePedidos.id = u.id;
+    for (let i = 0; i < 9; i++) {
+      await admin.query(`INSERT INTO ${BANCO}.orcamentos (codigo, usuario_id) VALUES (?, ?)`, [`NF-${String(i).padStart(2, '0')}AAAAAA`.slice(0, 11), u.id]);
+    }
+    const limite = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: 1 }] });
+    ok(limite.status === 429, '11º pedido na mesma hora → 429', `HTTP ${limite.status}`);
+    await admin.query(`DELETE FROM ${BANCO}.orcamentos WHERE usuario_id = ? AND codigo LIKE 'NF-0%AAAAAA'`, [u.id]);
+  });
+
+  // ===========================================================================
+  grupo('13. Painel: pedidos de orçamento');
+  // ===========================================================================
+  let idPedidoPF;
+  await passo('pedidos no painel', async () => {
+    const anon = await novo();
+    ok((await anon.req('GET', '/api/admin/orcamentos')).status === 401, 'Sem login no painel: lista de pedidos → 401');
+    ok((await navPedidos.req('GET', '/api/admin/orcamentos')).status === 401, 'Cliente logado no site não acessa o painel');
+    const lista = await adm.req('GET', '/api/admin/orcamentos');
+    const pf = lista.dados?.orcamentos?.find((x) => x.codigo === codigoPF);
+    idPedidoPF = pf?.id;
+    ok(lista.status === 200 && lista.dados.total >= 2 && pf?.cliente === 'Carla Pedidos' && pf.itens === 6, 'Lista de pedidos com cliente e quantidade de itens');
+    const busca = await adm.req('GET', `/api/admin/orcamentos?busca=${encodeURIComponent(codigoPF)}`);
+    ok(busca.dados?.total === 1, 'Busca pelo código do pedido');
+    const filtro = await adm.req('GET', '/api/admin/orcamentos?status=aprovado');
+    ok(filtro.dados?.total === 0, 'Filtro por situação');
+    const ficha = await adm.req('GET', `/api/admin/orcamento?id=${idPedidoPF}`);
+    ok(ficha.status === 200 && ficha.dados.orcamento.cliente?.telefone === '12988887777' && ficha.dados.orcamento.endereco?.cidade === 'São José dos Campos'
+      && ficha.dados.orcamento.itens.length === 2 && ficha.dados.orcamento.observacoesCliente.includes('Ligar antes'), 'Pedido completo: cliente, contato, endereço, itens e observações');
+    ok((await adm.req('GET', '/api/admin/orcamento?id=999999')).status === 404, 'Pedido inexistente → 404');
+    ok((await adm.req('GET', '/api/admin/orcamento?id=abc')).status === 422, 'Id inválido → 422');
+    const ruim = await adm.post('/api/admin/orcamento-status', { id: idPedidoPF, status: 'pago' });
+    ok(ruim.status === 422, 'Situação fora da lista → 422');
+    const st = await adm.post('/api/admin/orcamento-status', { id: idPedidoPF, status: 'em_atendimento' });
+    const [o] = await linhas(`SELECT status, atendido_por FROM ${BANCO}.orcamentos WHERE id = ?`, [idPedidoPF]);
+    ok(st.status === 200 && o.status === 'em_atendimento' && o.atendido_por, 'Mudar situação: grava e define o responsável');
+    const notas = await adm.post('/api/admin/orcamento-notas', { id: idPedidoPF, observacoes: 'Cliente quer parcelar.\nRetornar sexta.' });
+    ok(notas.status === 200, 'Anotações internas gravadas');
+    const visto = await navPedidos.req('GET', '/api/orcamentos');
+    ok(visto.dados.orcamentos[0].status === 'em_atendimento' && !visto.texto.includes('parcelar'), 'O cliente vê a nova situação, mas não as anotações internas');
+    const cancelar = await navPedidos.post('/api/orcamento-cancelar', { codigo: codigoPF });
+    ok(cancelar.status === 409, 'Pedido já em atendimento: o cliente não cancela pelo site (409)');
+    const hist = (await adm.req('GET', `/api/admin/orcamento?id=${idPedidoPF}`)).dados?.orcamento?.historico || [];
+    ok(hist.some((h) => h.acao === 'orcamento_status' && h.detalhes?.para === 'em_atendimento') && hist.some((h) => h.acao === 'orcamento_notas'),
+      'Histórico do pedido registra situação e anotações');
+    const ficha2 = await adm.req('GET', `/api/admin/cliente?id=${clientePedidos.id}`);
+    ok(ficha2.dados?.cliente?.orcamentos?.[0]?.codigo === codigoPF, 'Ficha do cliente lista os pedidos dele');
+    const resumo = await adm.req('GET', '/api/admin/resumo');
+    ok(resumo.dados?.orcamentosNovos >= 1 && resumo.dados?.orcamentosEmAtendimento >= 1, 'Resumo conta pedidos novos e em atendimento');
+    const notifs = await adm.req('GET', '/api/admin/notificacoes');
+    ok(notifs.dados?.notificacoes?.some((n) => n.tipo === 'novo_orcamento' && n.orcamentoId === idPedidoPF), 'Notificações trazem o pedido de cada aviso');
+
+    // O cliente cancela um pedido ainda novo
+    const novoPedido = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '4-toner', modalidade: 'compra', quantidade: 1 }] });
+    const cancelou = await navPedidos.post('/api/orcamento-cancelar', { codigo: novoPedido.dados?.codigo });
+    const [c] = await linhas(`SELECT id, status FROM ${BANCO}.orcamentos WHERE codigo = ?`, [novoPedido.dados?.codigo]);
+    ok(cancelou.status === 200 && c?.status === 'cancelado', 'O cliente cancela um pedido ainda não atendido');
+    const histC = (await adm.req('GET', `/api/admin/orcamento?id=${c?.id}`)).dados?.orcamento?.historico || [];
+    ok(histC[0]?.acao === 'orcamento_cancelado_cliente' && histC[0]?.admin === 'Cliente (pelo site)', 'Cancelamento pelo cliente aparece no histórico');
+  });
+
+  // ===========================================================================
+  grupo('14. Painel: produtos, estoque e fotos');
+  // ===========================================================================
+  let idProdutoNovo;
+  await passo('produtos', async () => {
+    ok((await (await novo()).req('GET', '/api/admin/produtos')).status === 401, 'Sem login no painel: produtos → 401');
+    const imp = await adm.post('/api/admin/produtos-importar', {});
+    ok(imp.status === 201 && imp.dados?.quantidade === 15, 'Importa os 15 produtos dos arquivos do site', `HTTP ${imp.status} ${imp.texto.slice(0, 150)}`);
+    ok((await adm.post('/api/admin/produtos-importar', {})).status === 409, 'A importação só roda uma vez (banco já tem produtos)');
+    const [t] = await linhas(`SELECT COUNT(*) AS n, SUM(estoque = 1) AS um, SUM(destaque) AS destaques FROM ${BANCO}.produtos`);
+    ok(Number(t.n) === 15 && Number(t.um) === 15 && Number(t.destaques) === 4, 'Importados com 1 unidade em estoque e os 4 destaques da página inicial');
+    const [toner] = await linhas(`SELECT modelo, impressao, disponivel_locacao FROM ${BANCO}.produtos WHERE slug = '4-toner'`);
+    ok(toner?.modelo === '' && toner.impressao === null && toner.disponivel_locacao === 0, 'Toner: sem modelo, sem tipo de impressão e sem locação');
+
+    const cat = await new Navegador().req('GET', '/api/catalogo');
+    const mp5001 = cat.dados?.produtos?.find((p) => p.slug === '15-mp5001');
+    ok(cat.status === 200 && cat.dados.produtos.length === 15 && mp5001?.fotos?.length >= 1 && mp5001.impressao === 'monocromatica', 'Catálogo público vem do banco, com fotos');
+    ok(!cat.texto.includes('preco') && !cat.texto.includes('estoque_minimo'), 'Catálogo público sem preço de referência nem dados internos');
+    const { textoParaBlocos } = await import('../lib/catalogo.mjs');
+    const original = JSON.parse(readFileSync(path.join(import.meta.dirname, '..', 'dados', 'produtos.json'), 'utf8')).find((p) => p.slug === '18-mpc3502');
+    const doBanco = cat.dados.produtos.find((p) => p.slug === '18-mpc3502');
+    ok(JSON.stringify(textoParaBlocos(doBanco?.descricao)) === JSON.stringify(original.descricao), 'Descrição volta do banco igual à original (títulos, tabelas e listas)');
+
+    // criar
+    const base = { slug: 'ricoh-im-c3000', marca: 'Ricoh', modelo: 'IM C3000', nome: 'Ricoh IM C3000', categoria: 'multifuncionais',
+      impressao: 'colorida', condicao: 'seminovo', resumo: 'Multifuncional colorida A3', descricao: '## Destaques\n- Rápida\n- Econômica\n\n| Velocidade | 30 ppm',
+      disponivelVenda: true, disponivelLocacao: true, estoque: 3, estoqueMinimo: 2, precoReferencia: 1500000, status: 'ativo', destaque: false, ordem: 5 };
+    const invalido = await adm.post('/api/admin/produto-criar', { ...base, slug: 'Ricoh IM!', categoria: 'outra', estoque: -1 });
+    ok(invalido.status === 422 && invalido.dados?.campos?.slug && invalido.dados.campos.categoria && invalido.dados.campos.estoque, 'Produto inválido → 422 com os campos');
+    const supLoc = await adm.post('/api/admin/produto-criar', { ...base, categoria: 'suprimentos', impressao: null });
+    ok(supLoc.status === 422 && supLoc.dados?.campos?.disponivelLocacao, 'Suprimento para locação → 422');
+    const xss = await adm.post('/api/admin/produto-criar', { ...base, slug: 'x', nome: 'Ricoh\u0000' });
+    ok(xss.status === 422, 'Nome com caractere de controle → 422');
+    const criar = await adm.post('/api/admin/produto-criar', base);
+    idProdutoNovo = criar.dados?.id;
+    ok(criar.status === 201 && idProdutoNovo, 'Produto criado → 201');
+    ok((await adm.post('/api/admin/produto-criar', base)).status === 409, 'Endereço (slug) repetido → 409');
+    const ficha = await adm.req('GET', `/api/admin/produto?id=${idProdutoNovo}`);
+    ok(ficha.status === 200 && ficha.dados.produto.precoReferencia === 1500000 && ficha.dados.produto.titulo === 'Ricoh IM C3000', 'Ficha do produto (o painel vê o preço de referência)');
+
+    // editar
+    const editar = await adm.post('/api/admin/produto-editar', { ...base, id: idProdutoNovo, resumo: 'Multifuncional colorida A3, revisada' });
+    ok(editar.status === 200 && editar.dados.alterados.join() === 'resumo', 'Editar grava e devolve só os campos alterados');
+
+    // estoque
+    const notifsAntes = Number((await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.notificacoes WHERE produto_id = ?`, [idProdutoNovo]))[0].n);
+    await adm.post('/api/admin/produto-estoque', { id: idProdutoNovo, estoque: 2 });
+    const [baixo] = await linhas(`SELECT tipo FROM ${BANCO}.notificacoes WHERE produto_id = ? ORDER BY id DESC LIMIT 1`, [idProdutoNovo]);
+    ok(baixo?.tipo === 'estoque_baixo' && Number((await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.notificacoes WHERE produto_id = ?`, [idProdutoNovo]))[0].n) === notifsAntes + 1,
+      'Estoque chegou ao mínimo → aviso de estoque baixo');
+    await adm.post('/api/admin/produto-estoque', { id: idProdutoNovo, estoque: 1 });
+    ok(Number((await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.notificacoes WHERE produto_id = ?`, [idProdutoNovo]))[0].n) === notifsAntes + 1,
+      'Continua baixo: não repete o aviso');
+    const zerar = await adm.post('/api/admin/produto-estoque', { id: idProdutoNovo, estoque: 0 });
+    const [zerado] = await linhas(`SELECT tipo FROM ${BANCO}.notificacoes WHERE produto_id = ? ORDER BY id DESC LIMIT 1`, [idProdutoNovo]);
+    ok(zerar.status === 200 && zerado?.tipo === 'estoque_zerado', 'Estoque zerado → aviso no painel');
+    ok((await adm.post('/api/admin/produto-estoque', { id: idProdutoNovo, estoque: -3 })).status === 422, 'Estoque negativo → 422');
+    const est = await new Navegador().req('GET', '/api/estoque');
+    ok(est.dados?.estoque?.['ricoh-im-c3000'] === 0 && est.dados.estoque['15-mp5001'] === 1, 'GET estoque (público) mostra o zerado na hora');
+    const pedidoZerado = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: 'ricoh-im-c3000', modalidade: 'compra', quantidade: 1 }] });
+    ok(pedidoZerado.status === 422 && /indisponível/.test(pedidoZerado.dados?.erro), 'Pedido com produto de estoque zerado → 422 (indisponível)');
+    const resumo = await adm.req('GET', '/api/admin/resumo');
+    ok(resumo.dados?.semEstoque >= 1 && resumo.dados?.produtos === 16, 'Resumo conta produtos e os sem estoque');
+    const filtro = await adm.req('GET', '/api/admin/produtos?estoque=zerado');
+    ok(filtro.dados?.total === 1 && filtro.dados.produtos[0].slug === 'ricoh-im-c3000', 'Filtro de produtos sem estoque');
+
+    // ocultar
+    await adm.post('/api/admin/produto-editar', { ...base, id: idProdutoNovo, estoque: 4, status: 'oculto' });
+    const cat2 = await new Navegador().req('GET', '/api/catalogo');
+    const est2 = await new Navegador().req('GET', '/api/estoque');
+    ok(!cat2.dados.produtos.some((p) => p.slug === 'ricoh-im-c3000') && est2.dados.estoque['ricoh-im-c3000'] === 0,
+      'Produto oculto: sai do catálogo e aparece como indisponível até a próxima publicação');
+    await adm.post('/api/admin/produto-editar', { ...base, id: idProdutoNovo, estoque: 4 });
+
+    // fotos
+    const enviar = (campos) => {
+      const fd = new FormData();
+      for (const [k, v] of Object.entries(campos)) if (v.blob) fd.append(k, v.blob, v.nome); else fd.append(k, v);
+      return adm.req('POST', '/api/admin/produto-foto', { corpo: fd });
+    };
+    const jpg = await sharp({ create: { width: 1800, height: 1200, channels: 3, background: '#0aa0dc' } }).jpeg().toBuffer();
+    const foto = await enviar({ produtoId: String(idProdutoNovo), alt: 'Frente da Ricoh', foto: { blob: new Blob([jpg], { type: 'image/jpeg' }), nome: 'frente.jpg' } });
+    ok(foto.status === 201 && /^\/uploads\/produtos\/ricoh-im-c3000\/[a-f0-9]{16}\.webp$/.test(foto.dados?.url || ''), 'Foto enviada → regravada como WebP com nome gerado', `HTTP ${foto.status} ${foto.texto.slice(0, 160)}`);
+    const arquivo = path.join(pastaSite, ...String(foto.dados?.url).split('/'));
+    const reduzidas = [64, 128, 256, 384, 640, 828, 1080, 1600].map((l) => path.join(pastaSite, 'otim', ...String(foto.dados?.url).replace('.webp', `-${l}.webp`).split('/')));
+    ok(existsSync(arquivo) && reduzidas.every(existsSync), 'Original e as 8 versões reduzidas gravadas (as larguras do site)');
+    // lida da memória: no Windows, o sharp abrindo o arquivo o deixaria travado e a API não conseguiria apagá-lo
+    const meta = existsSync(arquivo) ? await sharp(readFileSync(arquivo)).metadata() : {};
+    ok(meta.format === 'webp' && meta.width === 1600, 'Original reduzido para 1600 px de largura');
+    ok(existsSync(path.join(pastaSite, 'uploads', '.htaccess')) && /Require all denied/.test(readFileSync(path.join(pastaSite, 'uploads', '.htaccess'), 'utf8')),
+      'Pasta de fotos protegida: só imagens com nome gerado são servidas, nada é executado');
+    const php = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob(['<?php system($_GET["c"]); ?>'], { type: 'image/jpeg' }), nome: 'foto.php.jpg' } });
+    ok(php.status === 422, 'Arquivo PHP disfarçado de foto → 422');
+    const svg = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob(['<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'], { type: 'image/svg+xml' }), nome: 'x.svg' } });
+    ok(svg.status === 422, 'SVG (pode ter script) → 422');
+    const poliglota = Buffer.concat([jpg, Buffer.from('<?php echo 1; ?>')]);
+    const fotoPoli = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob([poliglota], { type: 'image/jpeg' }), nome: 'p.jpg' } });
+    const salvo = fotoPoli.dados?.url ? readFileSync(path.join(pastaSite, ...fotoPoli.dados.url.split('/'))) : Buffer.from('<?php');
+    ok(fotoPoli.status === 201 && !salvo.includes('<?php'), 'JPG com código escondido no fim: a foto regravada não leva o código');
+    const pequena = await sharp({ create: { width: 20, height: 20, channels: 3, background: '#000' } }).png().toBuffer();
+    ok((await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob([pequena], { type: 'image/png' }), nome: 'p.png' } })).status === 422, 'Foto pequena demais → 422');
+    ok((await enviar({ produtoId: '999999', foto: { blob: new Blob([jpg], { type: 'image/jpeg' }), nome: 'a.jpg' } })).status === 404, 'Foto para produto inexistente → 404');
+    const semCsrfFd = new FormData();
+    semCsrfFd.append('produtoId', String(idProdutoNovo));
+    ok((await adm.req('POST', '/api/admin/produto-foto', { corpo: semCsrfFd, comCsrf: false })).status === 403, 'Envio de foto exige o código CSRF');
+    const json = await adm.post('/api/admin/produto-foto', { produtoId: idProdutoNovo });
+    ok(json.status === 415, 'Envio de foto em JSON → 415');
+
+    const fichaFotos = (await adm.req('GET', `/api/admin/produto?id=${idProdutoNovo}`)).dados?.produto?.fotos || [];
+    ok(fichaFotos.length === 2 && fichaFotos[0].alt === 'Frente da Ricoh', 'Ficha lista as fotos na ordem');
+    const ordemRuim = await adm.post('/api/admin/produto-fotos-ordem', { produtoId: idProdutoNovo, ids: [fichaFotos[0]?.id] });
+    ok(ordemRuim.status === 422, 'Nova ordem precisa ter todas as fotos');
+    const ordem = await adm.post('/api/admin/produto-fotos-ordem', { produtoId: idProdutoNovo, ids: fichaFotos.map((f) => f.id).reverse() });
+    const depois = (await adm.req('GET', `/api/admin/produto?id=${idProdutoNovo}`)).dados?.produto?.fotos || [];
+    ok(ordem.status === 200 && depois[0]?.id === fichaFotos[1]?.id, 'Muda a ordem das fotos (a primeira é a principal)');
+    const apagar = await adm.post('/api/admin/produto-foto-excluir', { id: fichaFotos[1]?.id });
+    ok(apagar.status === 200 && !existsSync(path.join(pastaSite, ...String(fotoPoli.dados?.url).split('/'))), 'Apagar foto remove os arquivos');
+
+    // pedido com o produto e depois exclusão do produto
+    const pedido = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: 'ricoh-im-c3000', modalidade: 'locacao', quantidade: 2 }] });
+    ok(pedido.status === 201, 'Pedido com produto cadastrado no painel');
+    const [item] = await linhas(`SELECT i.produto_id FROM ${BANCO}.orcamento_itens i JOIN ${BANCO}.orcamentos o ON o.id = i.orcamento_id WHERE o.codigo = ?`, [pedido.dados?.codigo]);
+    ok(item?.produto_id === idProdutoNovo, 'Item do pedido ligado ao produto do banco');
+    ok((await adm.post('/api/admin/produto-excluir', { id: idProdutoNovo, confirmacao: 'outro' })).status === 422, 'Excluir produto exige digitar o endereço');
+    const excluir = await adm.post('/api/admin/produto-excluir', { id: idProdutoNovo, confirmacao: 'ricoh-im-c3000' });
+    const [restante] = await linhas(`SELECT produto_id, produto_nome FROM ${BANCO}.orcamento_itens i JOIN ${BANCO}.orcamentos o ON o.id = i.orcamento_id WHERE o.codigo = ?`, [pedido.dados?.codigo]);
+    ok(excluir.status === 200 && !existsSync(arquivo) && restante?.produto_id === null && restante.produto_nome === 'Ricoh IM C3000',
+      'Excluir produto apaga as fotos; pedidos antigos mantêm o nome');
+    const aud = (await adm.req('GET', '/api/admin/auditoria')).dados?.registros?.map((r) => r.acao) || [];
+    for (const a of ['produtos_importar', 'produto_criar', 'produto_editar', 'produto_estoque', 'produto_foto_enviar', 'produto_fotos_ordem', 'produto_foto_excluir', 'produto_excluir']) {
+      ok(aud.includes(a), `Auditoria registra "${a}"`);
+    }
+  });
+
+  // ===========================================================================
+  grupo('15. Publicação do site pelo painel');
+  // ===========================================================================
+  await passo('publicação', async () => {
+    const semGithub = new Navegador(`http://127.0.0.1:${PORTA_SEM_GITHUB}`);
+    semGithub.cookies = new Map(adm.cookies);
+    semGithub.csrf = adm.csrf;
+    const nc = await semGithub.req('GET', '/api/admin/publicacao');
+    ok(nc.status === 200 && nc.dados?.configurada === false, 'Sem o bloco "github": painel avisa que não está configurado');
+    ok((await semGithub.post('/api/admin/publicar', {})).status === 503, 'Sem configuração: publicar → 503 com explicação');
+
+    const p0 = await adm.req('GET', '/api/admin/publicacao');
+    ok(p0.status === 200 && p0.dados?.configurada && p0.dados.pendente === true && p0.dados.ultima === null, 'Há alterações de produto não publicadas');
+    ok((await (await novo()).post('/api/admin/publicar', {})).status === 401, 'Publicar exige o painel');
+    github.pedidos.length = 0;
+    const pub = await adm.post('/api/admin/publicar', {});
+    const disparo = github.pedidos.find((x) => x.metodo === 'POST');
+    ok(pub.status === 202 && disparo && JSON.parse(disparo.corpo).ref === 'teste' && disparo.auth === `Bearer ${TOKEN_GITHUB}`,
+      'Publicar → pede ao GitHub a Publicação do ramo configurado, com o token');
+    ok(!pub.texto.includes(TOKEN_GITHUB) && !(await adm.req('GET', '/api/admin/publicacao')).texto.includes(TOKEN_GITHUB), 'O token nunca vai para o navegador');
+    ok((await adm.post('/api/admin/publicar', {})).status === 429, 'Dois pedidos seguidos → 429');
+    await admin.query(`UPDATE ${BANCO}.auditoria SET criado_em = NOW() - INTERVAL 10 MINUTE WHERE alvo_tipo = 'produto' OR acao = 'produtos_importar'`);
+    await admin.query(`UPDATE ${BANCO}.auditoria SET criado_em = NOW() - INTERVAL 5 MINUTE WHERE acao = 'site_publicar'`);
+    github.runs = [{ status: 'in_progress', conclusion: null, run_started_at: '2026-10-18T12:00:00Z', html_url: 'https://github.com/dono/NF-Site/actions/runs/1' }];
+    const p1 = await adm.req('GET', '/api/admin/publicacao');
+    ok(p1.dados?.ultima?.situacao === 'publicando' && p1.dados.pendente === false, 'Mostra a publicação em andamento; nada pendente');
+    ok((await adm.post('/api/admin/publicar', {})).status === 409, 'Publicação em andamento → 409');
+    github.runs = [{ status: 'waiting', conclusion: null, html_url: 'javascript:alert(1)' }];
+    const p2 = await adm.req('GET', '/api/admin/publicacao');
+    ok(p2.dados?.ultima?.situacao === 'aguardando_aprovacao' && p2.dados.ultima.url === null, 'Aguardando aprovação; link que não é do GitHub é descartado');
+    github.runs = [{ status: 'completed', conclusion: 'failure' }];
+    ok((await adm.req('GET', '/api/admin/publicacao')).dados?.ultima?.situacao === 'falhou', 'Publicação com erro aparece como "falhou"');
+    ok((await adm.req('GET', '/api/admin/auditoria')).dados?.registros?.some((r) => r.acao === 'site_publicar'), 'Auditoria registra "site_publicar"');
+  });
+
+  // ===========================================================================
+  grupo('16. Contas desligadas (vitrine)');
+  // ===========================================================================
+  await passo('vitrine', async () => {
+    const v = new Navegador(`http://127.0.0.1:${PORTA_SEM_CONTAS}`);
+    for (const [m, rota] of [['GET', '/api/sessao'], ['POST', '/api/cadastrar'], ['POST', '/api/entrar'], ['GET', '/api/conta'], ['GET', '/api/orcamentos'],
+      ['POST', '/api/orcamento-criar'], ['POST', '/api/conta-excluir']]) {
+      const r = await v.req(m, rota, m === 'POST' ? { json: {} } : {});
+      ok(r.status === 404, `Vitrine: ${m} ${rota} → 404`, `HTTP ${r.status}`);
+    }
+    ok((await v.req('GET', '/api/catalogo')).status === 200 && (await v.req('GET', '/api/estoque')).status === 200, 'Vitrine: catálogo e estoque funcionam');
+    ok((await v.req('GET', '/api/admin/sessao')).status === 200, 'Vitrine: o painel funciona');
+  });
+
+  // ===========================================================================
+  grupo('17. Excluir a própria conta (LGPD)');
+  // ===========================================================================
+  await passo('excluir conta', async () => {
+    await zerarTentativas();
+    const semConfirmar = await navPedidos.post('/api/conta-excluir', { senha: SENHA, confirmacao: 'excluir' });
+    ok(semConfirmar.status === 422 && semConfirmar.dados?.campos?.confirmacao, 'Exige digitar EXCLUIR');
+    const errada = await navPedidos.post('/api/conta-excluir', { senha: 'senhaErrada9', confirmacao: 'EXCLUIR' });
+    ok(errada.status === 401 && errada.dados?.campos?.senha, 'Senha errada → 401');
+    const [ainda] = await linhas(`SELECT id FROM ${BANCO}.usuarios WHERE id = ?`, [clientePedidos.id]);
+    ok(ainda?.id === clientePedidos.id, 'Com a senha errada, nada é apagado');
+    const semCsrf = await navPedidos.post('/api/conta-excluir', { senha: SENHA, confirmacao: 'EXCLUIR' }, { comCsrf: false });
+    ok(semCsrf.status === 403, 'Excluir conta exige o código CSRF');
+
+    const admNoSite = await novo();
+    await admNoSite.post('/api/entrar', { email: ADMIN.email, senha: SENHA });
+    ok((await admNoSite.post('/api/conta-excluir', { senha: SENHA, confirmacao: 'EXCLUIR' })).status === 403, 'Conta de administrador não é excluída pelo site');
+
+    const r = await navPedidos.post('/api/conta-excluir', { senha: SENHA, confirmacao: 'EXCLUIR' });
+    ok(r.status === 200 && r.dados?.cliente === null, 'Senha certa + EXCLUIR → conta excluída');
+    const [u] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.usuarios WHERE id = ?`, [clientePedidos.id]);
+    const [en] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.enderecos WHERE usuario_id = ?`, [clientePedidos.id]);
+    ok(Number(u.n) === 0 && Number(en.n) === 0, 'Cadastro e endereços apagados');
+    const [o] = await linhas(`SELECT usuario_id, endereco_id FROM ${BANCO}.orcamentos WHERE codigo = ?`, [codigoPF]);
+    ok(o && o.usuario_id === null && o.endereco_id === null, 'Pedidos ficam no histórico da empresa, sem ligação com a pessoa');
+    const [n] = await linhas(`SELECT tipo, usuario_id, resumo, lida_em FROM ${BANCO}.notificacoes WHERE tipo = 'conta_excluida' ORDER BY id DESC LIMIT 1`);
+    ok(n && n.usuario_id === null && n.resumo.includes('Carla Pedidos') && n.resumo.includes(clientePedidos.email) && n.resumo.includes('(12) 98888-7777') && n.lida_em === null,
+      'Aviso no painel com o nome e o contato do cliente', n?.resumo);
+    const sessao = await navPedidos.req('GET', '/api/conta');
+    ok(sessao.status === 401, 'A sessão termina junto com a conta');
+    ok((await (await novo()).post('/api/entrar', { email: clientePedidos.email, senha: SENHA })).status === 401, 'Não dá mais para entrar com a conta excluída');
+    const aud = (await adm.req('GET', '/api/admin/auditoria')).dados?.registros || [];
+    ok(aud.some((a) => a.acao === 'cliente_autoexcluir' && a.alvoId === clientePedidos.id), 'Auditoria registra a exclusão feita pelo próprio cliente');
+    const ficha = await adm.req('GET', `/api/admin/orcamento?id=${idPedidoPF}`);
+    ok(ficha.status === 200 && ficha.dados.orcamento.cliente === null && ficha.dados.orcamento.itens.length === 2, 'Painel mostra o pedido sem o cliente (conta excluída)');
+
+    // O aviso com dados pessoais sai do painel depois de 90 dias
+    await admin.query(`UPDATE ${BANCO}.notificacoes SET criado_em = NOW() - INTERVAL 91 DAY WHERE tipo = 'conta_excluida'`);
+    await adm.req('GET', '/api/admin/notificacoes');
+    const [restam] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.notificacoes WHERE tipo = 'conta_excluida'`);
+    ok(Number(restam.n) === 0, 'Aviso de conta excluída apagado depois de 90 dias');
+  });
+
+  // ===========================================================================
   grupo('7. Falhas do servidor não vazam informação');
   // ===========================================================================
   await passo('falhas', async () => {
@@ -696,8 +1109,9 @@ try {
     ok(problemas.length === 0, 'Nenhum aviso ou erro de PHP durante os testes', problemas.slice(0, 3).join(' | '));
   });
 } finally {
-  for (const p of [phpPrincipal, phpSeguro, phpSemBanco, phpSemConfig]) p.kill();
+  for (const p of [phpPrincipal, phpSeguro, phpSemBanco, phpSemConfig, phpSemContas, phpSemGithub]) p.kill();
   servidorCnpj.close();
+  servidorGithub.close();
   await apagarBanco(admin, BANCO, USUARIO);
   await admin.end();
   apagarPasta(pasta);

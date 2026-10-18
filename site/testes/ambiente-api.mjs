@@ -8,7 +8,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
-import { gerarCatalogoApi } from '../scripts/catalogo-api.mjs';
+import { gerarCatalogoApi } from '../scripts/catalogo.mjs';
 
 export const RAIZ_SITE = path.resolve(import.meta.dirname, '..');
 const RAIZ_REPO = path.resolve(RAIZ_SITE, '..');
@@ -61,27 +61,32 @@ export function escreverConfig(pasta, c) {
 return [
     'banco' => ['dsn' => ${php(c.dsn)}, 'usuario' => ${php(c.usuario)}, 'senha' => ${php(c.senha)}],
     'segredo' => ${php(c.segredo ?? randomBytes(32).toString('hex'))},
-    'pasta_sessoes' => ${php(path.join(pasta, 'sessoes'))},
+    'pasta_sessoes' => ${php(c.pastaSessoes ?? path.join(pasta, 'sessoes'))},
     'origens' => [${(c.origens || []).map(php).join(', ')}],
     'cookie_seguro' => ${php(c.cookieSeguro ?? false)},
     'cnpj' => ['url' => ${php(c.urlCnpj)}, 'permitir_http' => ${php(c.urlCnpj.startsWith('http:'))}],
     'url_site' => 'http://localhost:3221',
     // E-mails gravados como arquivos .eml na pasta "emails" (nada sai para a internet)
     'email' => ['modo' => 'arquivo', 'pasta' => ${php(path.join(pasta, 'emails'))}, 'remetente' => 'naoresponda@nf.test', 'admin' => 'equipe@nf.test'],
+    // Fotos enviadas pelo painel (uploads/ e otim/uploads/)
+    'pasta_site' => ${php(c.pastaSite ?? path.join(pasta, 'site'))},${c.github ? `
+    'github' => ['token' => ${php(c.github.token)}, 'repositorio' => ${php(c.github.repositorio)}, 'ramo' => ${php(c.github.ramo)},
+        'api' => ${php(c.github.api)}, 'permitir_http' => true],` : ''}
 ];
 `);
   return arquivo;
 }
 
 export const pastaTemporaria = () => mkdtempSync(path.join(tmpdir(), 'nf-api-'));
-export const apagarPasta = (p) => rmSync(p, { recursive: true, force: true });
+// Com novas tentativas: no Windows, o PHP recém-encerrado ainda segura os arquivos por um instante
+export const apagarPasta = (p) => rmSync(p, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 
 // Sobe o servidor embutido do PHP com a API (todas as rotas passam por api/index.php).
-export async function iniciarPhp({ porta, config }) {
-  gerarCatalogoApi(); // api/_dados/catalogo.json (produtos de interesse)
+export async function iniciarPhp({ porta, config, contas = true }) {
+  gerarCatalogoApi(); // api/_dados/ (catálogo e produtos para importar)
   const filho = spawn(PHP, ['-n', '-c', PHP_INI, '-S', `127.0.0.1:${porta}`, '-t', 'api', 'api/index.php'], {
     cwd: RAIZ_SITE,
-    env: { ...process.env, NF_CONFIG: config },
+    env: { ...process.env, NF_CONFIG: config, NF_CONTAS: contas ? '1' : '0' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   filho.log = '';

@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { dataHora } from './comum';
 
-const TIPOS = { novo_cliente: 'Cliente novo', estoque_baixo: 'Estoque baixo', estoque_zerado: 'Sem estoque' };
+const TIPOS = {
+  novo_cliente: ['Cliente novo', 'adm-etiqueta--c'],
+  novo_orcamento: ['Pedido de orçamento', 'adm-etiqueta--alerta'],
+  conta_excluida: ['Conta excluída', 'adm-etiqueta--cinza'],
+  estoque_baixo: ['Estoque baixo', 'adm-etiqueta--y'],
+  estoque_zerado: ['Sem estoque', 'adm-etiqueta--y'],
+};
+
+// Para onde cada aviso leva (o pedido, o produto ou a ficha do cliente)
+const destino = (n) => (n.orcamentoId ? `#orcamento/${n.orcamentoId}` : n.produtoId ? `#produto/${n.produtoId}` : n.clienteId ? `#cliente/${n.clienteId}` : null);
 
 export default function Notificacoes({ api, aoMudar }) {
   const [res, setRes] = useState(null);
@@ -35,9 +44,9 @@ export default function Notificacoes({ api, aoMudar }) {
         <ul className="adm-notificacoes">
           {res.notificacoes.map((n) => (
             <li key={n.id} className={n.lida ? '' : 'adm-notificacoes__nova'}>
-              <span className={`adm-etiqueta ${n.tipo === 'novo_cliente' ? 'adm-etiqueta--c' : 'adm-etiqueta--y'}`}>{TIPOS[n.tipo] || n.tipo}</span>
+              <span className={`adm-etiqueta ${TIPOS[n.tipo]?.[1] || ''}`}>{TIPOS[n.tipo]?.[0] || n.tipo}</span>
               <span className="adm-notificacoes__texto">
-                {n.clienteId ? <a href={`#cliente/${n.clienteId}`} onClick={() => !n.lida && marcar({ ids: [n.id] })}>{n.resumo}</a> : n.resumo}
+                {destino(n) ? <a href={destino(n)} onClick={() => !n.lida && marcar({ ids: [n.id] })}>{n.resumo}</a> : n.resumo}
               </span>
               <span className="adm-suave adm-nowrap">{dataHora(n.criadoEm)}</span>
               {!n.lida && <button type="button" className="adm-link" onClick={() => marcar({ ids: [n.id] })}>Marcar como lida</button>}

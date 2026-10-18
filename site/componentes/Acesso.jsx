@@ -44,10 +44,6 @@ function PainelAcesso({ abaInicial }) {
         {aba === 'entrar' ? <FormEntrar irParaCriar={() => setAba('criar')} /> : <FormCriar aoConcluir={setConcluido} />}
       </div>
 
-      <p className="acesso__demo">
-        Demonstração: o banco de dados ainda não existe. Nada é enviado ao servidor; a conta fica só neste navegador,
-        sem guardar senha, documento, telefone ou endereço.
-      </p>
     </div>
   );
 }
@@ -80,7 +76,7 @@ function Separador() {
 }
 
 // ---------- campo com rótulo, ajuda e erro ----------
-function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
+export function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
   const id = useId();
   const idAjuda = ajuda ? `${id}-ajuda` : undefined;
   const idErro = erro ? `${id}-erro` : undefined;
@@ -97,7 +93,7 @@ function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
   );
 }
 
-function CampoSenha({ rotulo, valor, aoMudar, erro, autoComplete, ajuda }) {
+export function CampoSenha({ rotulo, valor, aoMudar, erro, autoComplete, ajuda }) {
   const [visivel, setVisivel] = useState(false);
   return (
     <Campo rotulo={rotulo} erro={erro} ajuda={ajuda}>
@@ -136,7 +132,9 @@ function FormEntrar({ irParaCriar }) {
     setEnviando(true);
     const r = await entrar(email.trim(), senha);
     setEnviando(false);
-    if (r.ok) router.push('/loja');
+    // /entrar?volta=/conta volta para "Minha conta" (só endereços conhecidos: nada de redirecionar para outro site)
+    const volta = new URLSearchParams(window.location.search).get('volta') === '/conta' ? '/conta' : '/loja';
+    if (r.ok) router.push(volta);
     else setFalha(r.erro);
   };
 

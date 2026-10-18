@@ -1,5 +1,6 @@
 <?php
-// Envio de e-mails (aviso de cliente novo para a NF e aviso de pagamento pendente para o cliente).
+// Envio de e-mails (avisos de cliente novo e de pedido de orçamento para a NF; aviso de pagamento
+// pendente para o cliente).
 //
 // Configuração ('email' no arquivo de config):
 //   'modo'       => 'mail' (servidor do cPanel) | 'arquivo' (grava .eml numa pasta: testes) | 'desligado'
@@ -112,6 +113,41 @@ function nf_email_novo_cliente(array $config, int $id, array $u, array $endereco
 
     $ok = nf_enviar_email($config, $admin, "Novo cliente: {$u['primeiro_nome']} {$u['sobrenome']}", implode("\n", $linhas));
     nf_registrar_email($config, $id, 'novo_cliente_admin', $ok);
+}
+
+// Pedido de orçamento enviado pelo site: aviso para a equipe (Reply-To = e-mail da NF, nunca o do cliente).
+function nf_email_novo_orcamento(array $config, int $orcamentoId, string $codigo, array $u, array $itens, ?string $observacoes, ?array $endereco): void
+{
+    $admin = nf_email_config($config)['admin'];
+    if (!nf_email_valido($admin)) {
+        return;
+    }
+    $modalidades = ['compra' => 'compra', 'locacao' => 'locação'];
+    $linhas = [
+        "Novo pedido de orçamento pelo site: {$codigo}",
+        '',
+        "Cliente: {$u['primeiro_nome']} {$u['sobrenome']}" . ($u['tipo_pessoa'] === 'PJ' ? " ({$u['razao_social']})" : ''),
+        "E-mail: {$u['email']}",
+        'Telefone: ' . nf_formatar_telefone($u['telefone']),
+    ];
+    if ($endereco) {
+        $linhas[] = "Cidade: {$endereco['cidade']}/{$endereco['uf']}";
+    }
+    $linhas[] = '';
+    $linhas[] = 'Produtos:';
+    foreach ($itens as $i) {
+        $linhas[] = "• {$i['quantidade']}x {$i['nome']} ({$modalidades[$i['modalidade']]})";
+    }
+    if ($observacoes) {
+        $linhas[] = '';
+        $linhas[] = 'Observações do cliente:';
+        $linhas[] = $observacoes;
+    }
+    $linhas[] = '';
+    $linhas[] = 'Ver no painel: ' . rtrim((string) ($config['url_site'] ?? ''), '/') . "/admin#orcamento/{$orcamentoId}";
+
+    $ok = nf_enviar_email($config, $admin, "Pedido de orçamento {$codigo}: {$u['primeiro_nome']} {$u['sobrenome']}", implode("\n", $linhas));
+    nf_registrar_email($config, (int) $u['id'], 'novo_orcamento_admin', $ok);
 }
 
 // Aviso de pagamento pendente. Texto neutro e enviado só ao próprio cliente: o Código de Defesa

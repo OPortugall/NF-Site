@@ -116,7 +116,7 @@ CREATE TABLE produtos (
   id                         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   slug                       VARCHAR(120) NOT NULL COMMENT 'Parte do endereço da página, ex.: konica-minolta-bizhub-c361i',
   marca                      VARCHAR(60)  NOT NULL,
-  modelo                     VARCHAR(100) NOT NULL,
+  modelo                     VARCHAR(100) NOT NULL COMMENT 'Vazio em produtos sem modelo (ex.: toner): o site mostra o nome',
   nome                       VARCHAR(160) NOT NULL COMMENT 'Nome exibido no site',
   categoria                  ENUM('multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos') NOT NULL,
   -- Só para impressoras e copiadoras; fica vazio em impressora 3D, plotter e suprimentos
@@ -131,7 +131,7 @@ CREATE TABLE produtos (
   estoque_minimo             SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Avisa o painel quando o estoque chegar a este número (0 = sem aviso)',
   preco_referencia_centavos  INT UNSIGNED NULL COMMENT 'Interno: nunca exibido no site',
   status                     ENUM('ativo', 'oculto') NOT NULL DEFAULT 'ativo',
-  destaque                   TINYINT(1)   NOT NULL DEFAULT 0,
+  destaque                   TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '1 = aparece em "Equipamentos em estoque" na página inicial',
   ordem                      SMALLINT     NOT NULL DEFAULT 0,
   criado_em                  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em              DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -140,7 +140,7 @@ CREATE TABLE produtos (
   UNIQUE KEY uq_produtos_slug (slug),
   KEY ix_produtos_vitrine (status, categoria, ordem),
   CONSTRAINT ck_produtos_slug CHECK (CAST(slug AS BINARY) REGEXP '^[a-z0-9]+(-[a-z0-9]+)*$'),
-  CONSTRAINT ck_produtos_textos CHECK (TRIM(marca) <> '' AND TRIM(modelo) <> '' AND TRIM(nome) <> ''),
+  CONSTRAINT ck_produtos_textos CHECK (TRIM(marca) <> '' AND TRIM(nome) <> ''),
   CONSTRAINT ck_produtos_impressao CHECK (impressao IS NULL OR categoria IN ('multifuncionais', 'impressoras')),
   CONSTRAINT ck_produtos_especificacoes CHECK (especificacoes IS NULL OR JSON_VALID(especificacoes)),
   CONSTRAINT ck_produtos_disponibilidade CHECK (disponivel_venda IN (0, 1) AND disponivel_locacao IN (0, 1)
@@ -159,7 +159,11 @@ CREATE TABLE produto_fotos (
   UNIQUE KEY uq_produto_fotos_ordem (produto_id, ordem),
   CONSTRAINT fk_produto_fotos_produto FOREIGN KEY (produto_id) REFERENCES produtos (id)
     ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT ck_produto_fotos_url CHECK (CAST(url AS BINARY) REGEXP '^/produtos/[a-z0-9-]+/[a-zA-Z0-9._-]+\\.(jpe?g|png|webp)$')
+  -- /produtos/... = fotos que vêm no código do site; /uploads/produtos/... = fotos enviadas pelo painel
+  CONSTRAINT ck_produto_fotos_url CHECK (
+    CAST(url AS BINARY) REGEXP '^/(uploads/)?produtos/[a-z0-9-]+/[a-zA-Z0-9._-]+\\.(jpe?g|png|webp)$'
+    AND url NOT LIKE '%..%'
+  )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -306,9 +310,10 @@ CREATE TABLE tentativas_login (
 -- -----------------------------------------------------------------------------
 CREATE TABLE notificacoes (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  tipo        ENUM('novo_cliente', 'estoque_baixo', 'estoque_zerado') NOT NULL,
+  tipo        ENUM('novo_cliente', 'estoque_baixo', 'estoque_zerado', 'novo_orcamento', 'conta_excluida') NOT NULL,
   usuario_id  INT UNSIGNED NULL,
   produto_id  INT UNSIGNED NULL,
+  orcamento_id INT UNSIGNED NULL,
   resumo      VARCHAR(300) NOT NULL,
   lida_em     DATETIME     NULL,
   criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -319,6 +324,8 @@ CREATE TABLE notificacoes (
     ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT fk_notificacoes_produto FOREIGN KEY (produto_id) REFERENCES produtos (id)
     ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT fk_notificacoes_orcamento FOREIGN KEY (orcamento_id) REFERENCES orcamentos (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT ck_notificacoes_resumo CHECK (TRIM(resumo) <> '')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -326,7 +333,7 @@ CREATE TABLE auditoria (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   admin_id    INT UNSIGNED NULL,
   acao        VARCHAR(40)  NOT NULL,
-  alvo_tipo   ENUM('cliente', 'produto', 'admin', 'sistema') NOT NULL,
+  alvo_tipo   ENUM('cliente', 'produto', 'admin', 'sistema', 'orcamento') NOT NULL,
   alvo_id     INT UNSIGNED NULL,
   detalhes    JSON         NULL COMMENT 'Campos alterados (nunca senhas ou segredos)',
   ip_hmac     CHAR(64)     NULL COMMENT 'HMAC do IP (LGPD)',
@@ -345,7 +352,7 @@ CREATE TABLE auditoria (
 CREATE TABLE emails_enviados (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   usuario_id  INT UNSIGNED NULL,
-  tipo        ENUM('aviso_atraso', 'novo_cliente_admin') NOT NULL,
+  tipo        ENUM('aviso_atraso', 'novo_cliente_admin', 'novo_orcamento_admin') NOT NULL,
   sucesso     TINYINT(1)   NOT NULL,
   criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 

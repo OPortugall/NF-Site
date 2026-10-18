@@ -98,6 +98,9 @@ export default function Cabecalho() {
                       <br />
                       Cadastro com {cliente.tipo === 'cnpj' ? 'CNPJ (compra e locação)' : 'CPF (compra)'}
                     </p>
+                    <Link href="/conta" className="botao botao--principal botao--compacto" aria-current={caminho === '/conta' ? 'page' : undefined}>
+                      Minha conta e pedidos
+                    </Link>
                     <button type="button" className="botao botao--secundario botao--compacto" onClick={() => { sair(); setContaAberta(false); }}>
                       Sair
                     </button>

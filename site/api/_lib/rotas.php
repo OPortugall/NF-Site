@@ -88,7 +88,7 @@ function nf_rota_cadastrar(array $config): never
     if ($erros) {
         nf_erro(422, isset($erros['tipo']) ? 'Escolha CPF ou CNPJ.' : 'Confira os campos destacados.', ['campos' => $erros]);
     }
-    $interesses = nf_validar_interesses($d['interesses'] ?? null);
+    $interesses = nf_validar_interesses($config, $d['interesses'] ?? null);
 
     $ip = nf_ip();
     $espera = nf_bloqueio_cadastro($config, $ip);

@@ -100,7 +100,8 @@ O workflow `.github/workflows/publicar.yml` compila e envia o site por SSH (rsyn
 | `main` | `~/nfsolucoesdigitais.com.br-site` (produção) | precisa aprovar em Actions (ambiente `producao`) |
 
 Só publica se a Verificação passar. O rsync apaga no servidor o que saiu do site (restos de versões
-antigas), mas nunca `.well-known`, `cgi-bin`, `php.ini`, `.user.ini` e `error_log`; permissões sempre 755/644.
+antigas), mas nunca `.well-known`, `cgi-bin`, `php.ini`, `.user.ini`, `error_log` e as fotos enviadas pelo
+painel (`uploads/` e `otim/uploads/`); permissões sempre 755/644.
 A configuração da API (`~/config-nf/`) fica fora das pastas publicadas e nunca é tocada.
 
 Segredos do repositório (Settings → Secrets and variables → Actions): `SSH_HOST` (`cpl84.hosting24.com`),
@@ -118,18 +119,35 @@ restrict,command="/bin/python3 /home/raioxper/bin/rrsync -wo /home/raioxper/nfso
 
 Assim as chaves só enviam arquivos (sem terminal, sem ler nada) e cada uma só para a sua pasta.
 
-## API (PHP) — contas
+**Produtos do painel no site ("Publicar alterações"):** a compilação baixa o catálogo do banco se o ambiente
+tiver o segredo `CATALOGO_URL` (produção: `https://nfsolucoesdigitais.com.br/api/catalogo`; teste, com o usuário
+e a senha do site de teste: `https://usuario:senha@teste.nfsolucoesdigitais.com.br/api/catalogo`). Sem o segredo,
+ou com o banco ainda sem produtos, usa `dados/produtos*.json`; se a API responder com erro, a publicação para
+(para não publicar um catálogo velho). O botão do painel dispara este mesmo workflow (`workflow_dispatch`) com
+um token do GitHub guardado na configuração do servidor (bloco `github` de `api/config.exemplo.php`: token
+"fine-grained" só deste repositório, permissão **Actions: Read and write**). Na produção, a publicação ainda
+espera a sua aprovação no GitHub. O **estoque** não precisa publicar: o site lê `/api/estoque` ao vivo.
 
-As contas (cadastro, login, sessão) ficam numa API em PHP na pasta `api/`, que vai junto com o
-site **só quando as contas estão ligadas** (hoje: só no ambiente de teste). O resto do site continua estático.
+## API (PHP)
+
+A API em PHP (pasta `api/`) vai junto com o site nos dois ambientes. As rotas de cliente (cadastro, login,
+conta e pedidos) só respondem com as contas ligadas (hoje: só no teste; na vitrine respondem 404). O resto do
+site continua estático.
 
 | Rota | Método | O que faz |
 |---|---|---|
+| `/api/catalogo` | GET | produtos visíveis, com fotos (usado na compilação) |
+| `/api/estoque` | GET | estoque de cada produto, ao vivo (0 = "Indisponível" no site) |
 | `/api/sessao` | GET | cliente logado (ou `null`) e o código CSRF |
 | `/api/cadastrar` | POST | cria a conta (confere CPF/CNPJ, e o CNPJ na Receita) e já entra |
 | `/api/entrar` | POST | e-mail e senha |
 | `/api/sair` | POST | encerra a sessão |
-| `/api/admin/...` | GET/POST | painel administrativo (veja `api/_lib/rotas-admin.php`) |
+| `/api/conta` | GET | dados do cadastro ("Minha conta") |
+| `/api/orcamentos` | GET | pedidos de orçamento do cliente e a situação de cada um |
+| `/api/orcamento-criar` | POST | o carrinho vira um pedido (código `NF-XXXXXXXX`); avisa o painel e a NF por e-mail |
+| `/api/orcamento-cancelar` | POST | o cliente cancela um pedido ainda não atendido |
+| `/api/conta-excluir` | POST | senha + "EXCLUIR": apaga a conta e avisa o painel com nome e contato |
+| `/api/admin/...` | GET/POST | painel (veja `api/_lib/rotas-admin.php` e `rotas-admin-loja.php`) |
 
 Proteções: tudo passa por `api/index.php` (o resto de `api/` nunca é executado direto); só JSON; código
 CSRF em todo POST; só aceita pedidos do próprio site (Origin/Sec-Fetch-Site); sessão em cookie HttpOnly,
@@ -142,7 +160,7 @@ detalhes técnicos para o visitante. Os segredos ficam num arquivo **fora do sit
 Precisa do MariaDB e do PHP 8.3 locais (pasta de ferramentas) e das credenciais do banco **local**:
 
 ```
-DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run testar:api     # 237 testes da API (site + painel)
+DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run testar:api     # 373 testes da API (site + painel)
 DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run api:local      # API em :8081 (banco nf_local)
 API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # site + API
 ```
@@ -151,26 +169,37 @@ API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # 
 
 1. Crie `/home/raioxper/config-nf/` (fora de qualquer site) com permissão **700**.
 2. Dentro dela, crie `teste.php` a partir de `api/config.exemplo.php`, com o banco `raioxper_nfteste`,
-   o usuário `raioxper_nftst` e a senha dele, um `segredo` novo, `pasta_sessoes` =
+   o usuário `raioxper_nf_equipe` e a senha dele, um `segredo` novo, `pasta_sessoes` =
    `/home/raioxper/config-nf/sessoes-teste` e `origens` = `['https://teste.nfsolucoesdigitais.com.br']`.
    Permissão do arquivo: **600**.
 3. phpMyAdmin → banco `raioxper_nfteste` → **Importar** → `banco-de-dados/schema.sql`.
 4. `npm run compilar:teste` e envie `publicar/site-teste.zip` (já contém `api/` e `api/_ambiente.php`).
 
-Para a produção, o mesmo com `producao.php`, banco `raioxper_nf`, usuário `raioxper_nfapp` e
-`NEXT_PUBLIC_CONTAS_ATIVAS=true` na compilação — só depois de aprovado no teste.
+Para a produção, o mesmo com `producao.php`, banco `raioxper_nf` e usuário `raioxper_nfapp` (o painel e o
+estoque funcionam com as contas desligadas). Contas de cliente na produção: `NEXT_PUBLIC_CONTAS_ATIVAS=true`
+na compilação, só depois de aprovado no teste.
+
+Bancos que já existiam recebem as mudanças pelas migrações de `banco-de-dados/migracoes/` (rodar cada uma uma
+vez, em ordem, no phpMyAdmin → SQL).
+
+As fotos enviadas pelo painel são regravadas pela extensão **GD** do PHP: deixe `gd` marcada no seletor de PHP do cPanel.
 
 ## Painel administrativo (`/admin`)
 
-Só existe onde as contas estão ligadas (hoje: teste). Login com e-mail e senha **e** código de 6 dígitos
-de app autenticador (2FA obrigatório); sessão do painel expira com 30 min sem uso ou 8 h após o login.
+Existe nos dois ambientes. Login com e-mail e senha **e** código de 6 dígitos de app autenticador
+(2FA obrigatório); sessão do painel expira com 30 min sem uso ou 8 h após o login.
 
 | Tela | O que faz |
 |---|---|
-| Início | clientes, novos na semana, em atraso, inativos, notificações e estoque |
+| Início | clientes, pedidos novos, em atraso, notificações, estoque e o aviso de alterações não publicadas |
 | Clientes | busca e filtros, criar, editar, excluir (digitando o e-mail), ativar/inativar, "em atraso" com aviso por e-mail, exportar CSV |
-| Notificações | cliente novo (com produtos de interesse); também vai por e-mail para a NF |
+| Pedidos | pedidos de orçamento do site: itens, cliente, situação (o cliente vê em "Minha conta") e anotações internas |
+| Produtos | importar os produtos do site (uma vez), criar, editar, ocultar, excluir, fotos (JPG/PNG/WebP até 8 MB), estoque e estoque mínimo, "Publicar alterações" |
+| Notificações | cliente novo, pedido de orçamento, conta excluída pelo cliente (apagado em 90 dias), estoque baixo e zerado |
 | Histórico | auditoria de tudo o que foi feito no painel |
+
+Estoque 0 = o produto aparece no site com uma tarja cinza "Indisponível" (na hora, sem publicar) e não pode ser
+pedido. Produtos, fotos e textos mudam no site depois de "Publicar alterações".
 
 **Criar o primeiro administrador:** crie uma conta normal pelo site e, no phpMyAdmin do banco do ambiente, rode
 `UPDATE usuarios SET role = 'admin' WHERE email = 'email-do-admin';`. No primeiro acesso ao `/admin`, o painel
@@ -185,14 +214,18 @@ e de uma conta de e-mail remetente criada no cPanel (ex.: `naoresponda@nfsolucoe
 - `/`: banner com as quatro categorias, equipamentos em estoque, serviços, marcas, empresa e contato
 - `/loja`: catálogo com filtros (aceita `?tipo=impressoras-e-copiadoras`, `impressoras-3d`, `acabamento`, `suprimentos`)
 - `/loja/inicio/<produto>.html`: página de cada produto (mesmo endereço da loja antiga)
-- `/entrar`: login e cadastro (só existe com `NEXT_PUBLIC_CONTAS_ATIVAS=true`; aceita `?aba=criar`)
+- `/entrar`: login e cadastro (só existe com `NEXT_PUBLIC_CONTAS_ATIVAS=true`; aceita `?aba=criar` e `?volta=/conta`)
+- `/conta`: "Minha conta": pedidos de orçamento e a situação de cada um, dados do cadastro e exclusão da conta
+- `/admin`: painel administrativo
 - `/privacidade` e `/termos`: Política de Privacidade e Termos de Uso (LGPD)
 - `/sitemap.xml` e `/robots.txt`: gerados na compilação (o teste bloqueia o Google)
 
 ## Dados
 
 - `dados/empresa.js`: telefones, WhatsApp, endereço, marcas, serviços e textos institucionais.
-- `dados/produtos-novos.json`: produtos cadastrados à mão.
+- `dados/catalogo.json`: gerado por `scripts/catalogo.mjs` antes de "dev" e "compilar" (do banco, na publicação;
+  dos arquivos abaixo, no computador). É o que as páginas usam.
+- `dados/produtos-novos.json`: produtos cadastrados à mão (antes do painel; viram a importação inicial).
 - `dados/produtos.json` e as fotos em `public/produtos/`: gerados por
   `python scripts/gerar_dados_produtos.py` a partir de `reconstrucao/loja/`.
 

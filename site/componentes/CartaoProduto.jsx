@@ -4,6 +4,7 @@ import { TIPOS, formatarModelo, tituloProduto, urlProduto } from '@/lib/produtos
 import { BotoesAdicionar } from './Carrinho';
 import { CONTAS_ATIVAS } from '@/lib/ambiente';
 import Tinta from './Tinta';
+import { SeloIndisponivel } from './Estoque';
 
 export { formatarModelo, tituloProduto };
 
@@ -19,6 +20,7 @@ export default function CartaoProduto({ produto, preload = false }) {
           sizes="(max-width: 720px) 50vw, (max-width: 1040px) 33vw, 280px"
           preload={preload}
         />
+        <SeloIndisponivel slug={produto.slug} estoque={produto.estoque} />
       </div>
       <div className="cartao__corpo">
         <h3 className="cartao__titulo">

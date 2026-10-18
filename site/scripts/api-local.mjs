@@ -3,6 +3,8 @@
 //
 // Uso:  DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run api:local
 //       (acrescente --zerar para recriar o banco local do zero)
+//       Como a produção (vitrine, contas desligadas), ao lado da outra:
+//       NF_CONTAS=0 PORTA_API=8082 USUARIO_BANCO=nf_local_vitrine npm run api:local   (e API_LOCAL no "ver:producao")
 //
 // A configuração gerada (com a senha aleatória do usuário local) fica numa pasta temporária,
 // fora do projeto, e é apagada ao sair. A CNPJ é consultada na BrasilAPI de verdade.
@@ -13,7 +15,8 @@ import { apagarPasta, conectarAdmin, criarBanco, escreverConfig, iniciarPhp, pas
 
 const PORTA = Number(process.env.PORTA_API || 8081);
 const BANCO = 'nf_local';
-const USUARIO = 'nf_local';
+const USUARIO = process.env.USUARIO_BANCO || 'nf_local'; // um usuário por API local (a senha muda a cada execução)
+const CONTAS = process.env.NF_CONTAS !== '0';
 
 const admin = await conectarAdmin();
 // Sempre recria o usuário (a senha é nova a cada execução); o banco só com --zerar ou se não existir
@@ -38,9 +41,11 @@ const config = escreverConfig(pasta, {
   senha,
   origens: ['http://localhost:3000', 'http://localhost:3221', 'http://localhost:3231'],
   urlCnpj: 'https://brasilapi.com.br/api/cnpj/v1/{cnpj}',
+  // Fotos enviadas pelo painel vão para public/uploads (fora do git), servidas pelo "npm run dev" e pelo "ver"
+  pastaSite: path.resolve(import.meta.dirname, '..', 'public'),
 });
-const php = await iniciarPhp({ porta: PORTA, config });
-console.log(`API local em http://127.0.0.1:${PORTA}/api/ (banco ${BANCO}). Ctrl+C para parar.`);
+const php = await iniciarPhp({ porta: PORTA, config, contas: CONTAS });
+console.log(`API local em http://127.0.0.1:${PORTA}/api/ (banco ${BANCO}${CONTAS ? '' : ', contas desligadas'}). Ctrl+C para parar.`);
 php.stderr.on('data', (d) => { if (/PHP |\[api-nf\]/.test(d)) process.stderr.write(d); });
 
 const encerrar = () => { php.kill(); apagarPasta(pasta); process.exit(0); };

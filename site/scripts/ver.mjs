@@ -73,6 +73,8 @@ async function responder(req, res) {
   if (caminho.split('/').includes('..')) return enviar(400);
   let arquivo = path.join(PASTA, caminho);
   if (caminho === '/') arquivo = path.join(PASTA, 'index.html');
+  // Fotos enviadas pelo painel na API local ficam em public/uploads (no servidor, na pasta do site)
+  if (/^\/(otim\/)?uploads\//.test(caminho) && !(await ehArquivo(arquivo))) arquivo = path.join(PASTA, '..', '..', 'public', caminho);
   else if (!(await ehArquivo(arquivo)) && (await ehArquivo(`${arquivo}.html`))) arquivo = `${arquivo}.html`;
 
   if (!(await ehArquivo(arquivo)) || (await ehPasta(arquivo))) {

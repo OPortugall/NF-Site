@@ -14,9 +14,13 @@ require __DIR__ . '/cnpj.php';
 require __DIR__ . '/email.php';
 require __DIR__ . '/totp.php';
 require __DIR__ . '/clientes.php';
+require __DIR__ . '/produtos.php';
+require __DIR__ . '/github.php';
 require __DIR__ . '/admin.php';
 require __DIR__ . '/rotas.php';
+require __DIR__ . '/rotas-conta.php';
 require __DIR__ . '/rotas-admin.php';
+require __DIR__ . '/rotas-admin-loja.php';
 
 // Configuração com os segredos (banco, chaves). Fica FORA da pasta pública do site:
 //   servidor: /home/<usuario>/config-nf/<ambiente>.php   (o ambiente vem de api/_ambiente.php, gerado na compilação)
@@ -28,9 +32,13 @@ function nf_config(): array
     if ($config !== null) {
         return $config;
     }
+    // _ambiente.php (gerado na compilação): ['ambiente' => 'producao'|'teste', 'contas' => true|false].
+    // Sem ele (computador): desenvolvimento, com as contas ligadas (NF_CONTAS=0 desliga, para testes).
     $arquivoAmbiente = dirname(__DIR__) . '/_ambiente.php';
-    $ambiente = is_file($arquivoAmbiente) ? (require $arquivoAmbiente) : 'desenvolvimento';
-    if (!in_array($ambiente, ['producao', 'teste', 'desenvolvimento'], true)) {
+    $opcoes = is_file($arquivoAmbiente) ? (require $arquivoAmbiente)
+        : ['ambiente' => 'desenvolvimento', 'contas' => getenv('NF_CONTAS') !== '0'];
+    $ambiente = is_array($opcoes) ? ($opcoes['ambiente'] ?? null) : null;
+    if (!in_array($ambiente, ['producao', 'teste', 'desenvolvimento'], true) || !is_bool($opcoes['contas'] ?? null)) {
         throw new RuntimeException('Ambiente inválido em _ambiente.php');
     }
     $arquivo = getenv('NF_CONFIG') ?: dirname(__DIR__, 3) . "/config-nf/{$ambiente}.php";
@@ -53,6 +61,9 @@ function nf_config(): array
         throw new RuntimeException('Configuração: "cookie_seguro" precisa ser true fora do computador');
     }
     $c['ambiente'] = $ambiente;
+    $c['contas'] = $opcoes['contas'];
+    // Pasta pública do site (fotos enviadas pelo painel ficam em uploads/ e otim/uploads/)
+    $c['pasta_site'] = rtrim((string) ($c['pasta_site'] ?? dirname(__DIR__, 2)), '/\\');
     return $config = $c;
 }
 
@@ -62,6 +73,10 @@ function nf_executar(): void
     ini_set('log_errors', '1');
     error_reporting(E_ALL);
     set_error_handler(static function (int $nivel, string $mensagem, string $arquivo, int $linha): bool {
+        // Avisos silenciados com @ (ex.: getimagesize de um arquivo que não é imagem) são tratados no código
+        if (!(error_reporting() & $nivel)) {
+            return true;
+        }
         throw new ErrorException($mensagem, 0, $nivel, $arquivo, $linha);
     });
 
@@ -92,7 +107,9 @@ function nf_despachar(array $config): void
     if (!is_string($caminho) || !preg_match('#^/api/((?:admin/)?[a-z]+(?:-[a-z]+)*)$#', $caminho, $m)) {
         nf_erro(404, 'Rota não encontrada.');
     }
-    $rotas = nf_rotas() + nf_rotas_admin();
+    // Rotas de cliente (cadastro, login, conta e pedidos) só existem com as contas ligadas
+    $rotas = nf_rotas_publicas() + nf_rotas_admin() + nf_rotas_admin_loja()
+        + ($config['contas'] ? nf_rotas() + nf_rotas_conta() : []);
     $rota = $rotas[$m[1]] ?? null;
     if ($rota === null) {
         nf_erro(404, 'Rota não encontrada.');

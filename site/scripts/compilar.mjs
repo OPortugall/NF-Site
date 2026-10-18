@@ -12,7 +12,7 @@ import { cp, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { REDIRECIONAMENTOS, cabecalhosDeSeguranca } from '../lib/seguranca.mjs';
 import { criarZip } from './zip.mjs';
-import { gerarCatalogoApi } from './catalogo-api.mjs';
+import { gerarCatalogoApi } from './catalogo.mjs';
 
 const RAIZ = path.resolve(import.meta.dirname, '..');
 const ambiente = process.argv[2];
@@ -38,7 +38,9 @@ function rodar(rotulo, args, env = {}) {
   }
 }
 
-// ---------- 1. fotos reduzidas e compilação ----------
+// ---------- 1. catálogo, fotos reduzidas e compilação ----------
+// Catálogo: do banco (CATALOGO_URL, na publicação pelo GitHub) ou dos arquivos do site (veja scripts/catalogo.mjs)
+rodar('Montando o catálogo de produtos', ['scripts/catalogo.mjs']);
 rodar('Gerando as fotos reduzidas', ['scripts/otimizar-imagens.mjs']);
 // Com output: 'export', o Next.js grava o site pronto na própria pasta de compilação (distDir)
 const destino = path.join(RAIZ, 'publicar', ambiente);
@@ -51,26 +53,31 @@ rodar(`Compilando o ambiente "${ambiente}"`, [path.join('node_modules', 'next', 
 
 const contasAtivas = (process.env.NEXT_PUBLIC_CONTAS_ATIVAS || PADROES[ambiente].contas) === 'true';
 
-// Na vitrine o login e o painel não existem: não publica /entrar nem /admin (o servidor responde 404)
+// Fotos enviadas pelo painel moram só no servidor (no computador, a API local grava em public/uploads)
+for (const f of ['uploads', path.join('otim', 'uploads')]) {
+  await rm(path.join(destino, f), { recursive: true, force: true });
+}
+
+// Na vitrine as contas de cliente não existem: não publica /entrar nem /conta (o servidor responde 404).
+// O painel (/admin) vai sempre: é por ele que a equipe cuida dos produtos e do estoque.
 if (!contasAtivas) {
-  for (const f of ['entrar.html', 'entrar.txt', 'entrar', 'admin.html', 'admin.txt', 'admin']) {
+  for (const f of ['entrar.html', 'entrar.txt', 'entrar', 'conta.html', 'conta.txt', 'conta']) {
     await rm(path.join(destino, f), { recursive: true, force: true });
   }
 }
 
-// API (PHP): só vai junto quando as contas estão ligadas. Sem o modelo de configuração;
-// _ambiente.php diz à API qual arquivo de /home/<usuario>/config-nf/ usar.
-if (contasAtivas) {
-  await cp(path.join(RAIZ, 'api'), path.join(destino, 'api'), {
-    recursive: true,
-    filter: (origem) => !/config\.exemplo\.php$|_ambiente\.php$/.test(origem),
-  });
-  gerarCatalogoApi(path.join(destino, 'api'));
-  await writeFile(path.join(destino, 'api', '_ambiente.php'), `<?php
+// API (PHP): vai sempre (painel, catálogo e estoque). Sem o modelo de configuração;
+// _ambiente.php diz à API qual arquivo de /home/<usuario>/config-nf/ usar e se as contas
+// de cliente estão ligadas (desligadas: cadastro, login e pedidos respondem 404).
+await cp(path.join(RAIZ, 'api'), path.join(destino, 'api'), {
+  recursive: true,
+  filter: (origem) => !/config\.exemplo\.php$|_ambiente\.php$/.test(origem),
+});
+gerarCatalogoApi(path.join(destino, 'api'));
+await writeFile(path.join(destino, 'api', '_ambiente.php'), `<?php
 // Gerado por scripts/compilar.mjs
-return '${ambiente}';
+return ['ambiente' => '${ambiente}', 'contas' => ${contasAtivas}];
 `);
-}
 
 // Arquivos de navegação do Next.js: ele grava loja/__next.loja/__PAGE__.txt, mas o navegador pede
 // loja/__next.loja.__PAGE__.txt (nome "achatado"). Sem servidor Node para traduzir, achatamos aqui.

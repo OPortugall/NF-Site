@@ -13,6 +13,7 @@
 //   GET  admin/clientes-csv      → planilha (CSV)
 //   GET  admin/notificacoes      → POST admin/notificacoes-lidas
 //   GET  admin/auditoria         → histórico de ações
+// Orçamentos, produtos e publicação do site: rotas-admin-loja.php
 
 declare(strict_types=1);
 
@@ -190,6 +191,8 @@ function nf_admin_rota_resumo(array $config): never
         SUM(estoque > 0 AND estoque_minimo > 0 AND estoque <= estoque_minimo) AS estoque_baixo
         FROM produtos WHERE status = 'ativo'")[0];
     $naoLidas = nf_consulta($config, 'SELECT COUNT(*) AS n FROM notificacoes WHERE lida_em IS NULL')[0]['n'];
+    $o = nf_consulta($config, "SELECT SUM(status = 'novo') AS novos, SUM(status = 'em_atendimento') AS em_atendimento,
+        COUNT(*) AS total FROM orcamentos")[0];
     $ultimos = nf_consulta($config, "SELECT id, primeiro_nome, sobrenome, tipo_pessoa, criado_em
         FROM usuarios WHERE role = 'cliente' ORDER BY criado_em DESC, id DESC LIMIT 5");
     nf_responder(200, [
@@ -197,6 +200,8 @@ function nf_admin_rota_resumo(array $config): never
         'inativos' => (int) $n['inativos'], 'empresas' => (int) $n['empresas'],
         'semEstoque' => (int) $p['sem_estoque'], 'estoqueBaixo' => (int) $p['estoque_baixo'],
         'notificacoesNaoLidas' => (int) $naoLidas,
+        'orcamentosNovos' => (int) $o['novos'], 'orcamentosEmAtendimento' => (int) $o['em_atendimento'],
+        'produtos' => (int) nf_consulta($config, 'SELECT COUNT(*) AS n FROM produtos')[0]['n'],
         'ultimosClientes' => array_map(fn ($u) => [
             'id' => $u['id'], 'nome' => "{$u['primeiro_nome']} {$u['sobrenome']}",
             'tipo' => $u['tipo_pessoa'] === 'PJ' ? 'cnpj' : 'cpf', 'criadoEm' => $u['criado_em'],
@@ -207,12 +212,15 @@ function nf_admin_rota_resumo(array $config): never
 function nf_admin_rota_notificacoes(array $config): never
 {
     nf_exigir_admin($config);
+    // Aviso de conta excluída guarda nome e contato: sai do painel depois do prazo (LGPD)
+    nf_consulta($config, "DELETE FROM notificacoes WHERE tipo = 'conta_excluida' AND criado_em < NOW() - INTERVAL ? DAY", [NF_AVISO_EXCLUSAO_DIAS]);
     $soNaoLidas = ($_GET['filtro'] ?? '') === 'nao-lidas';
-    $lista = nf_consulta($config, 'SELECT id, tipo, usuario_id, produto_id, resumo, lida_em, criado_em FROM notificacoes'
+    $lista = nf_consulta($config, 'SELECT id, tipo, usuario_id, produto_id, orcamento_id, resumo, lida_em, criado_em FROM notificacoes'
         . ($soNaoLidas ? ' WHERE lida_em IS NULL' : '') . ' ORDER BY criado_em DESC, id DESC LIMIT 100');
     $naoLidas = nf_consulta($config, 'SELECT COUNT(*) AS n FROM notificacoes WHERE lida_em IS NULL')[0]['n'];
     nf_responder(200, ['notificacoes' => array_map(fn ($n) => [
         'id' => $n['id'], 'tipo' => $n['tipo'], 'clienteId' => $n['usuario_id'], 'produtoId' => $n['produto_id'],
+        'orcamentoId' => $n['orcamento_id'],
         'resumo' => $n['resumo'], 'lida' => $n['lida_em'] !== null, 'criadoEm' => $n['criado_em'],
     ], $lista), 'naoLidas' => (int) $naoLidas]);
 }
@@ -240,14 +248,15 @@ function nf_admin_rota_auditoria(array $config): never
     nf_exigir_admin($config);
     $pagina = nf_pagina();
     $total = (int) nf_consulta($config, 'SELECT COUNT(*) AS n FROM auditoria')[0]['n'];
-    $lista = nf_consulta($config, 'SELECT a.id, a.acao, a.alvo_tipo, a.alvo_id, a.detalhes, a.criado_em,
+    $lista = nf_consulta($config, 'SELECT a.id, a.admin_id, a.acao, a.alvo_tipo, a.alvo_id, a.detalhes, a.criado_em,
             u.primeiro_nome, u.sobrenome
         FROM auditoria a LEFT JOIN usuarios u ON u.id = a.admin_id
         ORDER BY a.criado_em DESC, a.id DESC LIMIT ' . NF_POR_PAGINA . ' OFFSET ' . (($pagina - 1) * NF_POR_PAGINA));
     nf_responder(200, ['total' => $total, 'pagina' => $pagina, 'porPagina' => NF_POR_PAGINA, 'registros' => array_map(fn ($a) => [
         'id' => $a['id'], 'acao' => $a['acao'], 'alvoTipo' => $a['alvo_tipo'], 'alvoId' => $a['alvo_id'],
         'detalhes' => $a['detalhes'] === null ? null : json_decode($a['detalhes'], true),
-        'admin' => $a['primeiro_nome'] === null ? '(administrador excluído)' : "{$a['primeiro_nome']} {$a['sobrenome']}",
+        'admin' => $a['admin_id'] === null ? 'Cliente (pelo site)'
+            : ($a['primeiro_nome'] === null ? '(administrador excluído)' : "{$a['primeiro_nome']} {$a['sobrenome']}"),
         'criadoEm' => $a['criado_em'],
     ], $lista)]);
 }
@@ -262,20 +271,20 @@ function nf_pagina(): int
     return is_string($p) && ctype_digit($p) && (int) $p >= 1 && (int) $p <= 100000 ? (int) $p : 1;
 }
 
-function nf_id_da_url(): int
+function nf_id_da_url(string $erro = 'Cliente inválido.'): int
 {
     $id = $_GET['id'] ?? '';
-    if (!is_string($id) || !ctype_digit($id) || (int) $id < 1) {
-        nf_erro(422, 'Cliente inválido.');
+    if (!is_string($id) || !ctype_digit($id) || (int) $id < 1 || (int) $id > 4294967295) {
+        nf_erro(422, $erro);
     }
     return (int) $id;
 }
 
-function nf_id_do_corpo(array $d): int
+function nf_id_do_corpo(array $d, string $erro = 'Cliente inválido.', string $campo = 'id'): int
 {
-    $id = $d['id'] ?? null;
+    $id = $d[$campo] ?? null;
     if (!is_int($id) || $id < 1) {
-        nf_erro(422, 'Cliente inválido.');
+        nf_erro(422, $erro);
     }
     return $id;
 }
@@ -355,11 +364,16 @@ function nf_admin_rota_cliente(array $config): never
     $historico = nf_consulta($config, "SELECT a.acao, a.detalhes, a.criado_em, adm.primeiro_nome AS admin
         FROM auditoria a LEFT JOIN usuarios adm ON adm.id = a.admin_id
         WHERE a.alvo_tipo = 'cliente' AND a.alvo_id = ? ORDER BY a.criado_em DESC LIMIT 30", [$u['id']]);
+    $orcamentos = nf_consulta($config, 'SELECT o.id, o.codigo, o.status, o.criado_em, SUM(i.quantidade) AS itens
+        FROM orcamentos o LEFT JOIN orcamento_itens i ON i.orcamento_id = o.id
+        WHERE o.usuario_id = ? GROUP BY o.id ORDER BY o.criado_em DESC, o.id DESC LIMIT 50', [$u['id']]);
     nf_responder(200, ['cliente' => nf_cliente_resumo($u) + [
         'nomeFantasia' => $u['nome_fantasia'], 'situacaoCnpj' => $u['situacao_cnpj'], 'cnpjVerificadoEm' => $u['cnpj_verificado_em'],
         'aceitePrivacidadeEm' => $u['aceite_privacidade_em'],
         'endereco' => $en,
         'interesses' => array_map(fn ($i) => ['slug' => $i['produto_slug'], 'nome' => $i['produto_nome']], $interesses),
+        'orcamentos' => array_map(fn ($o) => ['id' => $o['id'], 'codigo' => $o['codigo'], 'status' => $o['status'],
+            'itens' => (int) $o['itens'], 'criadoEm' => $o['criado_em']], $orcamentos),
         'avisosAtraso' => array_map(fn ($a) => ['enviado' => (bool) $a['sucesso'], 'em' => $a['criado_em']], $avisos),
         'historico' => array_map(fn ($h) => [
             'acao' => $h['acao'], 'detalhes' => $h['detalhes'] === null ? null : json_decode($h['detalhes'], true),
@@ -376,7 +390,7 @@ function nf_admin_rota_cliente_criar(array $config): never
     if ($erros) {
         nf_erro(422, 'Confira os campos destacados.', ['campos' => $erros]);
     }
-    $interesses = nf_validar_interesses($d['interesses'] ?? null);
+    $interesses = nf_validar_interesses($config, $d['interesses'] ?? null);
     $situacao = $v['tipo'] === 'cnpj' ? nf_conferir_cnpj_cliente($config, $v['usuario']['documento']) : null;
     $id = nf_gravar_cliente_novo($config, $v, $situacao, $interesses);
     nf_auditar($config, (int) $admin['id'], 'cliente_criar', 'cliente', $id);

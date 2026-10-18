@@ -1,10 +1,11 @@
-import produtosDaLojaAntiga from '@/dados/produtos.json';
-import produtosNovos from '@/dados/produtos-novos.json';
+import produtos from '@/dados/catalogo.json';
 import { empresa } from '@/dados/empresa';
 
-// produtos.json é gerado a partir da loja antiga (scripts/gerar_dados_produtos.py);
-// produtos-novos.json é editado à mão com os produtos cadastrados depois.
-const produtos = [...produtosNovos, ...produtosDaLojaAntiga];
+// dados/catalogo.json é gerado por scripts/catalogo.mjs antes de "dev" e "compilar":
+// na publicação vem do banco (produtos editados no painel); no computador, dos arquivos
+// dados/produtos.json (loja antiga) e dados/produtos-novos.json.
+// Cada produto: { slug, nome, marca, modelo, condicao, resumo, tipo, impressao, fotos, descricao,
+//                 venda, locacao, estoque (null = sem controle), destaque }
 
 export const TIPOS = {
   multifuncionais: 'Multifuncionais e copiadoras',
@@ -55,7 +56,20 @@ export function tituloProduto(produto) {
 
 // Locação: só equipamentos (toner e outros suprimentos são vendidos, não alugados).
 export function produtoAlugavel(produto) {
-  return produto.tipo !== 'suprimentos';
+  return produto.locacao && produto.tipo !== 'suprimentos';
+}
+
+export function produtoVendavel(produto) {
+  return produto.venda !== false;
+}
+
+// Estoque zerado = indisponível no site (null = estoque não controlado: sempre disponível)
+export function produtoIndisponivel(produto, estoque = produto.estoque) {
+  return estoque === 0;
+}
+
+export function produtosEmDestaque() {
+  return produtos.filter((p) => p.destaque);
 }
 
 export const MODALIDADES = { compra: 'Compra', locacao: 'Locação' };

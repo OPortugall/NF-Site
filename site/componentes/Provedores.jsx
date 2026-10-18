@@ -94,6 +94,9 @@ export function Provedores({ children }) {
     return r;
   }, []);
 
+  // Depois que o cliente exclui a própria conta (a API já encerrou a sessão)
+  const contaExcluida = useCallback(() => setCliente(null), []);
+
   const adicionar = useCallback((slug, modalidade = 'compra') => {
     setItens((atual) => juntar([...atual, { slug, modalidade, quantidade: 1 }]));
     setUltimaAdicao({ slug, modalidade, vez: Date.now() });
@@ -117,8 +120,8 @@ export function Provedores({ children }) {
   const total = itens.reduce((s, i) => s + i.quantidade, 0);
 
   const sessao = useMemo(
-    () => ({ cliente, carregado, podeAlugar, cadastrar, entrar, sair }),
-    [cliente, carregado, podeAlugar, cadastrar, entrar, sair],
+    () => ({ cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida }),
+    [cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida],
   );
   const carrinho = useMemo(
     () => ({

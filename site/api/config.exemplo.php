@@ -3,7 +3,7 @@
 //
 // No servidor, copie para FORA da pasta pública, um arquivo por ambiente:
 //   /home/raioxper/config-nf/producao.php   (banco raioxper_nf,      usuário raioxper_nfapp)
-//   /home/raioxper/config-nf/teste.php      (banco raioxper_nfteste, usuário raioxper_nftst)
+//   /home/raioxper/config-nf/teste.php      (banco raioxper_nfteste, usuário raioxper_nf_equipe)
 // e deixe a pasta config-nf só para o seu usuário (permissão 700; arquivos 600).
 //
 // Para gerar o "segredo": uma sequência aleatória de 64 caracteres, diferente em cada ambiente
@@ -33,5 +33,13 @@ return [
         'modo' => 'mail',
         'remetente' => 'naoresponda@nfsolucoesdigitais.com.br',
         'admin' => 'contato@nfsolucoesdigitais.com.br',
+    ],
+    // Botão "Publicar alterações" do painel (produtos editados → site compilado e enviado de novo).
+    // Token "fine-grained" do GitHub: só o repositório NF-Site, permissão "Actions: Read and write",
+    // com validade (renove antes de vencer). Sem este bloco, o botão avisa que não está configurado.
+    'github' => [
+        'token' => 'TOKEN-DO-GITHUB',
+        'repositorio' => 'Oportugall/NF-Site',
+        'ramo' => 'main', // teste.php: 'teste'
     ],
 ];

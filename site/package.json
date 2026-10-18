@@ -4,7 +4,8 @@
   "private": true,
   "description": "Site da NF Soluções Digitais (vitrine e loja), gerado como site estático para a hospedagem cPanel",
   "scripts": {
-    "dev": "node scripts/otimizar-imagens.mjs && next dev",
+    "dev": "node scripts/catalogo.mjs && node scripts/otimizar-imagens.mjs && next dev",
+    "catalogo": "node scripts/catalogo.mjs",
     "imagens": "node scripts/otimizar-imagens.mjs",
     "compilar:producao": "node scripts/compilar.mjs producao",
     "compilar:teste": "node scripts/compilar.mjs teste",
