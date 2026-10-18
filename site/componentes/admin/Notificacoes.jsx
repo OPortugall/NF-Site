@@ -35,7 +35,7 @@ export default function Notificacoes({ api, aoMudar }) {
         <ul className="adm-notificacoes">
           {res.notificacoes.map((n) => (
             <li key={n.id} className={n.lida ? '' : 'adm-notificacoes__nova'}>
-              <span className="adm-etiqueta">{TIPOS[n.tipo] || n.tipo}</span>
+              <span className={`adm-etiqueta ${n.tipo === 'novo_cliente' ? 'adm-etiqueta--c' : 'adm-etiqueta--y'}`}>{TIPOS[n.tipo] || n.tipo}</span>
               <span className="adm-notificacoes__texto">
                 {n.clienteId ? <a href={`#cliente/${n.clienteId}`} onClick={() => !n.lida && marcar({ ids: [n.id] })}>{n.resumo}</a> : n.resumo}
               </span>

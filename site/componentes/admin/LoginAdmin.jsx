@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { adminEnviar } from '@/lib/api';
+import { FaixaRegistro } from './PainelAdmin';
 
 // Login do painel: e-mail e senha, depois o código de 6 dígitos do app autenticador.
 // No primeiro acesso, mostra a chave para cadastrar o app (o 2FA só vale depois de um código certo).
@@ -41,6 +42,12 @@ export default function LoginAdmin({ etapaInicial, aviso, aoEntrar }) {
   return (
     <div className="adm-login">
       <div className="adm-login__caixa">
+        {/* marcas de corte nos cantos, como numa prova de gráfica */}
+        <span className="adm-corte adm-corte--1" aria-hidden="true" />
+        <span className="adm-corte adm-corte--2" aria-hidden="true" />
+        <span className="adm-corte adm-corte--3" aria-hidden="true" />
+        <span className="adm-corte adm-corte--4" aria-hidden="true" />
+        <FaixaRegistro />
         <p className="adm-login__marca">NF Soluções Digitais</p>
         <h1 className="adm-login__titulo">Painel administrativo</h1>
         {erro && <p className="adm-aviso adm-aviso--erro" role="alert">{erro}</p>}

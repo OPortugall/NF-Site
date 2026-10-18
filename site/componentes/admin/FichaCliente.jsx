@@ -218,7 +218,9 @@ export default function FichaCliente({ id, novo, api, ir }) {
               {cliente.historico.length === 0 ? <p className="adm-vazio">Nenhuma alteração pelo painel.</p> : (
                 <ul className="adm-lista adm-lista--compacta">
                   {cliente.historico.map((h, i) => (
-                    <li key={i}><strong>{ACOES[h.acao] || h.acao}</strong> · {h.admin} · {dataHora(h.em)}
+                    <li key={i}>
+                      <strong>{ACOES[h.acao] || h.acao}</strong>
+                      <span className="adm-suave">{h.admin}, em {dataHora(h.em)}</span>
                       {descreverDetalhes(h.acao, h.detalhes) && <span className="adm-suave adm-bloco-texto">{descreverDetalhes(h.acao, h.detalhes)}</span>}
                     </li>
                   ))}

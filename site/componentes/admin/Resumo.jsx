@@ -15,21 +15,22 @@ export default function Resumo({ api }) {
   if (erro) return <p className="adm-aviso adm-aviso--erro">{erro}</p>;
   if (!r) return <p className="adm-carregando">Carregando…</p>;
 
+  // [rótulo, número, link, observação, tinta, destaque] — a tinta diz de que área é o número
   const cartoes = [
-    ['Clientes', r.clientes, '#clientes', `${r.empresas} empresa(s)`],
-    ['Novos nos últimos 7 dias', r.novos7Dias, '#clientes', null],
-    ['Pagamento em atraso', r.emAtraso, '#clientes', r.emAtraso ? 'Atenção' : null, r.emAtraso > 0],
-    ['Clientes inativos', r.inativos, '#clientes', null],
-    ['Notificações não lidas', r.notificacoesNaoLidas, '#notificacoes', null, r.notificacoesNaoLidas > 0],
-    ['Produtos sem estoque', r.semEstoque, null, 'Gestão de produtos: em breve'],
-    ['Produtos com estoque baixo', r.estoqueBaixo, null, 'Gestão de produtos: em breve'],
+    ['Clientes', r.clientes, '#clientes', `${r.empresas} empresa(s) e ${r.clientes - r.empresas} pessoa(s) física(s)`, 'c', true],
+    ['Novos nos últimos 7 dias', r.novos7Dias, '#clientes', null, 'c'],
+    ['Pagamento em atraso', r.emAtraso, '#clientes', r.emAtraso ? 'Pede atenção' : 'Tudo em dia', 'm'],
+    ['Notificações não lidas', r.notificacoesNaoLidas, '#notificacoes', null, 'm'],
+    ['Clientes inativos', r.inativos, '#clientes', null, 'k'],
+    ['Produtos sem estoque', r.semEstoque, null, 'Gestão de produtos: em breve', 'y'],
+    ['Produtos com estoque baixo', r.estoqueBaixo, null, 'Gestão de produtos: em breve', 'y'],
   ];
 
   return (
     <>
       <h1 className="adm-titulo">Início</h1>
       <div className="adm-cartoes">
-        {cartoes.map(([rotulo, valor, link, obs, alerta]) => {
+        {cartoes.map(([rotulo, valor, link, obs, tinta, destaque]) => {
           const corpo = (
             <>
               <span className="adm-cartao__valor">{valor}</span>
@@ -37,9 +38,10 @@ export default function Resumo({ api }) {
               {obs && <span className="adm-cartao__obs">{obs}</span>}
             </>
           );
+          const classe = `adm-cartao adm-tinta--${tinta} ${destaque ? 'adm-cartao--destaque' : ''} ${valor > 0 && tinta === 'm' ? 'adm-cartao--alerta' : ''}`;
           return link
-            ? <a key={rotulo} href={link} className={`adm-cartao ${alerta ? 'adm-cartao--alerta' : ''}`}>{corpo}</a>
-            : <div key={rotulo} className="adm-cartao adm-cartao--inativo">{corpo}</div>;
+            ? <a key={rotulo} href={link} className={classe}>{corpo}</a>
+            : <div key={rotulo} className={`${classe} adm-cartao--inativo`}>{corpo}</div>;
         })}
       </div>
 

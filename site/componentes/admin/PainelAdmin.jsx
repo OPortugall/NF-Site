@@ -13,12 +13,23 @@ import Resumo from './Resumo';
 //   #resumo · #clientes · #cliente/12 · #novo-cliente · #notificacoes · #auditoria
 // Toda chamada que volta "401 admin" (sessão expirada) leva de volta ao login.
 
+// Cada área tem a sua tinta de impressão (CMYK): clientes = ciano, alertas = magenta,
+// estoque = amarelo, histórico = preto. O início mostra as quatro.
 const MENU = [
-  ['resumo', 'Início'],
-  ['clientes', 'Clientes'],
-  ['notificacoes', 'Notificações'],
-  ['auditoria', 'Histórico'],
+  ['resumo', 'Início', 'cmyk'],
+  ['clientes', 'Clientes', 'c'],
+  ['notificacoes', 'Notificações', 'm'],
+  ['auditoria', 'Histórico', 'k'],
 ];
+
+// Faixa de registro (a mesma do topo do site), sem importar o catálogo de produtos
+export function FaixaRegistro() {
+  return (
+    <div className="faixa-registro" aria-hidden="true">
+      {['c', 'm', 'y', 'k'].map((c) => <span key={c} className={`faixa-registro__cor faixa-registro__cor--${c}`} />)}
+    </div>
+  );
+}
 
 function lerTela() {
   const h = (typeof window === 'undefined' ? '' : window.location.hash).replace(/^#/, '');
@@ -83,11 +94,15 @@ export default function PainelAdmin() {
   const ativa = rota.tela === 'cliente' || rota.tela === 'novo-cliente' ? 'clientes' : rota.tela;
   return (
     <div className="adm">
+      <div className="adm-cabeca">
       <header className="adm-topo">
-        <a className="adm-topo__marca" href="#resumo">NF <span>Painel</span></a>
+        <a className="adm-topo__marca" href="#resumo">
+          <span className="adm-topo__selo" aria-hidden="true"><i /><i /><i /><i /></span>
+          NF <span>Painel</span>
+        </a>
         <nav className="adm-menu" aria-label="Painel">
-          {MENU.map(([id, rotulo]) => (
-            <a key={id} href={`#${id}`} className="adm-menu__item" aria-current={ativa === id ? 'page' : undefined}>
+          {MENU.map(([id, rotulo, tinta]) => (
+            <a key={id} href={`#${id}`} className={`adm-menu__item adm-tinta--${tinta}`} aria-current={ativa === id ? 'page' : undefined}>
               {rotulo}
               {id === 'notificacoes' && naoLidas > 0 && <span className="adm-selo" aria-label={`${naoLidas} não lidas`}>{naoLidas}</span>}
             </a>
@@ -98,7 +113,9 @@ export default function PainelAdmin() {
           <button type="button" className="adm-botao adm-botao--fantasma" onClick={sair}>Sair</button>
         </div>
       </header>
-      <main className="adm-conteudo" id="conteudo">{tela}</main>
+      <FaixaRegistro />
+      </div>
+      <main className={`adm-conteudo adm-area--${ativa}`} id="conteudo">{tela}</main>
     </div>
   );
 }
