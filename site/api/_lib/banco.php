@@ -5,10 +5,11 @@ declare(strict_types=1);
 
 defined('NF_API') || exit;
 
-function nf_banco(array $config): PDO
+// $nova = true abre outra conexão (scripts de terminal: o servidor do banco fecha conexões paradas)
+function nf_banco(array $config, bool $nova = false): PDO
 {
     static $pdo = null;
-    if ($pdo !== null) {
+    if ($pdo !== null && !$nova) {
         return $pdo;
     }
     $b = $config['banco'];
