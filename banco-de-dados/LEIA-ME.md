@@ -12,7 +12,7 @@ bateria de testes de segurança.
 |---|---|
 | `schema.sql` | Cria as tabelas, com as regras de segurança dentro do próprio banco |
 | `usuario-do-site.sql` | Conta técnica que o site usa para se conectar, só com permissão de ler e gravar dados (em servidor próprio; na Hostinger, veja o comentário no arquivo) |
-| `testes/testar-seguranca.mjs` | Bateria de testes (125) de integridade, senhas, injeção de SQL, permissões, orçamentos, links de e-mail e limite de login |
+| `testes/testar-seguranca.mjs` | Bateria de testes (144) de integridade, senhas, injeção de SQL, permissões, orçamentos, links de e-mail e limite de login |
 | `testes/ultimo-resultado.md` | Resultado da última execução dos testes |
 
 ## Tabelas
@@ -24,7 +24,16 @@ usuarios ─┬─< enderecos               (um cliente, vários endereços: mat
           └─< tokens_usuario          (links de confirmação de e-mail e de nova senha)
 
 tentativas_login                      (limite contra força bruta; sem ligação com usuários)
+notificacoes · auditoria · emails_enviados   (painel administrativo)
 ```
+
+**Migrações** (para bancos criados antes de uma mudança no schema): pasta `migracoes/`, rodar uma vez
+cada, em ordem, no phpMyAdmin. `testes/testar-migracao.mjs <commit> <migração>` confere que o banco
+antigo + a migração fica idêntico ao `schema.sql` atual.
+
+| Migração | O que muda |
+|---|---|
+| `002-painel-admin.sql` | pagamento e 2FA em `usuarios`, estoque em `produtos`, interesses por slug, `notificacoes`, `auditoria`, `emails_enviados` |
 
 **usuarios:** id, primeiro_nome, sobrenome, tipo_pessoa (PF/PJ), documento (CPF ou CNPJ),
 razao_social, nome_fantasia, situacao_cnpj, cnpj_verificado_em, email, email_verificado_em,
@@ -41,7 +50,13 @@ ordem, criado_em, atualizado_em. **Por enquanto vazia:** os produtos continuam n
 
 **produto_fotos:** id, produto_id, url, texto_alternativo, ordem.
 
-**usuario_interesses:** usuario_id, produto_id, criado_em.
+**usuario_interesses:** id, usuario_id, produto_id (opcional), produto_slug, produto_nome, criado_em.
+
+**notificacoes:** id, tipo (novo_cliente/estoque_baixo/estoque_zerado), usuario_id, produto_id, resumo, lida_em, criado_em.
+
+**auditoria:** id, admin_id, acao, alvo_tipo, alvo_id, detalhes (JSON, sem senhas), ip_hmac, criado_em.
+
+**emails_enviados:** id, usuario_id, tipo (aviso_atraso/novo_cliente_admin), sucesso, criado_em.
 
 **orcamentos:** id, codigo (aleatório, ex.: NF-7K3Q9XAB), usuario_id, endereco_id, status
 (novo, em_atendimento, enviado, aprovado, recusado, cancelado), observacoes_cliente,

@@ -52,3 +52,16 @@ async function enviar(rota, dados) {
 export const entrarNaApi = (email, senha) => enviar('entrar', { email, senha });
 export const cadastrarNaApi = (dados) => enviar('cadastrar', dados);
 export const sairDaApi = () => enviar('sair', {});
+
+// ---------- painel administrativo (/api/admin/...) ----------
+// Mesmo cookie e mesmo código CSRF; a sessão do painel começa em GET admin/sessao.
+export const adminLer = (rota) => pedir('GET', `admin/${rota}`);
+export async function adminEnviar(rota, dados) {
+  if (!csrf) await pedir('GET', 'admin/sessao');
+  let r = await pedir('POST', `admin/${rota}`, dados);
+  if (r.status === 403 && r.codigo === 'csrf') {
+    await pedir('GET', 'admin/sessao');
+    r = await pedir('POST', `admin/${rota}`, dados);
+  }
+  return r;
+}

@@ -25,4 +25,13 @@ return [
     'cookie_seguro' => true,
     // Consulta da situação do CNPJ na Receita
     'cnpj' => ['url' => 'https://brasilapi.com.br/api/cnpj/v1/{cnpj}'],
+    // Endereço do site (usado nos links dos e-mails)
+    'url_site' => 'https://nfsolucoesdigitais.com.br',
+    // E-mails: aviso de cliente novo (para a NF) e aviso de pagamento pendente (para o cliente).
+    // 'remetente' precisa ser uma conta de e-mail criada no cPanel. Sem este bloco, os e-mails ficam desligados.
+    'email' => [
+        'modo' => 'mail',
+        'remetente' => 'naoresponda@nfsolucoesdigitais.com.br',
+        'admin' => 'contato@nfsolucoesdigitais.com.br',
+    ],
 ];

@@ -10,3 +10,6 @@ out/
 public/otim/
 # site pronto para enviar à hospedagem (gerado por scripts/compilar.mjs)
 publicar/
+
+# catálogo gerado para a API (scripts/catalogo-api.mjs)
+api/_dados/

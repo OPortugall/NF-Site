@@ -11,7 +11,12 @@ require __DIR__ . '/sessao.php';
 require __DIR__ . '/validacao.php';
 require __DIR__ . '/limite.php';
 require __DIR__ . '/cnpj.php';
+require __DIR__ . '/email.php';
+require __DIR__ . '/totp.php';
+require __DIR__ . '/clientes.php';
+require __DIR__ . '/admin.php';
 require __DIR__ . '/rotas.php';
+require __DIR__ . '/rotas-admin.php';
 
 // Configuração com os segredos (banco, chaves). Fica FORA da pasta pública do site:
 //   servidor: /home/<usuario>/config-nf/<ambiente>.php   (o ambiente vem de api/_ambiente.php, gerado na compilação)
@@ -84,10 +89,10 @@ function nf_despachar(array $config): void
 {
     $caminho = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    if (!is_string($caminho) || !preg_match('#^/api/([a-z]+)$#', $caminho, $m)) {
+    if (!is_string($caminho) || !preg_match('#^/api/((?:admin/)?[a-z]+(?:-[a-z]+)*)$#', $caminho, $m)) {
         nf_erro(404, 'Rota não encontrada.');
     }
-    $rotas = nf_rotas();
+    $rotas = nf_rotas() + nf_rotas_admin();
     $rota = $rotas[$m[1]] ?? null;
     if ($rota === null) {
         nf_erro(404, 'Rota não encontrada.');

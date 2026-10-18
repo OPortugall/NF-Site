@@ -77,6 +77,13 @@ export default function PaginaPrivacidade() {
                 locação), endereço e observações.
               </li>
               <li>
+                <strong>Produtos de interesse:</strong> os equipamentos que você marca no cadastro, para a equipe da NF
+                entrar em contato com propostas adequadas.
+              </li>
+              <li>
+                <strong>Situação de pagamento:</strong> se há pagamento pendente com a NF, e quando enviamos avisos sobre isso.
+              </li>
+              <li>
                 <strong>Segurança da conta:</strong> tentativas de login (guardadas de forma cifrada, sem o e-mail ou o IP
                 legíveis) e códigos temporários para confirmar e-mail ou trocar a senha.
               </li>
@@ -105,6 +112,24 @@ export default function PaginaPrivacidade() {
                 <tr>
                   <td>Criar e manter sua conta, liberar compra (CPF) ou compra e locação (CNPJ)</td>
                   <td>Execução de contrato (art. 7º, V)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Avisar a equipe da NF sobre o seu cadastro e os produtos de interesse, para o atendimento comercial</td>
+                  <td>Procedimentos preliminares de contrato (art. 7º, V)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Enviar aviso por e-mail quando houver pagamento pendente</td>
+                  <td>Execução de contrato (art. 7º, V) e exercício regular de direitos (art. 7º, VI)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Registrar o que a equipe altera nos cadastros (quem, o quê e quando)</td>
+                  <td>Legítimo interesse (art. 7º, IX), para segurança e prestação de contas (art. 6º, X)</td>
                 </tr>
               )}
               {CONTAS_ATIVAS && (
@@ -188,6 +213,7 @@ export default function PaginaPrivacidade() {
             <>
               <li><strong>Conta:</strong> enquanto ela existir. Se você pedir a exclusão, apagamos os dados da conta.</li>
               <li><strong>Tentativas de login:</strong> 24 horas.</li>
+              <li><strong>Registro de alterações feitas pela equipe no seu cadastro:</strong> até 5 anos, sem senhas e com o IP só de forma cifrada.</li>
               <li><strong>Códigos de confirmação e troca de senha:</strong> até 48 horas, e deixam de valer depois do uso.</li>
             </>
           )}

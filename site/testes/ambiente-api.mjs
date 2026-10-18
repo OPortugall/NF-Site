@@ -8,6 +8,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
+import { gerarCatalogoApi } from '../scripts/catalogo-api.mjs';
 
 export const RAIZ_SITE = path.resolve(import.meta.dirname, '..');
 const RAIZ_REPO = path.resolve(RAIZ_SITE, '..');
@@ -64,6 +65,9 @@ return [
     'origens' => [${(c.origens || []).map(php).join(', ')}],
     'cookie_seguro' => ${php(c.cookieSeguro ?? false)},
     'cnpj' => ['url' => ${php(c.urlCnpj)}, 'permitir_http' => ${php(c.urlCnpj.startsWith('http:'))}],
+    'url_site' => 'http://localhost:3221',
+    // E-mails gravados como arquivos .eml na pasta "emails" (nada sai para a internet)
+    'email' => ['modo' => 'arquivo', 'pasta' => ${php(path.join(pasta, 'emails'))}, 'remetente' => 'naoresponda@nf.test', 'admin' => 'equipe@nf.test'],
 ];
 `);
   return arquivo;
@@ -74,6 +78,7 @@ export const apagarPasta = (p) => rmSync(p, { recursive: true, force: true });
 
 // Sobe o servidor embutido do PHP com a API (todas as rotas passam por api/index.php).
 export async function iniciarPhp({ porta, config }) {
+  gerarCatalogoApi(); // api/_dados/catalogo.json (produtos de interesse)
   const filho = spawn(PHP, ['-n', '-c', PHP_INI, '-S', `127.0.0.1:${porta}`, '-t', 'api', 'api/index.php'], {
     cwd: RAIZ_SITE,
     env: { ...process.env, NF_CONFIG: config },

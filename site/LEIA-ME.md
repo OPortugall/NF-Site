@@ -129,6 +129,7 @@ site **só quando as contas estão ligadas** (hoje: só no ambiente de teste). O
 | `/api/cadastrar` | POST | cria a conta (confere CPF/CNPJ, e o CNPJ na Receita) e já entra |
 | `/api/entrar` | POST | e-mail e senha |
 | `/api/sair` | POST | encerra a sessão |
+| `/api/admin/...` | GET/POST | painel administrativo (veja `api/_lib/rotas-admin.php`) |
 
 Proteções: tudo passa por `api/index.php` (o resto de `api/` nunca é executado direto); só JSON; código
 CSRF em todo POST; só aceita pedidos do próprio site (Origin/Sec-Fetch-Site); sessão em cookie HttpOnly,
@@ -141,7 +142,7 @@ detalhes técnicos para o visitante. Os segredos ficam num arquivo **fora do sit
 Precisa do MariaDB e do PHP 8.3 locais (pasta de ferramentas) e das credenciais do banco **local**:
 
 ```
-DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run testar:api     # 142 testes da API
+DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run testar:api     # 237 testes da API (site + painel)
 DB_PORT=3311 DB_ADMIN_USER=root DB_ADMIN_PASSWORD=... npm run api:local      # API em :8081 (banco nf_local)
 API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # site + API
 ```
@@ -158,6 +159,26 @@ API_LOCAL=http://127.0.0.1:8081 npm run dev                                   # 
 
 Para a produção, o mesmo com `producao.php`, banco `raioxper_nf`, usuário `raioxper_nfapp` e
 `NEXT_PUBLIC_CONTAS_ATIVAS=true` na compilação — só depois de aprovado no teste.
+
+## Painel administrativo (`/admin`)
+
+Só existe onde as contas estão ligadas (hoje: teste). Login com e-mail e senha **e** código de 6 dígitos
+de app autenticador (2FA obrigatório); sessão do painel expira com 30 min sem uso ou 8 h após o login.
+
+| Tela | O que faz |
+|---|---|
+| Início | clientes, novos na semana, em atraso, inativos, notificações e estoque |
+| Clientes | busca e filtros, criar, editar, excluir (digitando o e-mail), ativar/inativar, "em atraso" com aviso por e-mail, exportar CSV |
+| Notificações | cliente novo (com produtos de interesse); também vai por e-mail para a NF |
+| Histórico | auditoria de tudo o que foi feito no painel |
+
+**Criar o primeiro administrador:** crie uma conta normal pelo site e, no phpMyAdmin do banco do ambiente, rode
+`UPDATE usuarios SET role = 'admin' WHERE email = 'email-do-admin';`. No primeiro acesso ao `/admin`, o painel
+mostra a chave para cadastrar o app autenticador. Se o celular for perdido, libere um novo cadastro do app com
+`UPDATE usuarios SET totp_segredo = NULL, totp_ultimo_passo = NULL WHERE email = '…';`.
+
+**E-mails:** precisam do bloco `email` e de `url_site` no arquivo de configuração (veja `api/config.exemplo.php`)
+e de uma conta de e-mail remetente criada no cPanel (ex.: `naoresponda@nfsolucoesdigitais.com.br`).
 
 ## Páginas
 

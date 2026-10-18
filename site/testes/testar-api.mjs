@@ -325,7 +325,7 @@ try {
     const [u] = await linhas(`SELECT primeiro_nome, sobrenome FROM ${BANCO}.usuarios WHERE primeiro_nome = ?`, [xss]);
     ok(u?.sobrenome === ataque, 'Guardados exatamente como digitados (nada executado)');
     const [{ tabelas }] = await linhas(`SELECT COUNT(*) AS tabelas FROM information_schema.tables WHERE table_schema = ?`, [BANCO]);
-    ok(Number(tabelas) === 9, 'As 9 tabelas continuam lá');
+    ok(Number(tabelas) === 12, 'As 12 tabelas continuam lá');
     ok(!r.texto.includes('<script>') && r.texto.includes('\\u003Cscript'), 'Na resposta, "<" e ">" saem escapados (não viram HTML)');
     const login = await (await novo()).post('/api/entrar', { email: "'OR'1'='1'--@x.com", senha: "' OR '1'='1" });
     ok(login.status === 401, 'Login com SQL no e-mail e na senha → 401 (tratado como texto)', `HTTP ${login.status}`);
@@ -444,6 +444,229 @@ try {
     await zerarTentativas();
     const login = await (await novo()).post('/api/entrar', { email: contaPF.email, senha: SENHA });
     ok(login.status === 200, 'Cadastros não contam como senhas erradas no limite de login');
+  });
+
+  // ===========================================================================
+  grupo('8. Painel: aviso de cliente novo e produtos de interesse');
+  // ===========================================================================
+  const pastaEmails = path.join(pastaPrincipal, 'emails');
+  const emails = () => (existsSync(pastaEmails) ? readdirSync(pastaEmails).sort().map((f) => readFileSync(path.join(pastaEmails, f), 'utf8')) : []);
+  let clienteInteresse;
+  await passo('aviso de cliente novo', async () => {
+    await zerarTentativas();
+    clienteInteresse = cadastroPF({ nome: 'Bruno', sobrenome: 'Interessado', interesses: ['15-mp5001', 'konica-minolta-bizhub-c361i', 'produto-que-nao-existe', '15-mp5001'] });
+    const r = await (await novo()).post('/api/cadastrar', clienteInteresse);
+    ok(r.status === 201, 'Cadastro com produtos de interesse → 201', `HTTP ${r.status} ${r.texto.slice(0, 100)}`);
+    const [u] = await linhas(`SELECT id FROM ${BANCO}.usuarios WHERE email = ?`, [clienteInteresse.email]);
+    clienteInteresse.id = u?.id;
+    const ints = await linhas(`SELECT produto_slug, produto_nome FROM ${BANCO}.usuario_interesses WHERE usuario_id = ? ORDER BY id`, [u?.id]);
+    ok(ints.length === 2 && ints[0].produto_nome === 'Ricoh MP 5001' && ints[1].produto_nome === 'Konica Minolta bizhub C361i',
+      'Interesses gravados com o nome do catálogo (repetidos e inexistentes ignorados)', JSON.stringify(ints));
+    const [n] = await linhas(`SELECT tipo, resumo, lida_em FROM ${BANCO}.notificacoes WHERE usuario_id = ?`, [u?.id]);
+    ok(n?.tipo === 'novo_cliente' && /Bruno Interessado/.test(n.resumo) && n.lida_em === null, 'Notificação de cliente novo no painel (não lida)');
+    const aviso = emails().find((e) => e.includes('To: equipe@nf.test') && e.includes('Novo cliente: Bruno Interessado'));
+    ok(aviso && /Novo cliente: Bruno Interessado/.test(aviso) && aviso.includes('Ricoh MP 5001') && aviso.includes('Konica Minolta bizhub C361i'),
+      'E-mail para a NF com os dados e os produtos de interesse');
+    ok(aviso && !aviso.includes(SENHA), 'O e-mail nunca leva a senha');
+    const [reg] = await linhas(`SELECT sucesso FROM ${BANCO}.emails_enviados WHERE usuario_id = ? AND tipo = 'novo_cliente_admin'`, [u?.id]);
+    ok(reg?.sucesso === 1, 'Envio do aviso registrado');
+    const ruim = await (await novo()).post('/api/cadastrar', cadastroPF({ interesses: 'tudo' }));
+    ok(ruim.status === 422, 'Interesses em formato errado → 422');
+    const demais = await (await novo()).post('/api/cadastrar', cadastroPF({ interesses: Array.from({ length: 31 }, (_, i) => `p${i}`) }));
+    ok(demais.status === 422, 'Mais de 30 interesses → 422');
+  });
+
+  // ===========================================================================
+  grupo('9. Painel: login do administrador com 2FA');
+  // ===========================================================================
+  // Código TOTP (RFC 6238), igual ao do app autenticador
+  const { createHmac } = await import('node:crypto');
+  const base32 = (s) => { const a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; let bits = ''; for (const c of s.replace(/\s/g, '')) bits += a.indexOf(c).toString(2).padStart(5, '0'); return Buffer.from(bits.match(/.{8}/g).map((b) => parseInt(b, 2))); };
+  const totp = (chave, desloc = 0) => { const passo = Math.floor(Date.now() / 30000) + desloc; const buf = Buffer.alloc(8); buf.writeBigUInt64BE(BigInt(passo)); const h = createHmac('sha1', base32(chave)).update(buf).digest(); const o = h[19] & 15; return String((h.readUInt32BE(o) & 0x7fffffff) % 1e6).padStart(6, '0'); };
+  const ADMIN = cadastroPF({ nome: 'Admin', sobrenome: 'Teste', email: email('admin') });
+  let chave2fa;
+  let adm; // navegador logado como admin
+  await passo('login admin', async () => {
+    await zerarTentativas();
+    await (await novo()).post('/api/cadastrar', ADMIN);
+    await admin.query(`UPDATE ${BANCO}.usuarios SET role = 'admin' WHERE email = ?`, [ADMIN.email]);
+    const anon = await new Navegador().pronto();
+    const s0 = await anon.req('GET', '/api/admin/sessao');
+    ok(s0.status === 200 && s0.dados?.admin === null, 'Sem login: GET admin/sessao → admin null');
+    for (const rota of ['/api/admin/resumo', '/api/admin/clientes', '/api/admin/cliente?id=1', '/api/admin/clientes-csv', '/api/admin/notificacoes', '/api/admin/auditoria']) {
+      const r = await anon.req('GET', rota);
+      ok(r.status === 401 && r.dados?.codigo === 'admin', `Sem login: ${rota.split('?')[0]} → 401`, `HTTP ${r.status}`);
+    }
+    const cliente = await (await novo()).post('/api/admin/entrar', { email: contaPF.email, senha: SENHA });
+    ok(cliente.status === 401, 'Cliente comum (sem role admin) não entra no painel');
+    const errada = await (await novo()).post('/api/admin/entrar', { email: ADMIN.email, senha: 'senhaErrada1' });
+    ok(errada.status === 401 && errada.dados?.erro === cliente.dados?.erro, 'Senha errada → 401 com a mesma mensagem genérica');
+    adm = await novo();
+    const idAntes = [...adm.cookies.values()][0];
+    const e1 = await adm.post('/api/admin/entrar', { email: ADMIN.email, senha: SENHA });
+    ok(e1.status === 200 && e1.dados?.etapa === 'configurar' && /^[A-Z2-7 ]{32,40}$/.test(e1.dados?.chave || ''), 'Primeiro acesso: pede para configurar o app autenticador (chave de 160 bits)');
+    ok(String(e1.dados?.endereco).startsWith('otpauth://totp/'), 'Entrega o endereço otpauth:// para o app');
+    chave2fa = e1.dados?.chave;
+    ok((await adm.req('GET', '/api/admin/resumo')).status === 401, 'Só a senha não basta: sem o código, o painel continua fechado');
+    const [antes] = await linhas(`SELECT totp_segredo FROM ${BANCO}.usuarios WHERE email = ?`, [ADMIN.email]);
+    ok(antes?.totp_segredo === null, 'O 2FA só é gravado depois de um código certo');
+    const errado = await adm.post('/api/admin/codigo', { codigo: '000000' === totp(chave2fa) ? '111111' : '000000' });
+    ok(errado.status === 401, 'Código errado → 401');
+    await zerarTentativas(); // cada código errado conta como tentativa (5 bloqueiam)
+    for (const lixo of ['12345', '1234567', 'abcdef', 123456, null]) {
+      const r = await adm.post('/api/admin/codigo', { codigo: lixo });
+      ok(r.status === 401, `Código em formato inválido (${JSON.stringify(lixo)}) → 401`);
+    }
+    await zerarTentativas();
+    const certo = await adm.post('/api/admin/codigo', { codigo: totp(chave2fa) });
+    ok(certo.status === 200 && certo.dados?.admin?.nome === 'Admin', 'Código certo → entra no painel', `HTTP ${certo.status} ${certo.texto.slice(0, 80)}`);
+    ok([...adm.cookies.values()][0] !== idAntes, 'Novo id de sessão ao entrar no painel');
+    const [depois] = await linhas(`SELECT totp_segredo, totp_ultimo_passo FROM ${BANCO}.usuarios WHERE email = ?`, [ADMIN.email]);
+    ok(depois?.totp_segredo && !depois.totp_segredo.includes(chave2fa.replace(/ /g, '')) && depois.totp_ultimo_passo > 0,
+      'Segredo do 2FA guardado cifrado (não dá para ler no banco)');
+    ok((await adm.req('GET', '/api/admin/resumo')).status === 200, 'Com senha + código, o painel abre');
+
+    // Segundo login: o mesmo código não vale de novo (reuso); o próximo vale
+    const outro = await novo();
+    const e2 = await outro.post('/api/admin/entrar', { email: ADMIN.email, senha: SENHA });
+    ok(e2.dados?.etapa === 'codigo' && !e2.dados?.chave, 'Login seguinte pede só o código (não mostra a chave de novo)');
+    const reuso = await outro.post('/api/admin/codigo', { codigo: totp(chave2fa) });
+    ok(reuso.status === 401, 'O mesmo código não pode ser usado duas vezes');
+    const proximo = await outro.post('/api/admin/codigo', { codigo: totp(chave2fa, 1) });
+    ok(proximo.status === 200, 'O código seguinte do app é aceito (tolerância de relógio)');
+    const sair = await outro.post('/api/admin/sair', {});
+    ok(sair.status === 200 && (await outro.req('GET', '/api/admin/resumo')).status === 401, 'Sair do painel fecha o acesso');
+
+    // Força bruta no código
+    await zerarTentativas();
+    const robo = await novo();
+    await robo.post('/api/admin/entrar', { email: ADMIN.email, senha: SENHA });
+    let ultimo;
+    for (let i = 0; i < 6; i++) ultimo = await robo.post('/api/admin/codigo', { codigo: String(100000 + i) });
+    ok(ultimo.status === 429, '5 códigos errados → bloqueio por 15 minutos', `HTTP ${ultimo.status}`);
+    await zerarTentativas();
+    const semCsrf = await adm.post('/api/admin/cliente-status', { id: 1, status: 'inativo' }, { comCsrf: false });
+    ok(semCsrf.status === 403, 'Ações do painel exigem o código CSRF');
+  });
+
+  // ===========================================================================
+  grupo('10. Painel: clientes');
+  // ===========================================================================
+  await passo('clientes', async () => {
+    const resumo = await adm.req('GET', '/api/admin/resumo');
+    ok(resumo.status === 200 && resumo.dados.clientes >= 3 && resumo.dados.notificacoesNaoLidas >= 1 && Array.isArray(resumo.dados.ultimosClientes),
+      'Resumo: clientes, novos, notificações e últimos cadastros', JSON.stringify(resumo.dados).slice(0, 120));
+    const lista = await adm.req('GET', '/api/admin/clientes');
+    ok(lista.status === 200 && lista.dados.total >= 3 && lista.dados.clientes.every((c) => !('senha_hash' in c) && !('totp_segredo' in c)),
+      'Lista de clientes sem senha nem segredo');
+    ok(!lista.dados.clientes.some((c) => c.email === ADMIN.email.toLowerCase()), 'Administradores não aparecem na lista de clientes');
+    const porNome = await adm.req('GET', '/api/admin/clientes?busca=Interessado');
+    ok(porNome.dados?.total === 1 && porNome.dados.clientes[0].nome === 'Bruno', 'Busca por nome');
+    const porDoc = await adm.req('GET', `/api/admin/clientes?busca=${clienteInteresse.documento.slice(0, 3)}.${clienteInteresse.documento.slice(3, 6)}`);
+    ok(porDoc.dados?.clientes.some((c) => c.id === clienteInteresse.id), 'Busca por CPF com pontuação');
+    const curinga = await adm.req('GET', '/api/admin/clientes?busca=' + encodeURIComponent('%'));
+    ok(curinga.dados?.total === 0, 'Busca por "%" não vira curinga (não lista todo mundo)');
+    const injecao = await adm.req('GET', '/api/admin/clientes?busca=' + encodeURIComponent("' OR 'a'='a' -- "));
+    ok(injecao.status === 200 && injecao.dados.total === 0, 'Busca com SQL é tratada como texto');
+    const empresas = await adm.req('GET', '/api/admin/clientes?tipo=cnpj');
+    ok(empresas.dados?.clientes.every((c) => c.tipo === 'cnpj'), 'Filtro por tipo (empresas)');
+
+    const ficha = await adm.req('GET', `/api/admin/cliente?id=${clienteInteresse.id}`);
+    const c = ficha.dados?.cliente;
+    ok(ficha.status === 200 && c?.interesses?.length === 2 && c.endereco?.cep === '12236500' && !ficha.texto.includes('argon2'),
+      'Ficha do cliente com endereço e interesses, sem hash de senha');
+    ok((await adm.req('GET', '/api/admin/cliente?id=999999')).status === 404, 'Cliente inexistente → 404');
+    ok((await adm.req('GET', '/api/admin/cliente?id=abc')).status === 422, 'Id inválido → 422');
+    const [admRow] = await linhas(`SELECT id FROM ${BANCO}.usuarios WHERE email = ?`, [ADMIN.email]);
+    ok((await adm.req('GET', `/api/admin/cliente?id=${admRow.id}`)).status === 404, 'Ficha de administrador não abre pelo painel de clientes');
+
+    // criar
+    const novoCliente = cadastroPF({ nome: 'Carla', sobrenome: 'Criada', senha: 'temporaria123' });
+    delete novoCliente.aceite;
+    const criar = await adm.post('/api/admin/cliente-criar', novoCliente);
+    ok(criar.status === 201 && criar.dados?.id > 0, 'Criar cliente pelo painel → 201');
+    ok((await adm.post('/api/admin/cliente-criar', { ...novoCliente, documento: cpf() })).status === 409, 'Criar com e-mail repetido → 409');
+    ok((await adm.post('/api/admin/cliente-criar', { ...novoCliente, email: 'x' })).status === 422, 'Criar com dados inválidos → 422');
+    ok((await (await novo()).post('/api/entrar', { email: novoCliente.email, senha: 'temporaria123' })).status === 200, 'Cliente criado pelo painel consegue entrar com a senha temporária');
+
+    // editar
+    const ed = { ...novoCliente, id: criar.dados.id, telefone: '(12) 98888-7777', numero: '100', senha: '' };
+    const editar = await adm.post('/api/admin/cliente-editar', ed);
+    ok(editar.status === 200 && editar.dados.alterados.includes('telefone') && editar.dados.alterados.includes('endereco.numero') && !editar.dados.alterados.includes('senha'),
+      'Editar cliente: grava e informa os campos alterados', JSON.stringify(editar.dados));
+    const [ce] = await linhas(`SELECT telefone FROM ${BANCO}.usuarios WHERE id = ?`, [criar.dados.id]);
+    ok(ce?.telefone === '12988887777', 'Alteração gravada no banco');
+    ok((await adm.post('/api/admin/cliente-editar', { ...ed, email: contaPF.email })).status === 409, 'Editar para um e-mail de outro cliente → 409');
+    ok((await adm.post('/api/admin/cliente-editar', { ...ed, id: admRow.id })).status === 404, 'Não edita administradores');
+    const novaSenha = await adm.post('/api/admin/cliente-editar', { ...ed, senha: 'novaSenha456' });
+    ok(novaSenha.dados?.alterados.includes('senha'), 'Painel pode redefinir a senha do cliente');
+    ok((await (await novo()).post('/api/entrar', { email: novoCliente.email, senha: 'novaSenha456' })).status === 200, 'Cliente entra com a senha nova');
+
+    // inativar / ativar
+    const sessaoCliente = await novo();
+    await sessaoCliente.post('/api/entrar', { email: novoCliente.email, senha: 'novaSenha456' });
+    ok((await adm.post('/api/admin/cliente-status', { id: criar.dados.id, status: 'inativo' })).status === 200, 'Inativar cliente');
+    ok((await sessaoCliente.sessao()).dados?.cliente === null, 'Cliente inativado perde a sessão aberta na hora');
+    ok((await (await novo()).post('/api/entrar', { email: novoCliente.email, senha: 'novaSenha456' })).status === 401, 'Cliente inativo não entra');
+    ok((await adm.post('/api/admin/cliente-status', { id: criar.dados.id, status: 'apagado' })).status === 422, 'Situação inválida → 422');
+    ok((await adm.post('/api/admin/cliente-pagamento', { id: criar.dados.id, situacao: 'em_atraso', enviarEmail: true })).status === 422, 'Não envia aviso de atraso para cliente inativo');
+    ok((await adm.post('/api/admin/cliente-status', { id: criar.dados.id, status: 'ativo' })).status === 200
+      && (await (await novo()).post('/api/entrar', { email: novoCliente.email, senha: 'novaSenha456' })).status === 200, 'Reativar cliente: volta a entrar');
+
+    // em atraso + e-mail
+    const atraso = await adm.post('/api/admin/cliente-pagamento', { id: criar.dados.id, situacao: 'em_atraso', enviarEmail: true });
+    ok(atraso.status === 200 && atraso.dados?.emailEnviado === true, 'Marcar "em atraso" e enviar o aviso por e-mail');
+    const [ca] = await linhas(`SELECT situacao_pagamento, em_atraso_desde FROM ${BANCO}.usuarios WHERE id = ?`, [criar.dados.id]);
+    ok(ca?.situacao_pagamento === 'em_atraso' && ca.em_atraso_desde instanceof Date, 'Situação e data do atraso gravadas');
+    const aviso = emails().find((e) => e.includes(`To: ${novoCliente.email.toLowerCase()}`));
+    ok(aviso && /pagamento pendente/i.test(aviso) && /desconsidere/.test(aviso), 'Cliente recebe o aviso de pagamento pendente (texto neutro)');
+    ok(aviso && !aviso.includes(contaPF.email) && !aviso.includes(novoCliente.documento), 'O aviso não traz documento nem dados de outros clientes');
+    const repetido = await adm.post('/api/admin/cliente-pagamento', { id: criar.dados.id, situacao: 'em_atraso', enviarEmail: true });
+    ok(repetido.status === 429, 'Segundo aviso em menos de 3 dias → bloqueado');
+    const emDia = await adm.post('/api/admin/cliente-pagamento', { id: criar.dados.id, situacao: 'em_dia' });
+    const [cd] = await linhas(`SELECT situacao_pagamento, em_atraso_desde FROM ${BANCO}.usuarios WHERE id = ?`, [criar.dados.id]);
+    ok(emDia.status === 200 && cd?.situacao_pagamento === 'em_dia' && cd.em_atraso_desde === null, 'Marcar "em dia" limpa o atraso');
+
+    // notificações
+    const nots = await adm.req('GET', '/api/admin/notificacoes?filtro=nao-lidas');
+    ok(nots.status === 200 && nots.dados.notificacoes.some((n) => n.clienteId === clienteInteresse.id), 'Notificações não lidas listadas');
+    const ler = await adm.post('/api/admin/notificacoes-lidas', { ids: [nots.dados.notificacoes[0].id] });
+    const depois = await adm.req('GET', '/api/admin/notificacoes');
+    ok(ler.status === 200 && depois.dados.naoLidas === nots.dados.naoLidas - 1, 'Marcar notificação como lida');
+    ok((await adm.post('/api/admin/notificacoes-lidas', { ids: ['1 OR 1=1'] })).status === 422, 'Ids inválidos → 422');
+    await adm.post('/api/admin/notificacoes-lidas', { todas: true });
+    ok((await adm.req('GET', '/api/admin/notificacoes')).dados.naoLidas === 0, 'Marcar todas como lidas');
+
+    // CSV
+    await adm.post('/api/admin/cliente-criar', cadastroPF({ nome: '=HYPERLINK("http://x")', sobrenome: '+Formula', senha: 'temporaria123' }));
+    const csv = await adm.req('GET', '/api/admin/clientes-csv');
+    ok(csv.status === 200 && (csv.h.get('content-type') || '').startsWith('text/csv') && /attachment/.test(csv.h.get('content-disposition') || ''),
+      'Exportar CSV: arquivo para baixar');
+    const bytes = new Uint8Array(await (await fetch(BASE + '/api/admin/clientes-csv', { headers: { cookie: adm.cookie } })).arrayBuffer());
+    ok(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf && csv.texto.includes('"Nome";"Sobrenome"') && csv.texto.includes('Ricoh MP 5001'),
+      'CSV com acentos para o Excel, colunas e produtos de interesse');
+    ok(csv.texto.includes(`"'=HYPERLINK(""http://x"")"`) && csv.texto.includes(`"'+Formula"`), 'Células que começam com = ou + viram texto (sem fórmulas maliciosas)');
+    ok(!/argon2|totp/i.test(csv.texto) && !csv.texto.includes(ADMIN.email.toLowerCase()), 'CSV sem senhas, sem segredos e sem administradores');
+
+    // excluir
+    const errado = await adm.post('/api/admin/cliente-excluir', { id: criar.dados.id, confirmacao: 'outro@x.com' });
+    ok(errado.status === 422, 'Excluir exige digitar o e-mail do cliente');
+    const excluir = await adm.post('/api/admin/cliente-excluir', { id: clienteInteresse.id, confirmacao: clienteInteresse.email.toUpperCase() });
+    const [ex] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.usuarios WHERE id = ?`, [clienteInteresse.id]);
+    const [exi] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.usuario_interesses WHERE usuario_id = ?`, [clienteInteresse.id]);
+    ok(excluir.status === 200 && Number(ex.n) === 0 && Number(exi.n) === 0, 'Excluir cliente apaga cadastro e interesses (LGPD)');
+    ok((await adm.post('/api/admin/cliente-excluir', { id: admRow.id, confirmacao: ADMIN.email })).status === 404, 'Não exclui administradores');
+
+    // auditoria
+    const aud = await adm.req('GET', '/api/admin/auditoria');
+    const acoes = aud.dados?.registros.map((r) => r.acao) || [];
+    for (const a of ['admin_autenticador_configurado', 'admin_entrar', 'cliente_criar', 'cliente_editar', 'cliente_inativar', 'cliente_ativar',
+      'cliente_marcar_atraso', 'cliente_aviso_atraso', 'cliente_marcar_em_dia', 'clientes_exportar', 'cliente_excluir']) {
+      ok(acoes.includes(a), `Auditoria registra "${a}"`);
+    }
+    ok(!/novaSenha456|temporaria123|argon2/.test(aud.texto), 'Auditoria não guarda senhas');
+    const [ipAud] = await linhas(`SELECT ip_hmac FROM ${BANCO}.auditoria LIMIT 1`);
+    ok(/^[0-9a-f]{64}$/.test(ipAud?.ip_hmac || ''), 'Auditoria guarda o IP só como HMAC');
   });
 
   // ===========================================================================

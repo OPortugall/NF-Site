@@ -288,7 +288,7 @@ function FormCriar({ aoConcluir }) {
     }
     setEnviando(true);
     const { confirmacao, ...paraEnviar } = d; // a confirmação da senha só serve aqui na tela
-    const r = await cadastrar(paraEnviar);
+    const r = await cadastrar({ ...paraEnviar, interesses });
     setEnviando(false);
     if (!r.ok) {
       // O servidor confere tudo de novo (e o CNPJ na Receita): mostra os erros nos campos

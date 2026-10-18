@@ -12,6 +12,7 @@ import { cp, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { REDIRECIONAMENTOS, cabecalhosDeSeguranca } from '../lib/seguranca.mjs';
 import { criarZip } from './zip.mjs';
+import { gerarCatalogoApi } from './catalogo-api.mjs';
 
 const RAIZ = path.resolve(import.meta.dirname, '..');
 const ambiente = process.argv[2];
@@ -50,9 +51,11 @@ rodar(`Compilando o ambiente "${ambiente}"`, [path.join('node_modules', 'next', 
 
 const contasAtivas = (process.env.NEXT_PUBLIC_CONTAS_ATIVAS || PADROES[ambiente].contas) === 'true';
 
-// Na vitrine o login não existe: não publica a página /entrar (o servidor responde 404)
+// Na vitrine o login e o painel não existem: não publica /entrar nem /admin (o servidor responde 404)
 if (!contasAtivas) {
-  for (const f of ['entrar.html', 'entrar.txt', 'entrar']) await rm(path.join(destino, f), { recursive: true, force: true });
+  for (const f of ['entrar.html', 'entrar.txt', 'entrar', 'admin.html', 'admin.txt', 'admin']) {
+    await rm(path.join(destino, f), { recursive: true, force: true });
+  }
 }
 
 // API (PHP): só vai junto quando as contas estão ligadas. Sem o modelo de configuração;
@@ -62,6 +65,7 @@ if (contasAtivas) {
     recursive: true,
     filter: (origem) => !/config\.exemplo\.php$|_ambiente\.php$/.test(origem),
   });
+  gerarCatalogoApi(path.join(destino, 'api'));
   await writeFile(path.join(destino, 'api', '_ambiente.php'), `<?php
 // Gerado por scripts/compilar.mjs
 return '${ambiente}';
