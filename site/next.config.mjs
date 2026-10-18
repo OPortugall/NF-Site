@@ -41,6 +41,10 @@ const nextConfig = {
     async redirects() {
       return REDIRECIONAMENTOS.map(({ de, para }) => ({ source: de, destination: para, permanent: true }));
     },
+    // /api/... vai para a API em PHP rodando no computador (npm run api:local)
+    async rewrites() {
+      return [{ source: '/api/:rota*', destination: `${process.env.API_LOCAL || 'http://127.0.0.1:8081'}/api/:rota*` }];
+    },
   }),
 };
 

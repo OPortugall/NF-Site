@@ -2133,35 +2133,6 @@ p {
   margin-top: var(--e-5);
 }
 
-.previa-admin {
-  margin-top: var(--e-7);
-  padding: var(--e-5);
-  border-radius: var(--raio);
-  background: #ece5dd; /* fundo da conversa do WhatsApp */
-}
-
-.previa-admin__titulo {
-  font-size: var(--texto-l);
-  margin-bottom: var(--e-2);
-}
-
-.bolha-whatsapp {
-  margin-top: var(--e-4);
-  max-width: 460px;
-  padding: var(--e-3) var(--e-4);
-  border-radius: 0 var(--raio) var(--raio) var(--raio);
-  background: var(--branco);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
-}
-
-.bolha-whatsapp pre {
-  margin: 0;
-  font-family: inherit;
-  font-size: var(--texto-s);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
 /* ---------- consulta do CNPJ ---------- */
 .status-cnpj {
   display: grid;
@@ -2316,4 +2287,280 @@ p {
 .aceite a {
   color: var(--ciano-texto);
   text-decoration: underline;
+}
+
+/* ---------- estoque zerado: tarja cinza por cima da foto ---------- */
+.selo-indisponivel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  background: rgb(110 110 110 / 0.55);
+  pointer-events: none; /* o link do cartão continua clicável */
+}
+
+.selo-indisponivel__texto {
+  padding: var(--e-2) var(--e-4);
+  background: rgb(35 35 35 / 0.85);
+  color: var(--branco);
+  font-size: var(--texto-s);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.botao-adicionar--indisponivel,
+.botao-adicionar--indisponivel:hover {
+  border-color: var(--linha-forte);
+  background: var(--papel);
+  color: var(--tinta-suave);
+  cursor: default;
+}
+
+.produto__indisponivel {
+  margin-top: var(--e-5);
+  padding: var(--e-3) var(--e-4);
+  border-left: 4px solid var(--tinta-suave);
+  background: var(--papel);
+  font-weight: 600;
+}
+
+/* ---------- carrinho: pedido pelo site ---------- */
+.item-carrinho--problema .item-carrinho__foto {
+  opacity: 0.5;
+}
+
+.item-carrinho__aviso {
+  display: block;
+  margin-top: var(--e-1);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  color: #8c1d18;
+}
+
+.gaveta__observacoes {
+  display: grid;
+  gap: var(--e-1);
+  font-size: var(--texto-s);
+  font-weight: 600;
+}
+
+.gaveta__observacoes textarea {
+  width: 100%;
+  padding: var(--e-2) var(--e-3);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--branco);
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+
+.gaveta__erro {
+  font-size: var(--texto-s);
+  font-weight: 600;
+  color: #8c1d18;
+}
+
+.gaveta__enviado {
+  color: var(--tinta);
+}
+
+.gaveta__enviado-titulo {
+  font-size: var(--texto-l);
+  font-weight: 700;
+}
+
+.botao:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.botao--perigo {
+  background: #b3261e;
+  color: var(--branco);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background: #8c1d18;
+}
+
+.botao-texto {
+  padding: var(--e-2);
+  border: 0;
+  background: none;
+  color: var(--tinta-suave);
+  font: inherit;
+  font-size: var(--texto-s);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- minha conta ---------- */
+.conta-pagina .pagina__titulo {
+  margin-bottom: var(--e-5);
+}
+
+.conta-pagina > .botao {
+  margin-top: var(--e-5);
+}
+
+.conta-vazia {
+  display: grid;
+  justify-items: start;
+  gap: var(--e-3);
+}
+
+.pedidos {
+  display: grid;
+  gap: var(--e-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pedido {
+  display: grid;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--linha);
+  border-left: 6px solid var(--cmyk-c);
+  border-radius: var(--raio);
+  background: var(--branco);
+}
+
+.pedido--em_atendimento { border-left-color: var(--cmyk-m); }
+.pedido--enviado { border-left-color: var(--cmyk-y); }
+.pedido--aprovado { border-left-color: var(--whatsapp); }
+.pedido--recusado,
+.pedido--cancelado { border-left-color: var(--linha-forte); }
+
+.pedido__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--e-3);
+}
+
+.pedido__codigo {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pedido__data,
+.pedido__texto {
+  font-size: var(--texto-s);
+  color: var(--tinta-suave);
+}
+
+.situacao {
+  padding: 2px var(--e-3);
+  border-radius: 999px;
+  background: var(--papel);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.situacao--novo { background: #e3f4fb; color: #00465f; }
+.situacao--em_atendimento { background: #fce4f0; color: #8a0f4c; }
+.situacao--enviado { background: #fff4bf; color: #5a4700; }
+.situacao--aprovado { background: #e2f5e9; color: #145c30; }
+
+.pedido__itens {
+  display: grid;
+  gap: var(--e-1);
+  margin: 0;
+  padding: var(--e-3) 0 0;
+  border-top: 1px dashed var(--linha);
+  list-style: none;
+}
+
+.pedido__qtd {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pedido__modalidade {
+  font-size: var(--texto-xs);
+  color: var(--tinta-suave);
+}
+
+.pedido__obs {
+  font-size: var(--texto-s);
+  white-space: pre-line;
+}
+
+.pedido__acoes,
+.pedido__confirmar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+.pedido__confirmar {
+  font-size: var(--texto-s);
+  font-weight: 600;
+}
+
+.conta-dados {
+  display: grid;
+  gap: var(--e-3);
+  margin: 0 0 var(--e-3);
+}
+
+.conta-dados > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 30%) 1fr;
+  gap: var(--e-3);
+  padding-bottom: var(--e-3);
+  border-bottom: 1px solid var(--linha);
+}
+
+.conta-dados dt {
+  color: var(--tinta-suave);
+  font-size: var(--texto-s);
+}
+
+.conta-dados dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.excluir-conta {
+  display: grid;
+  gap: var(--e-4);
+  margin-top: var(--e-7);
+  padding: var(--e-5);
+  border: 1px solid #f1c4c1;
+  border-radius: var(--raio);
+}
+
+.excluir-conta__titulo {
+  font-size: var(--texto-l);
+}
+
+.excluir-conta .botao {
+  justify-self: start;
+}
+
+.excluir-conta .aviso ul {
+  margin: var(--e-2) 0 0;
+  padding-left: var(--e-5);
+}
+
+.excluir-conta__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-3);
+}
+
+@media (max-width: 520px) {
+  .conta-dados > div {
+    grid-template-columns: 1fr;
+    gap: var(--e-1);
+  }
 }

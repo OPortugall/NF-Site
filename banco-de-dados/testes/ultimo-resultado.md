@@ -1,15 +1,15 @@
 # Resultado da bateria de testes do banco de dados
 
-Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
+Executado em 18/10/2026, 11:16:50. 153 testes: **153 passaram, 0 falharam.**
 
 ## 1. Configuração do servidor
 
 | | Teste | Detalhe |
 |---|---|---|
-| ✅ | Versão do banco: 11.4.13-MariaDB |  |
+| ✅ | Versão do banco: 10.11.19-MariaDB |  |
 | ✅ | Modo estrito ligado (dados inválidos são recusados, não cortados) | IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION |
 | ✅ | Leitura de arquivos locais (LOAD DATA LOCAL) desligada |  |
-| ✅ | 9 tabelas com InnoDB (transações e chaves estrangeiras) e utf8mb4 (acentos e emojis) |  |
+| ✅ | 12 tabelas com InnoDB (transações e chaves estrangeiras) e utf8mb4 (acentos e emojis) |  |
 
 ## 2. Usuários: dados válidos e inválidos
 
@@ -79,7 +79,39 @@ Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Foto apontando para site externo | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
 | ✅ | Foto com "javascript:" (ataque XSS) | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
 | ✅ | Foto tentando sair da pasta (../../) | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
+| ✅ | Foto enviada pelo painel (/uploads/produtos/...) |  |
+| ✅ | Foto enviada com ".." no nome | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
+| ✅ | Foto em outra pasta de uploads | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
+| ✅ | Foto com extensão .php | recusado: CONSTRAINT `ck_produto_fotos_url` failed for `nf_solucoes_teste`.`produto_fotos` |
 | ✅ | Interesse do cliente num produto |  |
+| ✅ | Interesse num produto que só existe no código do site (sem produto_id) |  |
+| ✅ | O mesmo interesse duas vezes | recusado: Duplicate entry '1-15-mp5001' for key 'uq_usuario_interesses' |
+| ✅ | Interesse com slug malicioso | recusado: CONSTRAINT `ck_interesses_slug` failed for `nf_solucoes_teste`.`usuario_interesses` |
+| ✅ | Estoque negativo | recusado: Out of range value for column 'estoque' at row 1 |
+| ✅ | Produto com estoque e limite de estoque baixo |  |
+| ✅ | Produto sem modelo (toner): o site mostra o nome |  |
+| ✅ | Produto sem nome | recusado: CONSTRAINT `ck_produtos_textos` failed for `nf_solucoes_teste`.`produtos` |
+
+## 5b. Painel administrativo: pagamento, 2FA, notificações e auditoria
+
+| | Teste | Detalhe |
+|---|---|---|
+| ✅ | Cliente "em atraso" sem a data do atraso | recusado: CONSTRAINT `ck_usuarios_atraso` failed for `nf_solucoes_teste`.`usuarios` |
+| ✅ | Cliente "em dia" com data de atraso | recusado: CONSTRAINT `ck_usuarios_atraso` failed for `nf_solucoes_teste`.`usuarios` |
+| ✅ | Cliente em atraso com a data |  |
+| ✅ | Situação de pagamento fora da lista | recusado: Data truncated for column 'situacao_pagamento' at row 1 |
+| ✅ | Segredo de 2FA num cliente (só administradores têm 2FA) | recusado: CONSTRAINT `ck_usuarios_totp` failed for `nf_solucoes_teste`.`usuarios` |
+| ✅ | Administrador com 2FA |  |
+| ✅ | Notificação de cliente novo |  |
+| ✅ | Notificação de pedido de orçamento |  |
+| ✅ | Notificação de conta excluída pelo cliente (sem usuario_id) |  |
+| ✅ | Notificação de tipo desconhecido | recusado: Data truncated for column 'tipo' at row 1 |
+| ✅ | Registro de auditoria |  |
+| ✅ | Auditoria com ação fora do formato (SQL/HTML) | recusado: CONSTRAINT `ck_auditoria_acao` failed for `nf_solucoes_teste`.`auditoria` |
+| ✅ | Auditoria com detalhes que não são JSON | recusado: CONSTRAINT `auditoria.detalhes` failed for `nf_solucoes_teste`.`auditoria` |
+| ✅ | Auditoria com IP em texto (só HMAC) | recusado: CONSTRAINT `ck_auditoria_ip` failed for `nf_solucoes_teste`.`auditoria` |
+| ✅ | Registro de e-mail enviado |  |
+| ✅ | Registro de e-mail de orçamento para a equipe |  |
 
 ## 6. Injeção de SQL (consultas parametrizadas)
 
@@ -93,8 +125,8 @@ Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Login com "'; DROP TABLE usuarios; -- " não encontra ninguém |  |
 | ✅ | Nome com comando SQL é guardado como texto comum |  |
 | ✅ | Vários comandos numa só chamada são bloqueados pela conexão do site | You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the |
-| ✅ | Depois dos ataques, as 9 tabelas continuam lá |  |
-| ✅ | Demonstração: SQL montado juntando texto devolveria TODOS os 5 usuários (por isso o site só usa parâmetros) |  |
+| ✅ | Depois dos ataques, as 12 tabelas continuam lá |  |
+| ✅ | Demonstração: SQL montado juntando texto devolveria TODOS os 7 usuários (por isso o site só usa parâmetros) |  |
 
 ## 7. Permissões do usuário do site (privilégio mínimo)
 
@@ -136,7 +168,7 @@ Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Código sequencial curto ("NF-0001") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código em minúsculas | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
 | ✅ | Código com letra confusa ("O") | recusado: CONSTRAINT `ck_orcamentos_codigo` failed for `nf_solucoes_teste`.`orcamentos` |
-| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-ULS4U6EJ' for key 'uq_orcamentos_codigo' |
+| ✅ | Código de orçamento repetido | recusado: Duplicate entry 'NF-2AL3VR5K' for key 'uq_orcamentos_codigo' |
 | ✅ | Orçamento novo entra com situação "novo" |  |
 | ✅ | Situação inexistente ("pago") | recusado: Data truncated for column 'status' at row 1 |
 | ✅ | Orçamento de cliente que não existe | recusado: Cannot add or update a child row: a foreign key constraint fails (`nf_solucoes_teste`.`orcamentos`, CONSTRAINT |
@@ -155,7 +187,7 @@ Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Guardar o código em si, em vez do hash | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Hash em formato inválido (maiúsculas) | recusado: CONSTRAINT `ck_tokens_hash` failed for `nf_solucoes_teste`.`tokens_usuario` |
 | ✅ | Tipo de link inexistente | recusado: Data truncated for column 'tipo' at row 1 |
-| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry 'bfd84fdeb84eccee9a98798b98397669a822c07a007bd9a4dd33553466e05f88' for key 'uq_tokens_hash' |
+| ✅ | Mesmo hash duas vezes | recusado: Duplicate entry 'dd1a592c91f99cd482af4c805e1d6179d573ed3136a184d79473473a1f607a0e' for key 'uq_tokens_hash' |
 | ✅ | Quem vê o banco não consegue usar os links (o código não está guardado) |  |
 | ✅ | O link funciona na primeira vez |  |
 | ✅ | O mesmo link não funciona uma segunda vez (uso único) |  |
@@ -168,6 +200,7 @@ Executado em 16/10/2026, 13:10:58. 125 testes: **125 passaram, 0 falharam.**
 | ✅ | Ao excluir o cliente, os endereços e interesses dele também são apagados |  |
 | ✅ | Os links de e-mail pendentes dele também são apagados |  |
 | ✅ | Os orçamentos dele ficam no histórico da empresa, mas sem ligação com os dados pessoais |  |
+| ✅ | Notificações perdem a ligação com o cliente; a auditoria guarda só o número do registro |  |
 | ✅ | O produto em que ele tinha interesse continua no catálogo |  |
 
 ## 12. Limite de tentativas de login (força bruta)

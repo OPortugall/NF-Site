@@ -36,6 +36,7 @@ EXTENSOES_SERVIDOR = {'.php', '.inc', '.cgi', '.pl', '.py', '.sh', '.asp', '.asp
 PASTAS_LIBERADAS_PARA_SERVIDOR = (
     'reconstrucao/site-principal/layout-original-template-nfsolucoes/',
     'scripts/',
+    'site/api/',   # API do site (PHP), só no servidor
 )
 
 EXTENSOES_IMAGEM = {'.jpg', '.jpeg', '.png', '.gif', '.ico', '.bmp', '.webp'}
@@ -122,6 +123,11 @@ def verificar_arquivos_proibidos(arquivos):
         tamanho = os.path.getsize(os.path.join(RAIZ, caminho))
         if tamanho > TAMANHO_MAXIMO:
             erro('arquivos proibidos', caminho, f'arquivo com {tamanho / 1048576:.1f} MB (limite {TAMANHO_MAXIMO // 1048576} MB)')
+        if caminho.startswith('config-nf/') or '/config-nf/' in caminho or nome == '_ambiente.php':
+            erro('arquivos proibidos', caminho, 'configuração real da API (senha do banco e chaves) fica só no servidor, fora do site')
+        if caminho.startswith('site/api/') and extensao(caminho) == '.php' and re.search(
+                r"'senha'\s*=>\s*'(?!SENHA-DO-USUARIO-DO-BANCO')[^']+'", open(os.path.join(RAIZ, caminho), encoding='utf-8', errors='replace').read()):
+            erro('arquivos proibidos', caminho, 'senha do banco escrita no código da API (use o arquivo de configuração fora do site)')
         if re.search(r'\.(php|phtml|asp|jsp)\.(jpe?g|png|gif|txt)$|\.(jpe?g|png|gif)\.(php|phtml)$', nome, re.I):
             erro('arquivos proibidos', caminho, 'extensão dupla (truque comum para esconder scripts)')
 

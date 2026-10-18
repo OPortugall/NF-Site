@@ -4,6 +4,7 @@ import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
 import { BotoesAdicionar } from '@/componentes/Carrinho';
 import { CONTAS_ATIVAS } from '@/lib/ambiente';
 import Galeria from '@/componentes/Galeria';
+import { AvisoIndisponivel } from '@/componentes/Estoque';
 import Tinta from '@/componentes/Tinta';
 import { empresa } from '@/dados/empresa';
 import {
@@ -70,7 +71,7 @@ export default async function PaginaProduto({ params }) {
       </nav>
 
       <div className="produto">
-        <Galeria fotos={produto.fotos} nome={titulo} />
+        <Galeria fotos={produto.fotos} nome={titulo} slug={produto.slug} estoque={produto.estoque} />
 
         <div className="produto__info">
           <p className="produto__tipo">{TIPOS[produto.tipo]}</p>
@@ -89,6 +90,7 @@ export default async function PaginaProduto({ params }) {
             <a className="botao botao--whatsapp botao--largo" href={linkWhatsApp(mensagemProduto(produto))}>
               Pedir orçamento pelo WhatsApp
             </a>
+            <AvisoIndisponivel slug={produto.slug} estoque={produto.estoque} />
             {!CONTAS_ATIVAS && produtoAlugavel(produto) && (
               <p className="produto__locacao-aviso">
                 Empresas também podem alugar este equipamento, com assistência técnica incluída.{' '}

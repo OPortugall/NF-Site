@@ -8,9 +8,11 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { cp, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { REDIRECIONAMENTOS, cabecalhosDeSeguranca } from '../lib/seguranca.mjs';
+import { criarZip } from './zip.mjs';
+import { gerarCatalogoApi } from './catalogo.mjs';
 
 const RAIZ = path.resolve(import.meta.dirname, '..');
 const ambiente = process.argv[2];
@@ -36,7 +38,9 @@ function rodar(rotulo, args, env = {}) {
   }
 }
 
-// ---------- 1. fotos reduzidas e compilação ----------
+// ---------- 1. catálogo, fotos reduzidas e compilação ----------
+// Catálogo: do banco (CATALOGO_URL, na publicação pelo GitHub) ou dos arquivos do site (veja scripts/catalogo.mjs)
+rodar('Montando o catálogo de produtos', ['scripts/catalogo.mjs']);
 rodar('Gerando as fotos reduzidas', ['scripts/otimizar-imagens.mjs']);
 // Com output: 'export', o Next.js grava o site pronto na própria pasta de compilação (distDir)
 const destino = path.join(RAIZ, 'publicar', ambiente);
@@ -47,10 +51,33 @@ rodar(`Compilando o ambiente "${ambiente}"`, [path.join('node_modules', 'next', 
   NEXT_TELEMETRY_DISABLED: '1',
 });
 
-// Na vitrine o login não existe: não publica a página /entrar (o servidor responde 404)
-if (PADROES[ambiente].contas === 'false' && process.env.NEXT_PUBLIC_CONTAS_ATIVAS !== 'true') {
-  for (const f of ['entrar.html', 'entrar.txt', 'entrar']) await rm(path.join(destino, f), { recursive: true, force: true });
+const contasAtivas = (process.env.NEXT_PUBLIC_CONTAS_ATIVAS || PADROES[ambiente].contas) === 'true';
+
+// Fotos enviadas pelo painel moram só no servidor (no computador, a API local grava em public/uploads)
+for (const f of ['uploads', path.join('otim', 'uploads')]) {
+  await rm(path.join(destino, f), { recursive: true, force: true });
 }
+
+// Na vitrine as contas de cliente não existem: não publica /entrar nem /conta (o servidor responde 404).
+// O painel (/admin) vai sempre: é por ele que a equipe cuida dos produtos e do estoque.
+if (!contasAtivas) {
+  for (const f of ['entrar.html', 'entrar.txt', 'entrar', 'conta.html', 'conta.txt', 'conta']) {
+    await rm(path.join(destino, f), { recursive: true, force: true });
+  }
+}
+
+// API (PHP): vai sempre (painel, catálogo e estoque). Sem o modelo de configuração;
+// _ambiente.php diz à API qual arquivo de /home/<usuario>/config-nf/ usar e se as contas
+// de cliente estão ligadas (desligadas: cadastro, login e pedidos respondem 404).
+await cp(path.join(RAIZ, 'api'), path.join(destino, 'api'), {
+  recursive: true,
+  filter: (origem) => !/config\.exemplo\.php$|_ambiente\.php$/.test(origem),
+});
+gerarCatalogoApi(path.join(destino, 'api'));
+await writeFile(path.join(destino, 'api', '_ambiente.php'), `<?php
+// Gerado por scripts/compilar.mjs
+return ['ambiente' => '${ambiente}', 'contas' => ${contasAtivas}];
+`);
 
 // Arquivos de navegação do Next.js: ele grava loja/__next.loja/__PAGE__.txt, mas o navegador pede
 // loja/__next.loja.__PAGE__.txt (nome "achatado"). Sem servidor Node para traduzir, achatamos aqui.
@@ -82,6 +109,11 @@ DirectorySlash Off
 ErrorDocument 404 /404.html
 AddDefaultCharset utf-8
 AddType image/webp .webp
+
+# Arquivos de configuração que o cPanel cria na pasta do site (php.ini, .user.ini) nunca são servidos
+<FilesMatch "^(php\\.ini|\\.user\\.ini|\\.ht.*|error_log)$">
+  Require all denied
+</FilesMatch>
 ${
   ambiente === 'teste'
     ? `
@@ -148,4 +180,7 @@ if (existsSync(estaticos)) {
   );
 }
 
-console.log(`\n✔ Pronto: publicar/${ambiente}/ (envie TODO o conteúdo, inclusive o .htaccess, para a pasta do site)`);
+// Pacote para o cPanel, com permissões 644/755 (veja scripts/zip.mjs)
+const zip = criarZip(destino, path.join(RAIZ, 'publicar', `site-${ambiente}.zip`));
+console.log(`\n✔ Pronto: publicar/site-${ambiente}.zip (${zip.itens} itens, ${(zip.bytes / 1048576).toFixed(1)} MB).`);
+console.log('  Envie este zip ao cPanel e extraia na pasta do site. Não use zips feitos no Windows.');

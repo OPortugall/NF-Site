@@ -3,7 +3,7 @@ import Link from 'next/link';
 import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
 import { empresa, institucional, marcas, servicos } from '@/dados/empresa';
 import { BotoesRedes } from '@/componentes/BotoesExternos';
-import { linkWhatsApp, produtoPorSlug, todosOsProdutos } from '@/lib/produtos';
+import { linkWhatsApp, produtoPorSlug, produtosEmDestaque, todosOsProdutos } from '@/lib/produtos';
 
 // Banner da abertura: uma coluna por linha de produtos, com a palavra exatamente acima da máquina.
 // Cada coluna leva à loja já filtrada no seu setor ("tipo" = filtro da loja).
@@ -24,22 +24,21 @@ const VITRINE = [
   },
 ];
 
-// Seleção de "Equipamentos em estoque", logo abaixo.
-const DESTAQUES = ['18-mpc3502', '17-mp7500', '1-mpc2050', '16-spc430dn'];
-
 export default function PaginaInicial() {
   const produtos = todosOsProdutos();
-  const destaques = DESTAQUES.map(produtoPorSlug);
+  // "Equipamentos em estoque": os produtos marcados como destaque no painel (até 8)
+  const destaques = produtosEmDestaque().slice(0, 8);
   const vitrine = VITRINE.map((v) => {
     const link = `/loja?tipo=${v.tipo}`;
     if (!v.produto) return { ...v, link, imagem: v.banner };
+    // O produto pode ter saído do catálogo pelo painel: a coluna continua, com o nome do setor
     const p = produtoPorSlug(v.produto);
     return {
       ...v,
       link,
       imagem: v.banner,
-      nome: tituloProduto(p),
-      resumo: p.resumo,
+      nome: p ? tituloProduto(p) : v.rotulo,
+      resumo: p?.resumo,
     };
   });
   const nomesMarcas = marcas.map((m) => m.nome);
@@ -94,6 +93,7 @@ export default function PaginaInicial() {
         </p>
       </div>
 
+      {destaques.length > 0 && (
       <section className="secao" aria-labelledby="titulo-destaques">
         <div className="conteudo">
           <div className="secao__cabeca">
@@ -107,6 +107,7 @@ export default function PaginaInicial() {
           </div>
         </div>
       </section>
+      )}
 
       <section id="servicos" className="secao secao--escura" aria-labelledby="titulo-servicos">
         <div className="conteudo servicos">

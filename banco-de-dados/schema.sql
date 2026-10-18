@@ -41,9 +41,14 @@ CREATE TABLE usuarios (
   -- Senha: apenas o HASH (argon2id ou bcrypt). Fica vazia para quem entra só com Google.
   senha_hash             VARCHAR(255) NULL,
   google_id              VARCHAR(64)  NULL,
+  totp_segredo           VARCHAR(255) NULL COMMENT 'Só administradores: segredo do 2FA, cifrado pela API (nunca em texto)',
+  totp_ultimo_passo      BIGINT UNSIGNED NULL COMMENT 'Último código 2FA aceito (impede reusar o mesmo código)',
 
   role                   ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
   status                 ENUM('ativo', 'inativo') NOT NULL DEFAULT 'ativo',
+  -- Marcado pelo painel; ao marcar "em atraso", o cliente recebe um aviso por e-mail
+  situacao_pagamento     ENUM('em_dia', 'em_atraso') NOT NULL DEFAULT 'em_dia',
+  em_atraso_desde        DATETIME     NULL,
 
   aceite_privacidade_em  DATETIME     NOT NULL COMMENT 'LGPD: quando aceitou a Política de Privacidade',
   ultimo_login_em        DATETIME     NULL,
@@ -55,6 +60,7 @@ CREATE TABLE usuarios (
   UNIQUE KEY uq_usuarios_documento (documento),
   UNIQUE KEY uq_usuarios_google (google_id),
   KEY ix_usuarios_role_status (role, status),
+  KEY ix_usuarios_pagamento (situacao_pagamento),
 
   CONSTRAINT ck_usuarios_documento CHECK (
     (tipo_pessoa = 'PF' AND documento REGEXP '^[0-9]{11}$') OR
@@ -66,6 +72,8 @@ CREATE TABLE usuarios (
   CONSTRAINT ck_usuarios_email CHECK (CAST(email AS BINARY) = CAST(LOWER(email) AS BINARY) AND email REGEXP '^[^@[:space:]]+@[^@[:space:]]+\\.[^@[:space:]]{2,}$'),
   CONSTRAINT ck_usuarios_telefone CHECK (telefone REGEXP '^[0-9]{10,11}$'),
   CONSTRAINT ck_usuarios_forma_login CHECK (senha_hash IS NOT NULL OR google_id IS NOT NULL),
+  CONSTRAINT ck_usuarios_atraso CHECK ((situacao_pagamento = 'em_atraso') = (em_atraso_desde IS NOT NULL)),
+  CONSTRAINT ck_usuarios_totp CHECK (totp_segredo IS NULL OR role = 'admin'),
   CONSTRAINT ck_usuarios_senha_hash CHECK (senha_hash IS NULL OR CAST(senha_hash AS BINARY) REGEXP '^\\$(argon2id\\$v=19\\$|2[aby]\\$[0-9]{2}\\$)')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -108,7 +116,7 @@ CREATE TABLE produtos (
   id                         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   slug                       VARCHAR(120) NOT NULL COMMENT 'Parte do endereço da página, ex.: konica-minolta-bizhub-c361i',
   marca                      VARCHAR(60)  NOT NULL,
-  modelo                     VARCHAR(100) NOT NULL,
+  modelo                     VARCHAR(100) NOT NULL COMMENT 'Vazio em produtos sem modelo (ex.: toner): o site mostra o nome',
   nome                       VARCHAR(160) NOT NULL COMMENT 'Nome exibido no site',
   categoria                  ENUM('multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos') NOT NULL,
   -- Só para impressoras e copiadoras; fica vazio em impressora 3D, plotter e suprimentos
@@ -119,9 +127,11 @@ CREATE TABLE produtos (
   especificacoes             JSON         NULL COMMENT 'Tabela técnica: [["Velocidade","36 ppm"], ...]',
   disponivel_venda           TINYINT(1)   NOT NULL DEFAULT 1,
   disponivel_locacao         TINYINT(1)   NOT NULL DEFAULT 0,
+  estoque                    SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quantidade disponível; 0 = indisponível no site',
+  estoque_minimo             SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Avisa o painel quando o estoque chegar a este número (0 = sem aviso)',
   preco_referencia_centavos  INT UNSIGNED NULL COMMENT 'Interno: nunca exibido no site',
   status                     ENUM('ativo', 'oculto') NOT NULL DEFAULT 'ativo',
-  destaque                   TINYINT(1)   NOT NULL DEFAULT 0,
+  destaque                   TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '1 = aparece em "Equipamentos em estoque" na página inicial',
   ordem                      SMALLINT     NOT NULL DEFAULT 0,
   criado_em                  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em              DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -130,7 +140,7 @@ CREATE TABLE produtos (
   UNIQUE KEY uq_produtos_slug (slug),
   KEY ix_produtos_vitrine (status, categoria, ordem),
   CONSTRAINT ck_produtos_slug CHECK (CAST(slug AS BINARY) REGEXP '^[a-z0-9]+(-[a-z0-9]+)*$'),
-  CONSTRAINT ck_produtos_textos CHECK (TRIM(marca) <> '' AND TRIM(modelo) <> '' AND TRIM(nome) <> ''),
+  CONSTRAINT ck_produtos_textos CHECK (TRIM(marca) <> '' AND TRIM(nome) <> ''),
   CONSTRAINT ck_produtos_impressao CHECK (impressao IS NULL OR categoria IN ('multifuncionais', 'impressoras')),
   CONSTRAINT ck_produtos_especificacoes CHECK (especificacoes IS NULL OR JSON_VALID(especificacoes)),
   CONSTRAINT ck_produtos_disponibilidade CHECK (disponivel_venda IN (0, 1) AND disponivel_locacao IN (0, 1)
@@ -149,23 +159,34 @@ CREATE TABLE produto_fotos (
   UNIQUE KEY uq_produto_fotos_ordem (produto_id, ordem),
   CONSTRAINT fk_produto_fotos_produto FOREIGN KEY (produto_id) REFERENCES produtos (id)
     ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT ck_produto_fotos_url CHECK (CAST(url AS BINARY) REGEXP '^/produtos/[a-z0-9-]+/[a-zA-Z0-9._-]+\\.(jpe?g|png|webp)$')
+  -- /produtos/... = fotos que vêm no código do site; /uploads/produtos/... = fotos enviadas pelo painel
+  CONSTRAINT ck_produto_fotos_url CHECK (
+    CAST(url AS BINARY) REGEXP '^/(uploads/)?produtos/[a-z0-9-]+/[a-zA-Z0-9._-]+\\.(jpe?g|png|webp)$'
+    AND url NOT LIKE '%..%'
+  )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- Produtos de interesse marcados no cadastro (vão na mensagem ao administrador)
+-- Produtos de interesse marcados no cadastro (vão no aviso de cliente novo ao administrador).
+-- Guarda o slug e o nome do momento do cadastro: os produtos ainda estão no código do site.
 -- -----------------------------------------------------------------------------
 CREATE TABLE usuario_interesses (
-  usuario_id  INT UNSIGNED NOT NULL,
-  produto_id  INT UNSIGNED NOT NULL,
-  criado_em   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id    INT UNSIGNED NOT NULL,
+  produto_id    INT UNSIGNED NULL,
+  produto_slug  VARCHAR(120) NOT NULL,
+  produto_nome  VARCHAR(160) NOT NULL COMMENT 'Guardado no momento do cadastro',
+  criado_em     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-  PRIMARY KEY (usuario_id, produto_id),
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_usuario_interesses (usuario_id, produto_slug),
   KEY ix_usuario_interesses_produto (produto_id),
   CONSTRAINT fk_interesses_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
     ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT fk_interesses_produto FOREIGN KEY (produto_id) REFERENCES produtos (id)
-    ON DELETE CASCADE ON UPDATE RESTRICT
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT ck_interesses_slug CHECK (CAST(produto_slug AS BINARY) REGEXP '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  CONSTRAINT ck_interesses_nome CHECK (TRIM(produto_nome) <> '')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -282,4 +303,62 @@ CREATE TABLE tentativas_login (
     CAST(chave_email AS BINARY) REGEXP '^[0-9a-f]{64}$' AND CAST(chave_ip AS BINARY) REGEXP '^[0-9a-f]{64}$'
   ),
   CONSTRAINT ck_tentativas_sucesso CHECK (sucesso IN (0, 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Painel administrativo: notificações, auditoria (quem alterou o quê) e e-mails enviados
+-- -----------------------------------------------------------------------------
+CREATE TABLE notificacoes (
+  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  tipo        ENUM('novo_cliente', 'estoque_baixo', 'estoque_zerado', 'novo_orcamento', 'conta_excluida') NOT NULL,
+  usuario_id  INT UNSIGNED NULL,
+  produto_id  INT UNSIGNED NULL,
+  orcamento_id INT UNSIGNED NULL,
+  resumo      VARCHAR(300) NOT NULL,
+  lida_em     DATETIME     NULL,
+  criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (id),
+  KEY ix_notificacoes_lidas (lida_em, criado_em),
+  CONSTRAINT fk_notificacoes_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT fk_notificacoes_produto FOREIGN KEY (produto_id) REFERENCES produtos (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT fk_notificacoes_orcamento FOREIGN KEY (orcamento_id) REFERENCES orcamentos (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT ck_notificacoes_resumo CHECK (TRIM(resumo) <> '')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE auditoria (
+  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  admin_id    INT UNSIGNED NULL,
+  acao        VARCHAR(40)  NOT NULL,
+  alvo_tipo   ENUM('cliente', 'produto', 'admin', 'sistema', 'orcamento') NOT NULL,
+  alvo_id     INT UNSIGNED NULL,
+  detalhes    JSON         NULL COMMENT 'Campos alterados (nunca senhas ou segredos)',
+  ip_hmac     CHAR(64)     NULL COMMENT 'HMAC do IP (LGPD)',
+  criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (id),
+  KEY ix_auditoria_data (criado_em),
+  KEY ix_auditoria_alvo (alvo_tipo, alvo_id),
+  CONSTRAINT fk_auditoria_admin FOREIGN KEY (admin_id) REFERENCES usuarios (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT ck_auditoria_acao CHECK (CAST(acao AS BINARY) REGEXP '^[a-z_]+$'),
+  CONSTRAINT ck_auditoria_detalhes CHECK (detalhes IS NULL OR JSON_VALID(detalhes)),
+  CONSTRAINT ck_auditoria_ip CHECK (ip_hmac IS NULL OR CAST(ip_hmac AS BINARY) REGEXP '^[0-9a-f]{64}$')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emails_enviados (
+  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id  INT UNSIGNED NULL,
+  tipo        ENUM('aviso_atraso', 'novo_cliente_admin', 'novo_orcamento_admin') NOT NULL,
+  sucesso     TINYINT(1)   NOT NULL,
+  criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (id),
+  KEY ix_emails_usuario (usuario_id, tipo, criado_em),
+  CONSTRAINT fk_emails_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+    ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT ck_emails_sucesso CHECK (sucesso IN (0, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

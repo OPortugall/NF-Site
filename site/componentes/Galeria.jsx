@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { SeloIndisponivel } from './Estoque';
 
-export default function Galeria({ fotos, nome }) {
+export default function Galeria({ fotos, nome, slug, estoque }) {
   const [atual, setAtual] = useState(0);
   return (
     <div className="galeria">
@@ -15,6 +16,7 @@ export default function Galeria({ fotos, nome }) {
           sizes="(max-width: 860px) 100vw, 560px"
           preload
         />
+        <SeloIndisponivel slug={slug} estoque={estoque} />
       </div>
       {fotos.length > 1 && (
         <ul className="galeria__miniaturas" aria-label="Outras fotos">

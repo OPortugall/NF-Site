@@ -8,12 +8,13 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  workflow_call: # usada também pela Publicação (publicar.yml): só publica se passar
 
 permissions:
   contents: read
 
 concurrency:
-  group: verificacao-${{ github.ref }}
+  group: verificacao-${{ github.workflow }}-${{ github.ref }} # quando chamada pela Publicação, grupo próprio (não cancela a outra)
   cancel-in-progress: true
 
 jobs:

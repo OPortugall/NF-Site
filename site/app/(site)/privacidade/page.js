@@ -74,7 +74,14 @@ export default function PaginaPrivacidade() {
               </li>
               <li>
                 <strong>Pedidos de orçamento pelo site:</strong> os produtos escolhidos, quantidades, modalidade (compra ou
-                locação), endereço e observações.
+                locação), endereço e observações. Você acompanha a situação de cada pedido em “Minha conta”.
+              </li>
+              <li>
+                <strong>Produtos de interesse:</strong> os equipamentos que você marca no cadastro, para a equipe da NF
+                entrar em contato com propostas adequadas.
+              </li>
+              <li>
+                <strong>Situação de pagamento:</strong> se há pagamento pendente com a NF, e quando enviamos avisos sobre isso.
               </li>
               <li>
                 <strong>Segurança da conta:</strong> tentativas de login (guardadas de forma cifrada, sem o e-mail ou o IP
@@ -105,6 +112,24 @@ export default function PaginaPrivacidade() {
                 <tr>
                   <td>Criar e manter sua conta, liberar compra (CPF) ou compra e locação (CNPJ)</td>
                   <td>Execução de contrato (art. 7º, V)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Avisar a equipe da NF sobre o seu cadastro e os produtos de interesse, para o atendimento comercial</td>
+                  <td>Procedimentos preliminares de contrato (art. 7º, V)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Enviar aviso por e-mail quando houver pagamento pendente</td>
+                  <td>Execução de contrato (art. 7º, V) e exercício regular de direitos (art. 7º, VI)</td>
+                </tr>
+              )}
+              {CONTAS_ATIVAS && (
+                <tr>
+                  <td>Registrar o que a equipe altera nos cadastros (quem, o quê e quando)</td>
+                  <td>Legítimo interesse (art. 7º, IX), para segurança e prestação de contas (art. 6º, X)</td>
                 </tr>
               )}
               {CONTAS_ATIVAS && (
@@ -186,8 +211,17 @@ export default function PaginaPrivacidade() {
           <li><strong>Conversas e orçamentos que não viraram negócio:</strong> até 2 anos, para retomar o atendimento.</li>
           {CONTAS_ATIVAS && (
             <>
-              <li><strong>Conta:</strong> enquanto ela existir. Se você pedir a exclusão, apagamos os dados da conta.</li>
+              <li>
+                <strong>Conta:</strong> enquanto ela existir. Você pode excluí-la quando quiser, em “Minha conta”: o
+                cadastro, os endereços e os produtos de interesse são apagados na hora.
+              </li>
+              <li>
+                <strong>Depois da exclusão da conta:</strong> os pedidos de orçamento ficam no histórico da NF sem ligação
+                com o seu nome; a equipe recebe um aviso com seu nome, e-mail e telefone, para encerrar algum atendimento
+                em aberto, que é apagado do painel em 90 dias.
+              </li>
               <li><strong>Tentativas de login:</strong> 24 horas.</li>
+              <li><strong>Registro de alterações feitas pela equipe no seu cadastro:</strong> até 5 anos, sem senhas e com o IP só de forma cifrada.</li>
               <li><strong>Códigos de confirmação e troca de senha:</strong> até 48 horas, e deixam de valer depois do uso.</li>
             </>
           )}
@@ -224,6 +258,7 @@ export default function PaginaPrivacidade() {
           <li>eliminação dos dados tratados com base no seu consentimento, e a retirada desse consentimento;</li>
           <li>informação sobre com quem compartilhamos seus dados;</li>
           <li>informação sobre a possibilidade de não dar consentimento e o que acontece nesse caso;</li>
+          {CONTAS_ATIVAS && <li>exclusão da sua conta, que você mesmo faz em “Minha conta”, no site;</li>}
           <li>oposição a um tratamento que descumpra a lei.</li>
         </ul>
         <p>
@@ -238,7 +273,7 @@ export default function PaginaPrivacidade() {
         <p>
           O site não usa cookies de publicidade nem ferramentas de estatística ou rastreamento.
           {CONTAS_ATIVAS
-            ? ' Guardamos no seu próprio navegador só o necessário para o site funcionar: a sessão de quem entrou na conta e os itens do carrinho. Você pode apagar esses dados nas configurações do navegador.'
+            ? ' Usamos só o essencial para o site funcionar: um cookie de sessão (nf_sessao), que mantém você conectado à sua conta por até 7 dias e protege os formulários contra uso indevido, e os itens do carrinho, guardados no seu próprio navegador. Você pode apagar esses dados nas configurações do navegador.'
             : ' Ele não guarda nada no seu navegador para identificar você.'}
         </p>
         <p>

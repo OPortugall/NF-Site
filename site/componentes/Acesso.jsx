@@ -23,7 +23,7 @@ const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO R
 
 function PainelAcesso({ abaInicial }) {
   const [aba, setAba] = useState(abaInicial);
-  const [concluido, setConcluido] = useState(null); // dados do cadastro feito (para mostrar a mensagem ao admin)
+  const [concluido, setConcluido] = useState(null); // { nome, tipo } da conta recém-criada
 
   if (concluido) return <CadastroConcluido dados={concluido} />;
 
@@ -44,10 +44,6 @@ function PainelAcesso({ abaInicial }) {
         {aba === 'entrar' ? <FormEntrar irParaCriar={() => setAba('criar')} /> : <FormCriar aoConcluir={setConcluido} />}
       </div>
 
-      <p className="acesso__demo">
-        Demonstração: o banco de dados ainda não existe. Nada é enviado ao servidor; a conta fica só neste navegador,
-        sem guardar senha, documento, telefone ou endereço.
-      </p>
     </div>
   );
 }
@@ -80,7 +76,7 @@ function Separador() {
 }
 
 // ---------- campo com rótulo, ajuda e erro ----------
-function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
+export function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
   const id = useId();
   const idAjuda = ajuda ? `${id}-ajuda` : undefined;
   const idErro = erro ? `${id}-erro` : undefined;
@@ -97,7 +93,7 @@ function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
   );
 }
 
-function CampoSenha({ rotulo, valor, aoMudar, erro, autoComplete, ajuda }) {
+export function CampoSenha({ rotulo, valor, aoMudar, erro, autoComplete, ajuda }) {
   const [visivel, setVisivel] = useState(false);
   return (
     <Campo rotulo={rotulo} erro={erro} ajuda={ajuda}>
@@ -122,17 +118,24 @@ function FormEntrar({ irParaCriar }) {
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState({});
   const [falha, setFalha] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
-  const enviar = (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
+    if (enviando) return;
     const novos = {};
     if (!emailValido(email)) novos.email = 'Digite um e-mail válido, como nome@empresa.com.br.';
     if (!senha) novos.senha = 'Digite sua senha.';
     setErros(novos);
     setFalha('');
     if (Object.keys(novos).length) return;
-    if (entrar(email)) router.push('/loja');
-    else setFalha('Não encontramos uma conta com esse e-mail. Confira o endereço ou crie uma conta.');
+    setEnviando(true);
+    const r = await entrar(email.trim(), senha);
+    setEnviando(false);
+    // /entrar?volta=/conta volta para "Minha conta" (só endereços conhecidos: nada de redirecionar para outro site)
+    const volta = new URLSearchParams(window.location.search).get('volta') === '/conta' ? '/conta' : '/loja';
+    if (r.ok) router.push(volta);
+    else setFalha(r.erro);
   };
 
   return (
@@ -144,7 +147,9 @@ function FormEntrar({ irParaCriar }) {
       </Campo>
       <CampoSenha rotulo="Senha" valor={senha} aoMudar={setSenha} erro={erros.senha} autoComplete="current-password" />
       {falha && <p className="aviso aviso--erro" role="alert">{falha}</p>}
-      <button type="submit" className="botao botao--principal botao--largo">Entrar</button>
+      <button type="submit" className="botao botao--principal botao--largo" disabled={enviando} aria-busy={enviando}>
+        {enviando ? 'Entrando…' : 'Entrar'}
+      </button>
       <p className="formulario__rodape">
         Ainda não tem conta? <button type="button" className="link-botao" onClick={irParaCriar}>Criar conta</button>
       </p>
@@ -193,6 +198,8 @@ function FormCriar({ aoConcluir }) {
   const [d, setD] = useState(VAZIO);
   const [interesses, setInteresses] = useState(() => [...new Set(itens.map((i) => i.slug))]);
   const [erros, setErros] = useState({});
+  const [falha, setFalha] = useState('');
+  const [enviando, setEnviando] = useState(false);
   const [cepStatus, setCepStatus] = useState('');
   const [empresa, setEmpresa] = useState(null); // consulta do CNPJ: { estado, dados? }
   const ultimoCnpj = useRef('');
@@ -265,22 +272,30 @@ function FormCriar({ aoConcluir }) {
     }
   };
 
-  const enviar = (e) => {
+  const focarErro = () => requestAnimationFrame(() => formulario.current?.querySelector('[aria-invalid="true"]')?.focus());
+
+  const enviar = async (e) => {
     e.preventDefault();
+    if (enviando) return;
     const novos = validar(d, empresa);
     setErros(novos);
+    setFalha('');
     if (Object.keys(novos).length) {
-      // leva o foco ao primeiro campo com problema
-      requestAnimationFrame(() => formulario.current?.querySelector('[aria-invalid="true"]')?.focus());
+      focarErro(); // leva o foco ao primeiro campo com problema
       return;
     }
-    cadastrar({ nome: d.nome.trim(), email: d.email.trim(), tipo: d.tipo });
-    const { senha, confirmacao, aceite, ...semSenha } = d; // a senha nunca entra na mensagem
-    aoConcluir({
-      ...semSenha,
-      interesses,
-      situacaoCnpj: d.tipo === 'cnpj' ? (empresa?.estado === 'ok' ? `${empresa.dados.situacao} (conferido em ${empresa.dados.fonte})` : 'não conferida (consulta indisponível)') : null,
-    });
+    setEnviando(true);
+    const { confirmacao, ...paraEnviar } = d; // a confirmação da senha só serve aqui na tela
+    const r = await cadastrar({ ...paraEnviar, interesses });
+    setEnviando(false);
+    if (!r.ok) {
+      // O servidor confere tudo de novo (e o CNPJ na Receita): mostra os erros nos campos
+      setErros(r.campos);
+      setFalha(Object.keys(r.campos).length ? '' : r.erro);
+      if (Object.keys(r.campos).length) focarErro();
+      return;
+    }
+    aoConcluir({ nome: r.dados.cliente.nome, tipo: r.dados.cliente.tipo });
     window.scrollTo({ top: 0 });
   };
 
@@ -463,7 +478,10 @@ function FormCriar({ aoConcluir }) {
         {erros.aceite && <p id="erro-aceite" className="campo__erro">{erros.aceite}</p>}
       </div>
 
-      <button type="submit" className="botao botao--principal botao--largo">Criar conta</button>
+      {falha && <p className="aviso aviso--erro" role="alert">{falha}</p>}
+      <button type="submit" className="botao botao--principal botao--largo" disabled={enviando} aria-busy={enviando}>
+        {enviando ? 'Criando conta…' : 'Criar conta'}
+      </button>
     </form>
   );
 }
@@ -492,29 +510,8 @@ function StatusCnpj({ empresa }) {
   return <p className={`aviso aviso--${s.classe} campo--largo`} role="status">{s.texto}</p>;
 }
 
-// ---------- depois do cadastro: prévia da mensagem ao administrador ----------
+// ---------- depois do cadastro ----------
 function CadastroConcluido({ dados }) {
-  const produtos = dados.interesses.map((s) => todosOsProdutos().find((p) => p.slug === s)).filter(Boolean);
-  const linhas = [
-    '🆕 Novo cliente cadastrado no site',
-    '',
-    `Nome: ${dados.nome} ${dados.sobrenome}`,
-    `Tipo: ${dados.tipo === 'cnpj' ? 'Empresa (compra e locação)' : 'Pessoa física (compra)'}`,
-    `${dados.tipo.toUpperCase()}: ${dados.documento}`,
-    ...(dados.tipo === 'cnpj'
-      ? [
-          `Razão social: ${dados.razaoSocial}`,
-          ...(dados.nomeFantasia ? [`Nome fantasia: ${dados.nomeFantasia}`] : []),
-          `Situação na Receita: ${dados.situacaoCnpj}`,
-        ]
-      : []),
-    `E-mail: ${dados.email}`,
-    `Telefone: ${dados.telefone}`,
-    `Endereço: ${dados.rua}, ${dados.numero}${dados.complemento ? ` (${dados.complemento})` : ''}, ${dados.bairro}, ${dados.cidade}/${dados.uf}, CEP ${dados.cep}`,
-    '',
-    'Produtos de interesse:',
-    ...(produtos.length ? produtos.map((p) => `• ${tituloProduto(p)}`) : ['• Nenhum marcado']),
-  ];
   return (
     <div className="acesso">
       <h1 className="pagina__titulo acesso__titulo">Conta criada</h1>
@@ -524,17 +521,6 @@ function CadastroConcluido({ dados }) {
       <div className="acesso__acoes">
         <Link href="/loja" className="botao botao--principal">Ver equipamentos</Link>
       </div>
-
-      <section className="previa-admin" aria-labelledby="titulo-previa">
-        <h2 id="titulo-previa" className="previa-admin__titulo">Mensagem que a equipe da NF vai receber</h2>
-        <p className="campo__ajuda">
-          Prévia da demonstração. Quando o servidor existir, esta mensagem será enviada ao WhatsApp e ao e-mail da empresa
-          automaticamente. A senha nunca é enviada.
-        </p>
-        <div className="bolha-whatsapp">
-          <pre>{linhas.join('\n')}</pre>
-        </div>
-      </section>
     </div>
   );
 }

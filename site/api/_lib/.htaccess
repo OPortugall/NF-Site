@@ -1,0 +1,2 @@
+# Bibliotecas da API: nunca acessíveis pela internet (só index.php as carrega)
+Require all denied

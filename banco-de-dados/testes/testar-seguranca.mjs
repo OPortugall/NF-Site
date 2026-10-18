@@ -20,7 +20,7 @@ import mysql from 'mysql2/promise';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const BANCO = 'nf_solucoes_teste';
-const TOTAL_TABELAS = 9;
+const TOTAL_TABELAS = 12;
 const USUARIO_SITE = 'nf_site_teste';
 const HOST = process.env.DB_HOST ?? '127.0.0.1';
 const PORTA = Number(process.env.DB_PORT ?? 3306);
@@ -236,7 +236,38 @@ await deveRecusar('Foto em pasta com letras maiúsculas', () => inserir('produto
 await deveRecusar('Foto apontando para site externo', () => inserir('produto_fotos', { produto_id: idProduto, url: 'https://site-malicioso.com/x.jpg', ordem: 2 }), /ck_produto_fotos_url/);
 await deveRecusar('Foto com "javascript:" (ataque XSS)', () => inserir('produto_fotos', { produto_id: idProduto, url: 'javascript:alert(1)', ordem: 3 }), /ck_produto_fotos_url/);
 await deveRecusar('Foto tentando sair da pasta (../../)', () => inserir('produto_fotos', { produto_id: idProduto, url: '/produtos/../../etc/passwd.jpg', ordem: 4 }), /ck_produto_fotos_url/);
-await deveAceitar('Interesse do cliente num produto', () => inserir('usuario_interesses', { usuario_id: idAna, produto_id: idProduto }));
+await deveAceitar('Foto enviada pelo painel (/uploads/produtos/...)', () => inserir('produto_fotos', { produto_id: idProduto, url: '/uploads/produtos/konica-minolta-bizhub-c361i/a1b2c3d4.webp', ordem: 6 }));
+await deveRecusar('Foto enviada com ".." no nome', () => inserir('produto_fotos', { produto_id: idProduto, url: '/uploads/produtos/konica/..foto.jpg', ordem: 7 }), /ck_produto_fotos_url/);
+await deveRecusar('Foto em outra pasta de uploads', () => inserir('produto_fotos', { produto_id: idProduto, url: '/uploads/outros/konica/foto.jpg', ordem: 8 }), /ck_produto_fotos_url/);
+await deveRecusar('Foto com extensão .php', () => inserir('produto_fotos', { produto_id: idProduto, url: '/uploads/produtos/konica/foto.php', ordem: 9 }), /ck_produto_fotos_url/);
+await deveAceitar('Interesse do cliente num produto', () => inserir('usuario_interesses', { usuario_id: idAna, produto_id: idProduto, produto_slug: 'konica-minolta-bizhub-c361i', produto_nome: 'Konica Minolta bizhub C361i' }));
+await deveAceitar('Interesse num produto que só existe no código do site (sem produto_id)', () => inserir('usuario_interesses', { usuario_id: idAna, produto_slug: '15-mp5001', produto_nome: 'Ricoh MP 5001' }));
+await deveRecusar('O mesmo interesse duas vezes', () => inserir('usuario_interesses', { usuario_id: idAna, produto_slug: '15-mp5001', produto_nome: 'Ricoh MP 5001' }), /Duplicate|uq_usuario_interesses/);
+await deveRecusar('Interesse com slug malicioso', () => inserir('usuario_interesses', { usuario_id: idAna, produto_slug: '../x', produto_nome: 'X' }), /ck_interesses_slug/);
+await deveRecusar('Estoque negativo', () => inserir('produtos', produtoBase({ estoque: -1 })), /estoque|range/i);
+await deveAceitar('Produto com estoque e limite de estoque baixo', () => inserir('produtos', produtoBase({ estoque: 5, estoque_minimo: 2 })));
+await deveAceitar('Produto sem modelo (toner): o site mostra o nome', () => inserir('produtos', produtoBase({ modelo: '', categoria: 'suprimentos', impressao: null, disponivel_locacao: 0 })));
+await deveRecusar('Produto sem nome', () => inserir('produtos', produtoBase({ nome: '   ' })), /ck_produtos_textos/);
+
+// ---------------------------------------------------------------------------
+grupo('5b. Painel administrativo: pagamento, 2FA, notificações e auditoria');
+// ---------------------------------------------------------------------------
+await deveRecusar('Cliente "em atraso" sem a data do atraso', () => inserir('usuarios', usuarioBase({ situacao_pagamento: 'em_atraso' })), /ck_usuarios_atraso/);
+await deveRecusar('Cliente "em dia" com data de atraso', () => inserir('usuarios', usuarioBase({ em_atraso_desde: new Date() })), /ck_usuarios_atraso/);
+await deveAceitar('Cliente em atraso com a data', () => inserir('usuarios', usuarioBase({ situacao_pagamento: 'em_atraso', em_atraso_desde: new Date() })));
+await deveRecusar('Situação de pagamento fora da lista', () => inserir('usuarios', usuarioBase({ situacao_pagamento: 'perdoado' })), /situacao_pagamento|truncated|incorrect/i);
+await deveRecusar('Segredo de 2FA num cliente (só administradores têm 2FA)', () => inserir('usuarios', usuarioBase({ totp_segredo: 'x' })), /ck_usuarios_totp/);
+await deveAceitar('Administrador com 2FA', () => inserir('usuarios', usuarioBase({ role: 'admin', totp_segredo: 'cifrado' })));
+await deveAceitar('Notificação de cliente novo', () => inserir('notificacoes', { tipo: 'novo_cliente', usuario_id: idAna, resumo: 'Novo cliente: Ana Souza' }));
+await deveAceitar('Notificação de pedido de orçamento', () => inserir('notificacoes', { tipo: 'novo_orcamento', usuario_id: idAna, resumo: 'Novo pedido de orçamento' }));
+await deveAceitar('Notificação de conta excluída pelo cliente (sem usuario_id)', () => inserir('notificacoes', { tipo: 'conta_excluida', resumo: 'Conta excluída' }));
+await deveRecusar('Notificação de tipo desconhecido', () => inserir('notificacoes', { tipo: 'spam', resumo: 'x' }), /tipo|truncated|incorrect/i);
+await deveAceitar('Registro de auditoria', () => inserir('auditoria', { acao: 'cliente_editar', alvo_tipo: 'cliente', alvo_id: idAna, detalhes: JSON.stringify({ campos: ['telefone'] }) }));
+await deveRecusar('Auditoria com ação fora do formato (SQL/HTML)', () => inserir('auditoria', { acao: "x'; DROP", alvo_tipo: 'cliente' }), /ck_auditoria_acao/);
+await deveRecusar('Auditoria com detalhes que não são JSON', () => inserir('auditoria', { acao: 'teste', alvo_tipo: 'sistema', detalhes: '{quebrado' }), /detalhes|json/i);
+await deveRecusar('Auditoria com IP em texto (só HMAC)', () => inserir('auditoria', { acao: 'teste', alvo_tipo: 'sistema', ip_hmac: '200.1.1.1' }), /ck_auditoria_ip/);
+await deveAceitar('Registro de e-mail enviado', () => inserir('emails_enviados', { usuario_id: idAna, tipo: 'aviso_atraso', sucesso: 1 }));
+await deveAceitar('Registro de e-mail de orçamento para a equipe', () => inserir('emails_enviados', { tipo: 'novo_orcamento_admin', sucesso: 1 }));
 
 // ---------------------------------------------------------------------------
 grupo('6. Injeção de SQL (consultas parametrizadas)');
@@ -412,6 +443,10 @@ grupo('11. Exclusão de conta (direito de exclusão, LGPD)');
   const [[o]] = await site.execute('SELECT usuario_id, endereco_id FROM orcamentos WHERE id = ?', [idOrcamento]);
   registrar(Boolean(o) && o.usuario_id === null && o.endereco_id === null,
     'Os orçamentos dele ficam no histórico da empresa, mas sem ligação com os dados pessoais');
+  const [[n]] = await site.execute('SELECT usuario_id FROM notificacoes WHERE resumo = ?', ['Novo cliente: Ana Souza']);
+  const [[a]] = await site.execute("SELECT alvo_id FROM auditoria WHERE acao = 'cliente_editar'");
+  registrar(n?.usuario_id === null && a?.alvo_id === idAna,
+    'Notificações perdem a ligação com o cliente; a auditoria guarda só o número do registro');
   const [[{ prod }]] = await site.execute('SELECT COUNT(*) AS prod FROM produtos WHERE id = ?', [idProduto]);
   registrar(prod === 1, 'O produto em que ele tinha interesse continua no catálogo');
 }

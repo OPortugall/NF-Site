@@ -10,3 +10,9 @@ out/
 public/otim/
 # site pronto para enviar à hospedagem (gerado por scripts/compilar.mjs)
 publicar/
+
+# catálogo gerado na compilação (scripts/catalogo.mjs)
+api/_dados/
+dados/catalogo.json
+# fotos enviadas pelo painel na API local (npm run api:local)
+public/uploads/

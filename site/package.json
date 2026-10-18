@@ -4,12 +4,15 @@
   "private": true,
   "description": "Site da NF Soluções Digitais (vitrine e loja), gerado como site estático para a hospedagem cPanel",
   "scripts": {
-    "dev": "node scripts/otimizar-imagens.mjs && next dev",
+    "dev": "node scripts/catalogo.mjs && node scripts/otimizar-imagens.mjs && next dev",
+    "catalogo": "node scripts/catalogo.mjs",
     "imagens": "node scripts/otimizar-imagens.mjs",
     "compilar:producao": "node scripts/compilar.mjs producao",
     "compilar:teste": "node scripts/compilar.mjs teste",
     "ver:producao": "node scripts/ver.mjs producao",
-    "ver:teste": "node scripts/ver.mjs teste"
+    "ver:teste": "node scripts/ver.mjs teste",
+    "api:local": "node scripts/api-local.mjs",
+    "testar:api": "node testes/testar-api.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -20,6 +23,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "mysql2": "^3.24.6",
     "sharp": "^0.35.5"
   }
 }
