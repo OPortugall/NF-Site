@@ -249,11 +249,19 @@ function nf_gravar_webp(GdImage $imagem, int $largura, string $destino, int $qua
     $h = imagesy($imagem);
     $saida = $imagem;
     if ($w > $largura) {
-        $saida = imagescale($imagem, $largura, max(1, (int) round($h * $largura / $w)), IMG_BICUBIC);
+        // imagecopyresampled (e não imagescale): funciona em qualquer versão do GD; no servidor da
+        // hospedagem, imagescale com IMG_BICUBIC falhava
+        $altura = max(1, (int) round($h * $largura / $w));
+        $saida = imagecreatetruecolor($largura, $altura);
         if (!$saida instanceof GdImage) {
             throw new RuntimeException('Falha ao reduzir a foto');
         }
+        imagealphablending($saida, false);
         imagesavealpha($saida, true);
+        imagefill($saida, 0, 0, imagecolorallocatealpha($saida, 255, 255, 255, 127));
+        if (!imagecopyresampled($saida, $imagem, 0, 0, 0, 0, $largura, $altura, $w, $h)) {
+            throw new RuntimeException('Falha ao reduzir a foto');
+        }
     }
     if (!imagewebp($saida, $destino, $qualidade)) {
         throw new RuntimeException('Falha ao gravar a foto');

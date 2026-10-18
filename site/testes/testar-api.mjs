@@ -947,6 +947,13 @@ try {
     ok(meta.format === 'webp' && meta.width === 1600, 'Original reduzido para 1600 px de largura');
     ok(existsSync(path.join(pastaSite, 'uploads', '.htaccess')) && /Require all denied/.test(readFileSync(path.join(pastaSite, 'uploads', '.htaccess'), 'utf8')),
       'Pasta de fotos protegida: só imagens com nome gerado são servidas, nada é executado');
+    // WebP pequeno com transparência (o caso que falhou no servidor com imagescale)
+    const webp = await sharp({ create: { width: 430, height: 502, channels: 4, background: { r: 0, g: 160, b: 220, alpha: 0.5 } } }).webp().toBuffer();
+    const fotoWebp = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob([webp], { type: 'image/webp' }), nome: 'MPC3004-1-430x502.webp' } });
+    const menor = fotoWebp.dados?.url ? path.join(pastaSite, 'otim', ...fotoWebp.dados.url.replace('.webp', '-64.webp').split('/')) : '';
+    const metaMenor = menor && existsSync(menor) ? await sharp(readFileSync(menor)).metadata() : {};
+    ok(fotoWebp.status === 201 && metaMenor.width === 64 && metaMenor.hasAlpha, 'WebP 430×502 com transparência: versões reduzidas mantêm a transparência', `HTTP ${fotoWebp.status} ${fotoWebp.texto.slice(0, 120)}`);
+    await adm.post('/api/admin/produto-foto-excluir', { id: fotoWebp.dados?.id });
     const php = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob(['<?php system($_GET["c"]); ?>'], { type: 'image/jpeg' }), nome: 'foto.php.jpg' } });
     ok(php.status === 422, 'Arquivo PHP disfarçado de foto → 422');
     const svg = await enviar({ produtoId: String(idProdutoNovo), foto: { blob: new Blob(['<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'], { type: 'image/svg+xml' }), nome: 'x.svg' } });
