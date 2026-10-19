@@ -35,8 +35,8 @@ function nf_admin_atual(array $config): ?array
         return null;
     }
     $linhas = nf_consulta($config,
-        "SELECT id, primeiro_nome, sobrenome, email FROM usuarios WHERE id = ? AND role = 'admin' AND status = 'ativo'", [$id]);
-    if (!$linhas) {
+        "SELECT id, primeiro_nome, sobrenome, email, senha_alterada_em FROM usuarios WHERE id = ? AND role = 'admin' AND status = 'ativo'", [$id]);
+    if (!$linhas || nf_sessao_anterior_a_senha($linhas[0]['senha_alterada_em'], (int) ($_SESSION['admin_login_em'] ?? 0))) {
         nf_admin_limpar();
         return null;
     }

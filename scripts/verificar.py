@@ -34,7 +34,6 @@ NOMES_PROIBIDOS = {
 # Scripts de servidor só podem existir nestas pastas (o resto do repositório é conteúdo).
 EXTENSOES_SERVIDOR = {'.php', '.inc', '.cgi', '.pl', '.py', '.sh', '.asp', '.aspx', '.jsp'}
 PASTAS_LIBERADAS_PARA_SERVIDOR = (
-    'reconstrucao/site-principal/layout-original-template-nfsolucoes/',
     'scripts/',
     'site/api/',   # API do site (PHP), só no servidor
 )
@@ -172,7 +171,6 @@ def ler_csv(caminho):
 
 
 def verificar_conteudo(arquivos):
-    conjunto = set(arquivos)
     for caminho in arquivos:
         if extensao(caminho) in ('.js', '.jsx', '.mjs', '.ts', '.tsx') or caminho.rsplit('/', 1)[-1].startswith('.env'):
             texto = open(os.path.join(RAIZ, caminho), encoding='utf-8', errors='replace').read()
@@ -191,22 +189,6 @@ def verificar_conteudo(arquivos):
             for n, linha in enumerate(linhas[1:], start=2):
                 if len(linha) != len(linhas[0]):
                     erro('conteúdo', caminho, f'linha com {len(linha)} colunas, cabeçalho tem {len(linhas[0])}', n)
-        if caminho.endswith('/produto.md'):
-            pasta = caminho.rsplit('/', 1)[0]
-            texto = open(os.path.join(RAIZ, caminho), encoding='utf-8').read()
-            m = re.search(r'\*\*Fotos:\*\*\s*(.+)', texto)
-            fotos = [f.strip() for f in m.group(1).split(',')] if m else []
-            for foto in fotos:
-                if foto and not foto.startswith('nenhuma') and f'{pasta}/{foto}' not in conjunto:
-                    erro('conteúdo', caminho, f'foto citada não existe: {foto}')
-    if 'reconstrucao/loja/produtos.csv' in conjunto:
-        pastas = {re.match(r'reconstrucao/loja/produtos/(\d+)-', p).group(1).lstrip('0')
-                  for p in conjunto if re.match(r'reconstrucao/loja/produtos/\d+-[^/]+/produto\.md$', p)}
-        ids = {linha[0] for linha in ler_csv('reconstrucao/loja/produtos.csv')[1:] if linha}
-        for i in sorted(ids - pastas, key=int):
-            erro('conteúdo', 'reconstrucao/loja/produtos.csv', f'produto {i} está na planilha mas não tem pasta com produto.md')
-        for i in sorted(pastas - ids, key=int):
-            erro('conteúdo', 'reconstrucao/loja/produtos.csv', f'pasta do produto {i} existe mas ele não está na planilha')
 
 
 def relatorio(arquivos):

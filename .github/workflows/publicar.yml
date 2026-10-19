@@ -16,7 +16,8 @@
 #   SSH_HOST, SSH_PORT, SSH_USER, SSH_KNOWN_HOSTS (do repositório) e SSH_KEY (de cada AMBIENTE:
 #   uma chave para "teste" e outra para "producao", cada uma presa à sua pasta no servidor)
 #   CATALOGO_URL (de cada ambiente, opcional): https://nfsolucoesdigitais.com.br/api/catalogo na produção;
-#   no teste, com o usuário e a senha do site de teste: https://usuario:senha@teste.nfsolucoesdigitais.com.br/api/catalogo
+#   no teste: https://teste.nfsolucoesdigitais.com.br/api/catalogo, mais CATALOGO_USUARIO e CATALOGO_SENHA
+#   (usuário e senha do site de teste, como digitados no navegador)
 
 name: Publicação
 
@@ -64,6 +65,8 @@ jobs:
         working-directory: site
         env:
           CATALOGO_URL: ${{ secrets.CATALOGO_URL }}
+          CATALOGO_USUARIO: ${{ secrets.CATALOGO_USUARIO }}
+          CATALOGO_SENHA: ${{ secrets.CATALOGO_SENHA }}
         run: node scripts/compilar.mjs "$AMBIENTE"
 
       - name: Preparar a chave SSH

@@ -8,7 +8,7 @@
 //
 // De onde vêm os produtos:
 //   CATALOGO_URL definida (publicação pelo GitHub) → GET <CATALOGO_URL> (a API do site no ar, /api/catalogo).
-//     Para o ambiente de teste, que pede senha, use https://usuario:senha@teste.../api/catalogo.
+//     O ambiente de teste pede senha: CATALOGO_USUARIO e CATALOGO_SENHA (ou https://usuario:senha@teste.../api/catalogo).
 //     Banco ainda sem produtos (lista vazia) → arquivos do site. Qualquer outra falha → para a compilação
 //     (publicar o catálogo antigo por engano apagaria do site o que foi cadastrado no painel).
 //   sem CATALOGO_URL (computador) → arquivos dados/produtos.json e dados/produtos-novos.json.
@@ -34,7 +34,12 @@ const lerArquivos = () => {
 async function baixar(endereco) {
   const url = new URL(endereco);
   const cabecalhos = { Accept: 'application/json' };
-  if (url.username) {
+  // Senha do site de teste: de preferência em CATALOGO_USUARIO e CATALOGO_SENHA (sem codificar símbolos)
+  if (process.env.CATALOGO_USUARIO) {
+    const credenciais = `${process.env.CATALOGO_USUARIO}:${process.env.CATALOGO_SENHA ?? ''}`;
+    cabecalhos.Authorization = `Basic ${Buffer.from(credenciais).toString('base64')}`;
+    url.username = url.password = '';
+  } else if (url.username) {
     const credenciais = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`;
     cabecalhos.Authorization = `Basic ${Buffer.from(credenciais).toString('base64')}`;
     url.username = url.password = '';

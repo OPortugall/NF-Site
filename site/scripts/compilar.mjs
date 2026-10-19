@@ -17,7 +17,7 @@ import { gerarCatalogoApi } from './catalogo.mjs';
 const RAIZ = path.resolve(import.meta.dirname, '..');
 const ambiente = process.argv[2];
 const PADROES = {
-  producao: { contas: 'false' }, // vitrine: sem login, cadastro e carrinho
+  producao: { contas: 'true' }, // contas de cliente ligadas (cadastro, login, carrinho, pedidos)
   teste: { contas: 'true' },
 };
 if (!(ambiente in PADROES)) {

@@ -393,6 +393,8 @@ function nf_admin_rota_cliente_criar(array $config): never
     $interesses = nf_validar_interesses($config, $d['interesses'] ?? null);
     $situacao = $v['tipo'] === 'cnpj' ? nf_conferir_cnpj_cliente($config, $v['usuario']['documento']) : null;
     $id = nf_gravar_cliente_novo($config, $v, $situacao, $interesses);
+    // Cadastro feito pela equipe: o e-mail foi passado pelo próprio cliente
+    nf_consulta($config, 'UPDATE usuarios SET email_verificado_em = NOW() WHERE id = ?', [$id]);
     nf_auditar($config, (int) $admin['id'], 'cliente_criar', 'cliente', $id);
     nf_responder(201, ['id' => $id]);
 }
@@ -456,6 +458,11 @@ function nf_admin_rota_cliente_editar(array $config): never
             nf_erro_duplicado($ex, $empresa);
         }
         throw $ex;
+    }
+    if (in_array('email', $alterados, true)) {
+        // E-mail trocado pela equipe: links enviados ao endereço antigo deixam de valer
+        nf_consulta($config, 'UPDATE tokens_usuario SET usado_em = NOW() WHERE usuario_id = ? AND usado_em IS NULL', [$atual['id']]);
+        nf_consulta($config, 'UPDATE usuarios SET email_verificado_em = NOW() WHERE id = ?', [$atual['id']]);
     }
     if ($alterados) {
         nf_auditar($config, (int) $admin['id'], 'cliente_editar', 'cliente', (int) $atual['id'], ['campos' => $alterados]);

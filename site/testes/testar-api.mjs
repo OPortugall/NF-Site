@@ -9,7 +9,7 @@
 // =============================================================================
 
 import { createServer } from 'node:http';
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 import path from 'node:path';
@@ -736,6 +736,9 @@ try {
     clientePedidos = cadastroPF({ nome: 'Carla', sobrenome: 'Pedidos', telefone: '(12) 98888-7777' });
     navPedidos = await novo();
     ok((await navPedidos.post('/api/cadastrar', clientePedidos)).status === 201, 'Cliente PF cadastrado');
+    const semConfirmar = await navPedidos.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'compra', quantidade: 1 }] });
+    ok(semConfirmar.status === 403 && semConfirmar.dados?.codigo === 'email', 'E-mail ainda não confirmado: não envia pedido (403)');
+    await admin.query(`UPDATE ${BANCO}.usuarios SET email_verificado_em = NOW() WHERE email = ?`, [clientePedidos.email]);
     const conta = await navPedidos.req('GET', '/api/conta');
     ok(conta.status === 200 && conta.dados?.cliente?.sobrenome === 'Pedidos' && conta.dados.cliente.endereco?.cidade === 'São José dos Campos'
       && !('senha_hash' in conta.dados.cliente) && !('id' in conta.dados.cliente.endereco), 'GET conta: dados do cadastro, sem senha nem ids internos');
@@ -782,6 +785,7 @@ try {
     navEmpresa = await novo();
     const cadPJ = await navEmpresa.post('/api/cadastrar', cadastroPJ(cnpj(), { nome: 'Eduardo', sobrenome: 'Empresa' }));
     ok(cadPJ.status === 201, 'Cliente PJ cadastrado', `HTTP ${cadPJ.status} ${cadPJ.texto.slice(0, 100)}`);
+    await admin.query(`UPDATE ${BANCO}.usuarios SET email_verificado_em = NOW() WHERE email = ?`, [cadPJ.dados?.cliente?.email]);
     const loc = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: '15-mp5001', modalidade: 'locacao', quantidade: 1 }] });
     ok(loc.status === 201, 'Empresa pede locação → 201');
     const tonerLoc = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: '4-toner', modalidade: 'locacao', quantidade: 1 }] });
@@ -1087,6 +1091,83 @@ try {
     await adm.req('GET', '/api/admin/notificacoes');
     const [restam] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.notificacoes WHERE tipo = 'conta_excluida'`);
     ok(Number(restam.n) === 0, 'Aviso de conta excluída apagado depois de 90 dias');
+  });
+
+  // ===========================================================================
+  grupo('18. Esqueci minha senha e confirmação de e-mail');
+  // ===========================================================================
+  await passo('senha e e-mail', async () => {
+    await zerarTentativas();
+    const codigoDoEmail = (para, tipo) => {
+      const e = emails().filter((x) => x.includes(`To: ${para}`)).reverse().find((x) => x.includes(`#${tipo}=`));
+      return e?.match(new RegExp(`#${tipo}=([0-9a-f]{64})`))?.[1];
+    };
+    // confirmação no cadastro
+    const conta = cadastroPF({ nome: 'Rita', sobrenome: 'Senha' });
+    const nav = await novo();
+    const cad = await nav.post('/api/cadastrar', conta);
+    ok(cad.status === 201 && cad.dados?.cliente?.emailConfirmado === false, 'Cadastro novo começa com o e-mail não confirmado');
+    const codConf = codigoDoEmail(conta.email, 'confirmar');
+    const emailConf = emails().find((x) => x.includes(`To: ${conta.email}`) && x.includes('#confirmar='));
+    ok(codConf && emailConf.includes('http://localhost:3221/entrar#confirmar='), 'Cadastro envia o link de confirmação (código depois do #, fora dos logs do servidor)');
+    const [tok] = await linhas(`SELECT token_hash FROM ${BANCO}.tokens_usuario t JOIN ${BANCO}.usuarios u ON u.id = t.usuario_id WHERE u.email = ? AND t.tipo = 'confirmar_email'`, [conta.email]);
+    ok(tok && tok.token_hash !== codConf && tok.token_hash === createHash('sha256').update(codConf).digest('hex'), 'O banco guarda só o hash do código, nunca o código');
+    ok((await nav.post('/api/email-confirmar', { codigo: 'f'.repeat(64) })).status === 400, 'Código inventado → 400');
+    ok((await nav.post('/api/email-confirmar', { codigo: "' OR 1=1 -- " })).status === 400, 'Código com SQL → 400');
+    const conf = await nav.post('/api/email-confirmar', { codigo: codConf });
+    ok(conf.status === 200 && (await nav.sessao()).dados?.cliente?.emailConfirmado === true, 'Link de confirmação confirma o e-mail');
+    ok((await nav.post('/api/email-confirmar', { codigo: codConf })).status === 400, 'O mesmo link não vale duas vezes');
+    ok((await (await novo()).post('/api/email-reenviar', {})).status === 401, 'Reenviar confirmação exige estar logado');
+
+    // reenviar: limite de 3 e-mails por conta por hora
+    const outra = cadastroPF({ nome: 'Otto', sobrenome: 'Reenvio' });
+    const navO = await novo();
+    await navO.post('/api/cadastrar', outra);
+    const primeiro = codigoDoEmail(outra.email, 'confirmar');
+    ok((await navO.post('/api/email-reenviar', {})).status === 200, 'Reenviar a confirmação');
+    ok((await navO.post('/api/email-confirmar', { codigo: primeiro })).status === 400, 'Pedir outro link invalida o anterior');
+    await navO.post('/api/email-reenviar', {});
+    ok((await navO.post('/api/email-reenviar', {})).status === 429, 'Mais de 3 e-mails por hora para a mesma conta → 429');
+
+    // esqueci minha senha
+    const pede = (n, email) => n.post('/api/senha-esqueci', { email });
+    const r1 = await pede(nav, conta.email);
+    const r2 = await pede(nav, `naoexiste.${Date.now()}@exemplo.com.br`);
+    ok(r1.status === 200 && r2.status === 200 && r1.dados.mensagem === r2.dados.mensagem, 'Esqueci a senha: mesma resposta para conta que existe e que não existe');
+    ok(!emails().some((x) => x.includes('naoexiste.')), 'Nenhum e-mail para endereço sem conta');
+    const codSenha = codigoDoEmail(conta.email, 'redefinir');
+    ok(Boolean(codSenha), 'Link de nova senha enviado para o dono da conta');
+    const [validade] = await linhas(`SELECT TIMESTAMPDIFF(MINUTE, criado_em, expira_em) AS m FROM ${BANCO}.tokens_usuario WHERE token_hash = ?`, [createHash('sha256').update(codSenha).digest('hex')]);
+    ok(Number(validade?.m) === 60, 'Link de nova senha vale 1 hora');
+    ok((await nav.post('/api/senha-redefinir', { codigo: codSenha, senha: 'curta' })).status === 422, 'Senha nova fraca → 422 (o link continua valendo)');
+
+    // sessões abertas antes da troca caem (inclusive a de um invasor)
+    const invasor = await novo();
+    await invasor.post('/api/entrar', { email: conta.email, senha: SENHA });
+    ok((await invasor.req('GET', '/api/conta')).status === 200, '(sessão aberta com a senha antiga)');
+    await new Promise((r) => setTimeout(r, 1100)); // a troca precisa ser num segundo depois do login
+    const troca = await nav.post('/api/senha-redefinir', { codigo: codSenha, senha: 'senhaNova789' });
+    ok(troca.status === 200, 'Link de nova senha troca a senha');
+    ok((await invasor.req('GET', '/api/conta')).status === 401, 'Trocar a senha encerra as sessões abertas antes (ex.: de um invasor)');
+    ok((await nav.post('/api/senha-redefinir', { codigo: codSenha, senha: 'outraSenha123' })).status === 400, 'O link de nova senha não vale duas vezes');
+    ok((await (await novo()).post('/api/entrar', { email: conta.email, senha: SENHA })).status === 401, 'A senha antiga não entra mais');
+    const nova = await novo();
+    ok((await nova.post('/api/entrar', { email: conta.email, senha: 'senhaNova789' })).status === 200, 'A senha nova entra');
+    ok((await nova.req('GET', '/api/conta')).status === 200, 'Login feito depois da troca continua valendo');
+
+    // link vencido e pedidos demais
+    await pede(nav, conta.email);
+    const vencido = codigoDoEmail(conta.email, 'redefinir');
+    await admin.query(`UPDATE ${BANCO}.tokens_usuario SET criado_em = NOW() - INTERVAL 2 HOUR, expira_em = NOW() - INTERVAL 1 HOUR WHERE token_hash = ?`, [createHash('sha256').update(vencido).digest('hex')]);
+    ok((await nav.post('/api/senha-redefinir', { codigo: vencido, senha: 'senhaNova999' })).status === 400, 'Link vencido não vale');
+    await zerarTentativas();
+    for (let i = 0; i < 10; i++) await pede(await novo(), `x${i}.${Date.now()}@exemplo.com.br`);
+    ok((await pede(await novo(), conta.email)).status === 429, 'Mais de 10 pedidos de nova senha do mesmo IP por hora → 429');
+    await zerarTentativas();
+    let ultimo;
+    for (let i = 0; i < 21; i++) ultimo = await nav.post('/api/email-confirmar', { codigo: randomBytes(32).toString('hex') });
+    ok(ultimo.status === 429, 'Mais de 20 códigos errados do mesmo IP em 15 minutos → 429 (contra adivinhação)');
+    await zerarTentativas();
   });
 
   // ===========================================================================

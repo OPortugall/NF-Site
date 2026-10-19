@@ -87,3 +87,20 @@ function nf_minutos(int $segundos): string
     $m = (int) ceil($segundos / 60);
     return $m === 1 ? '1 minuto' : "{$m} minutos";
 }
+
+// Limite genérico de ações (pedidos de nova senha, reenvio de confirmação, códigos inválidos):
+// conta as linhas gravadas com o marcador nos últimos minutos para aquela chave (IP ou id da conta).
+// Grava com sucesso = 1: não entra na conta de senhas erradas do login.
+function nf_limite_excedido(array $config, string $marcador, string $chave, int $maximo, int $minutos): bool
+{
+    $r = nf_consulta($config,
+        'SELECT COUNT(*) AS n FROM tentativas_login WHERE chave_email = ? AND chave_ip = ? AND criado_em > NOW(3) - INTERVAL ? MINUTE',
+        [nf_chave($config, $marcador), nf_chave($config, $chave), $minutos])[0];
+    return (int) $r['n'] >= $maximo;
+}
+
+function nf_registrar_uso(array $config, string $marcador, string $chave): void
+{
+    nf_consulta($config, 'INSERT INTO tentativas_login (chave_email, chave_ip, sucesso) VALUES (?, ?, 1)',
+        [nf_chave($config, $marcador), nf_chave($config, $chave)]);
+}

@@ -85,7 +85,8 @@ function nf_exigir_cliente(array $config): array
     nf_iniciar_sessao($config);
     $id = $_SESSION['usuario_id'] ?? null;
     $u = is_int($id) ? (nf_consulta($config, "SELECT * FROM usuarios WHERE id = ? AND status = 'ativo'", [$id])[0] ?? null) : null;
-    if ($u === null) {
+    // Senha trocada depois deste login: a sessão antiga não vale mais
+    if ($u === null || nf_sessao_anterior_a_senha($u['senha_alterada_em'], (int) ($_SESSION['login_em'] ?? 0))) {
         nf_limpar_login();
         nf_erro(401, 'Entre na sua conta para continuar.', ['codigo' => 'login']);
     }
@@ -104,6 +105,7 @@ function nf_rota_conta(array $config): never
     $en = nf_endereco_principal($config, (int) $u['id']);
     unset($en['id']);
     nf_responder(200, ['cliente' => [
+        'emailConfirmado' => $u['email_verificado_em'] !== null,
         'nome' => $u['primeiro_nome'], 'sobrenome' => $u['sobrenome'], 'email' => $u['email'], 'telefone' => $u['telefone'],
         'tipo' => $u['tipo_pessoa'] === 'PJ' ? 'cnpj' : 'cpf', 'documento' => $u['documento'],
         'razaoSocial' => $u['razao_social'], 'nomeFantasia' => $u['nome_fantasia'],
@@ -144,6 +146,10 @@ function nf_codigo_orcamento(): string
 function nf_rota_orcamento_criar(array $config): never
 {
     $u = nf_exigir_cliente($config);
+    // Só com o e-mail confirmado: ninguém faz pedidos em nome do e-mail de outra pessoa
+    if ($u['email_verificado_em'] === null) {
+        nf_erro(403, 'Confirme o seu e-mail para enviar pedidos: abra o link que enviamos ou peça outro em "Minha conta".', ['codigo' => 'email']);
+    }
     $d = nf_ler_json();
     $lista = $d['itens'] ?? null;
     if (!is_array($lista) || !array_is_list($lista) || !$lista || count($lista) > NF_ORCAMENTO_MAX_ITENS) {

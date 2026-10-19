@@ -120,8 +120,9 @@ restrict,command="/bin/python3 /home/raioxper/bin/rrsync -wo /home/raioxper/nfso
 Assim as chaves só enviam arquivos (sem terminal, sem ler nada) e cada uma só para a sua pasta.
 
 **Produtos do painel no site ("Publicar alterações"):** a compilação baixa o catálogo do banco se o ambiente
-tiver o segredo `CATALOGO_URL` (produção: `https://nfsolucoesdigitais.com.br/api/catalogo`; teste, com o usuário
-e a senha do site de teste: `https://usuario:senha@teste.nfsolucoesdigitais.com.br/api/catalogo`). Sem o segredo,
+tiver o segredo `CATALOGO_URL` (produção: `https://nfsolucoesdigitais.com.br/api/catalogo`; teste:
+`https://teste.nfsolucoesdigitais.com.br/api/catalogo`, mais os segredos `CATALOGO_USUARIO` e `CATALOGO_SENHA`
+com o usuário e a senha do site de teste). Sem o segredo,
 ou com o banco ainda sem produtos, usa `dados/produtos*.json`; se a API responder com erro, a publicação para
 (para não publicar um catálogo velho). O botão do painel dispara este mesmo workflow (`workflow_dispatch`) com
 um token do GitHub guardado na configuração do servidor (bloco `github` de `api/config.exemplo.php`: token
@@ -131,7 +132,7 @@ espera a sua aprovação no GitHub. O **estoque** não precisa publicar: o site 
 ## API (PHP)
 
 A API em PHP (pasta `api/`) vai junto com o site nos dois ambientes. As rotas de cliente (cadastro, login,
-conta e pedidos) só respondem com as contas ligadas (hoje: só no teste; na vitrine respondem 404). O resto do
+conta e pedidos) só respondem com as contas ligadas (hoje: teste e produção; desligadas, respondem 404). O resto do
 site continua estático.
 
 | Rota | Método | O que faz |
@@ -226,8 +227,7 @@ e de uma conta de e-mail remetente criada no cPanel (ex.: `naoresponda@nfsolucoe
 - `dados/catalogo.json`: gerado por `scripts/catalogo.mjs` antes de "dev" e "compilar" (do banco, na publicação;
   dos arquivos abaixo, no computador). É o que as páginas usam.
 - `dados/produtos-novos.json`: produtos cadastrados à mão (antes do painel; viram a importação inicial).
-- `dados/produtos.json` e as fotos em `public/produtos/`: gerados por
-  `python scripts/gerar_dados_produtos.py` a partir de `reconstrucao/loja/`.
+- `dados/produtos.json` e as fotos em `public/produtos/`: produtos da loja antiga (base da importação inicial do painel).
 
 ## Segurança
 

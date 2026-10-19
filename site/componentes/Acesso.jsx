@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useId, useRef, useState } from 'react';
+import { Suspense, useEffect, useId, useRef, useState } from 'react';
+import { ConfirmarEmail, EsqueciSenha, RedefinirSenha, codigoDoLink } from './AcessoLinks';
 import { useCarrinho, useSessao } from './Provedores';
 import {
   REGRAS_SENHA,
@@ -26,6 +27,7 @@ function PainelAcesso({ abaInicial }) {
   const [concluido, setConcluido] = useState(null); // { nome, tipo } da conta recém-criada
 
   if (concluido) return <CadastroConcluido dados={concluido} />;
+  if (aba === 'esqueci') return <EsqueciSenha voltar={() => setAba('entrar')} />;
 
   return (
     <div className="acesso">
@@ -41,7 +43,7 @@ function PainelAcesso({ abaInicial }) {
       </div>
 
       <div id="painel-acesso" role="tabpanel" aria-labelledby={aba === 'entrar' ? 'aba-entrar' : 'aba-criar'}>
-        {aba === 'entrar' ? <FormEntrar irParaCriar={() => setAba('criar')} /> : <FormCriar aoConcluir={setConcluido} />}
+        {aba === 'entrar' ? <FormEntrar irParaCriar={() => setAba('criar')} irParaEsqueci={() => setAba('esqueci')} /> : <FormCriar aoConcluir={setConcluido} />}
       </div>
 
     </div>
@@ -111,7 +113,7 @@ export function CampoSenha({ rotulo, valor, aoMudar, erro, autoComplete, ajuda }
 }
 
 // ---------- entrar ----------
-function FormEntrar({ irParaCriar }) {
+function FormEntrar({ irParaCriar, irParaEsqueci }) {
   const { entrar } = useSessao();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -146,6 +148,7 @@ function FormEntrar({ irParaCriar }) {
         {(p) => <input {...p} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />}
       </Campo>
       <CampoSenha rotulo="Senha" valor={senha} aoMudar={setSenha} erro={erros.senha} autoComplete="current-password" />
+      <p className="formulario__rodape"><button type="button" className="link-botao" onClick={irParaEsqueci}>Esqueci minha senha</button></p>
       {falha && <p className="aviso aviso--erro" role="alert">{falha}</p>}
       <button type="submit" className="botao botao--principal botao--largo" disabled={enviando} aria-busy={enviando}>
         {enviando ? 'Entrando…' : 'Entrar'}
@@ -518,6 +521,10 @@ function CadastroConcluido({ dados }) {
       <p className="pagina__lead">
         Bem-vindo(a), {dados.nome}! Seu cadastro {dados.tipo === 'cnpj' ? 'com CNPJ permite comprar e alugar' : 'com CPF permite comprar'} os nossos produtos.
       </p>
+      <p className="aviso aviso--info">
+        Enviamos um link para o seu e-mail. Abra-o para confirmar o endereço: os pedidos de orçamento pelo site só
+        são enviados depois da confirmação. Não chegou? Confira o spam ou peça outro em “Minha conta”.
+      </p>
       <div className="acesso__acoes">
         <Link href="/loja" className="botao botao--principal">Ver equipamentos</Link>
       </div>
@@ -526,8 +533,18 @@ function CadastroConcluido({ dados }) {
 }
 
 // /entrar?aba=criar abre direto no cadastro (lido no navegador: o site é estático)
+// Links dos e-mails: /entrar#redefinir=<código> e /entrar#confirmar=<código> (o "#" não vai ao servidor)
 function AcessoDaUrl() {
   const aba = useSearchParams().get('aba') === 'criar' ? 'criar' : 'entrar';
+  const [link, setLink] = useState(null);
+  useEffect(() => {
+    const ler = () => { const l = codigoDoLink(); if (l) setLink(l); };
+    ler();
+    window.addEventListener('hashchange', ler); // link aberto com a página /entrar já aberta
+    return () => window.removeEventListener('hashchange', ler);
+  }, []);
+  if (link?.tipo === 'redefinir') return <RedefinirSenha codigo={link.codigo} voltar={() => setLink(null)} />;
+  if (link?.tipo === 'confirmar') return <ConfirmarEmail codigo={link.codigo} />;
   return <PainelAcesso key={aba} abaInicial={aba} />;
 }
 

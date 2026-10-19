@@ -2564,3 +2564,10 @@ p {
     gap: var(--e-1);
   }
 }
+
+.aviso-confirmar {
+  display: grid;
+  gap: var(--e-2);
+  justify-items: start;
+  margin-bottom: var(--e-5);
+}

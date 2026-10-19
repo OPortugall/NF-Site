@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Campo, CampoSenha } from './Acesso';
 import { useSessao } from './Provedores';
-import { cancelarOrcamento, excluirConta, lerConta, lerOrcamentos } from '@/lib/api';
+import { cancelarOrcamento, excluirConta, lerConta, lerOrcamentos, reenviarConfirmacao } from '@/lib/api';
 import { MODALIDADES, linkWhatsApp } from '@/lib/produtos';
 
 // Situação do pedido como o cliente vê (os nomes internos ficam no painel)
@@ -52,6 +52,7 @@ export default function MinhaConta() {
   return (
     <div className="conta-pagina">
       <h1 className="pagina__titulo">Olá, {cliente.nome}</h1>
+      {!cliente.emailConfirmado && <AvisoConfirmar email={cliente.email} />}
       <div className="abas" role="tablist" aria-label="Minha conta">
         <button type="button" role="tab" id="aba-pedidos" aria-selected={aba === 'pedidos'} aria-controls="painel-conta" className="abas__aba" onClick={() => setAba('pedidos')}>
           Meus pedidos
@@ -63,6 +64,28 @@ export default function MinhaConta() {
       <div id="painel-conta" role="tabpanel" aria-labelledby={aba === 'pedidos' ? 'aba-pedidos' : 'aba-dados'}>
         {aba === 'pedidos' ? <MeusPedidos /> : <MeusDados aoExcluir={() => setExcluida(true)} />}
       </div>
+    </div>
+  );
+}
+
+// E-mail ainda não confirmado: os pedidos pelo site só saem depois da confirmação
+function AvisoConfirmar({ email }) {
+  const [msg, setMsg] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const reenviar = async () => {
+    setEnviando(true);
+    const r = await reenviarConfirmacao();
+    setEnviando(false);
+    setMsg(r.ok ? `Enviamos um novo link para ${email}. Confira também o spam.` : r.erro);
+  };
+  return (
+    <div className="aviso aviso--info aviso-confirmar" role="status">
+      <p>Confirme o seu e-mail ({email}) para enviar pedidos de orçamento pelo site.</p>
+      {msg ? <p>{msg}</p> : (
+        <button type="button" className="botao botao--secundario botao--compacto" onClick={reenviar} disabled={enviando}>
+          {enviando ? 'Enviando…' : 'Reenviar o link de confirmação'}
+        </button>
+      )}
     </div>
   );
 }
