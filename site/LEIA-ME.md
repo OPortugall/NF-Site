@@ -120,8 +120,9 @@ restrict,command="/bin/python3 /home/raioxper/bin/rrsync -wo /home/raioxper/nfso
 Assim as chaves só enviam arquivos (sem terminal, sem ler nada) e cada uma só para a sua pasta.
 
 **Produtos do painel no site ("Publicar alterações"):** a compilação baixa o catálogo do banco se o ambiente
-tiver o segredo `CATALOGO_URL` (produção: `https://nfsolucoesdigitais.com.br/api/catalogo`; teste, com o usuário
-e a senha do site de teste: `https://usuario:senha@teste.nfsolucoesdigitais.com.br/api/catalogo`). Sem o segredo,
+tiver o segredo `CATALOGO_URL` (produção: `https://nfsolucoesdigitais.com.br/api/catalogo`; teste:
+`https://teste.nfsolucoesdigitais.com.br/api/catalogo`, mais os segredos `CATALOGO_USUARIO` e `CATALOGO_SENHA`
+com o usuário e a senha do site de teste). Sem o segredo,
 ou com o banco ainda sem produtos, usa `dados/produtos*.json`; se a API responder com erro, a publicação para
 (para não publicar um catálogo velho). O botão do painel dispara este mesmo workflow (`workflow_dispatch`) com
 um token do GitHub guardado na configuração do servidor (bloco `github` de `api/config.exemplo.php`: token
