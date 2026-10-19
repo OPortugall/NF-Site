@@ -20,8 +20,8 @@ export const empresa = {
   },
   horario: 'Segunda a sexta, das 8h às 18h',
   redes: [
-    { nome: 'Facebook', url: 'https://www.facebook.com/nfsolucoesdigitais' },
-    { nome: 'Instagram', url: 'https://www.instagram.com/nf.solucoesdigitais' },
+    { nome: 'Facebook', url: 'https://www.facebook.com/nfcopiadoras/?locale=pt_BR' },
+    { nome: 'Instagram', url: 'https://www.instagram.com/nfcopiadoras/' },
   ],
 };
 
