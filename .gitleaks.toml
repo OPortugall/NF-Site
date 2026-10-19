@@ -9,6 +9,7 @@ description = """
 Tokens públicos do PrestaShop antigo (static_token, token, secure_key) embutidos em toda página
 da loja e também visíveis no Wayback Machine. Não são credenciais e a loja antiga não existe mais.
 Liberados só nas páginas arquivadas (.html) e nas planilhas de controle (.csv) de reconstrucao/.
+A pasta foi apagada, mas continua no histórico do Git, que o gitleaks também verifica: não remover.
 """
 condition = "AND"
 paths = ['''^reconstrucao/.*\.(html|csv)$''']

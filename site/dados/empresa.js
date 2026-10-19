@@ -34,10 +34,10 @@ export const juridico = {
   // Encarregado pelo tratamento de dados (LGPD, art. 41). Pode ser o sócio/dono da empresa.
   // Microempresas e empresas de pequeno porte podem dispensar a indicação (Resolução CD/ANPD nº 2/2022),
   // mas precisam manter este canal de contato.
-  encarregado: '[A PREENCHER: nome do responsável pelos dados]',
+  encarregado: 'Ricardo Nunes Fonseca',
   emailPrivacidade: 'contato@nfsolucoesdigitais.com.br',
   foro: 'São José dos Campos – SP',
-  atualizadoEm: '16 de outubro de 2026',
+  atualizadoEm: '18 de outubro de 2026',
 };
 
 // Marcas com que a NF trabalha (rodapé do site e da loja antigos).

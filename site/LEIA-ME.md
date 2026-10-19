@@ -132,7 +132,7 @@ espera a sua aprovação no GitHub. O **estoque** não precisa publicar: o site 
 ## API (PHP)
 
 A API em PHP (pasta `api/`) vai junto com o site nos dois ambientes. As rotas de cliente (cadastro, login,
-conta e pedidos) só respondem com as contas ligadas (hoje: só no teste; na vitrine respondem 404). O resto do
+conta e pedidos) só respondem com as contas ligadas (hoje: teste e produção; desligadas, respondem 404). O resto do
 site continua estático.
 
 | Rota | Método | O que faz |
@@ -227,8 +227,7 @@ e de uma conta de e-mail remetente criada no cPanel (ex.: `naoresponda@nfsolucoe
 - `dados/catalogo.json`: gerado por `scripts/catalogo.mjs` antes de "dev" e "compilar" (do banco, na publicação;
   dos arquivos abaixo, no computador). É o que as páginas usam.
 - `dados/produtos-novos.json`: produtos cadastrados à mão (antes do painel; viram a importação inicial).
-- `dados/produtos.json` e as fotos em `public/produtos/`: gerados por
-  `python scripts/gerar_dados_produtos.py` a partir de `reconstrucao/loja/`.
+- `dados/produtos.json` e as fotos em `public/produtos/`: produtos da loja antiga (base da importação inicial do painel).
 
 ## Segurança
 
