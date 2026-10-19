@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
-import { empresa, institucional, marcas, servicos } from '@/dados/empresa';
+import { empresa, institucional, locacao, marcas, servicos } from '@/dados/empresa';
 import { BotoesRedes } from '@/componentes/BotoesExternos';
 import { linkWhatsApp, produtoPorSlug, produtosEmDestaque, todosOsProdutos } from '@/lib/produtos';
 
@@ -87,6 +87,47 @@ export default function PaginaInicial() {
         </div>
       </section>
 
+      <section id="servicos" className="secao secao--escura servicos-secao" aria-labelledby="titulo-servicos">
+        <div className="conteudo">
+          <div className="servicos__intro">
+            <h2 id="titulo-servicos" className="secao__titulo">O que fazemos</h2>
+            <p>
+              Analisamos como sua empresa imprime, copia e digitaliza para indicar a solução que custa menos no dia a dia,
+              seja comprando, alugando ou mantendo os equipamentos que você já tem.
+            </p>
+          </div>
+          <dl className="servicos__lista">
+            {servicos.map((s) => (
+              <div key={s.id} className={`servicos__item servicos__item--${s.id}`}>
+                <dt>{s.titulo}</dt>
+                <dd>{s.texto}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div id="locacao" className="locacao">
+            <div className="locacao__texto">
+              <p className="locacao__selo">Para empresas</p>
+              <h3 id="titulo-locacao" className="locacao__titulo">{locacao.titulo}</h3>
+              <p>{locacao.texto}</p>
+              <ul className="locacao__vantagens">
+                {locacao.vantagens.map((v) => <li key={v}>{v}</li>)}
+              </ul>
+            </div>
+            <div className="locacao__como">
+              <h4>Como funciona</h4>
+              <ol>
+                {locacao.passos.map((p) => <li key={p}>{p}</li>)}
+              </ol>
+              <a className="botao botao--whatsapp botao--largo" href={linkWhatsApp('Olá! Gostaria de um orçamento de locação para a minha empresa.')}>
+                Pedir orçamento de locação
+              </a>
+              <p className="locacao__nota">{locacao.publico}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="faixa-marcas">
         <p className="conteudo">
           Trabalhamos com {nomesMarcas.slice(0, -1).join(', ')} e {nomesMarcas.at(-1)}.
@@ -108,26 +149,6 @@ export default function PaginaInicial() {
         </div>
       </section>
       )}
-
-      <section id="servicos" className="secao secao--escura" aria-labelledby="titulo-servicos">
-        <div className="conteudo servicos">
-          <div className="servicos__intro">
-            <h2 id="titulo-servicos" className="secao__titulo">O que fazemos</h2>
-            <p>
-              Analisamos como sua empresa imprime, copia e digitaliza para indicar a solução que custa menos no dia a dia,
-              seja comprando, alugando ou mantendo os equipamentos que você já tem.
-            </p>
-          </div>
-          <dl className="servicos__lista">
-            {servicos.map((s) => (
-              <div key={s.id} className="servicos__item">
-                <dt>{s.titulo}</dt>
-                <dd>{s.texto}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
 
       <section id="marcas" className="secao" aria-labelledby="titulo-marcas">
         <div className="conteudo">
@@ -160,44 +181,51 @@ export default function PaginaInicial() {
 
       <section id="contato" className="secao" aria-labelledby="titulo-contato">
         <div className="conteudo contato">
-          <div className="contato__info">
-            <h2 id="titulo-contato" className="secao__titulo">Fale com a gente</h2>
-            <p>Orçamento sem custo. Respondemos pelo WhatsApp em horário comercial.</p>
+          <div className="contato__cabeca">
+            <div>
+              <h2 id="titulo-contato" className="secao__titulo">Fale com a gente</h2>
+              <p>Orçamento sem custo. Respondemos pelo WhatsApp em horário comercial.</p>
+            </div>
             <a className="botao botao--whatsapp" href={linkWhatsApp('Olá! Vim pelo site.')}>
               Conversar pelo WhatsApp
             </a>
-            <div className="contato__redes">
-              <p>Siga a NF nas redes sociais</p>
-              <BotoesRedes />
-            </div>
-            <dl className="contato__dados">
-              <div>
-                <dt>Telefones</dt>
-                <dd>
-                  {empresa.telefones.map((t) => (
-                    <a key={t.numero} href={`tel:${t.numero}`}>{t.rotulo}</a>
-                  ))}
-                </dd>
-              </div>
-              <div>
-                <dt>E-mail</dt>
-                <dd><a href={`mailto:${empresa.email}`}>{empresa.email}</a></dd>
-              </div>
-              <div>
-                <dt>Endereço</dt>
-                <dd>
-                  {empresa.endereco.linha1}, {empresa.endereco.linha2}<br />
-                  {empresa.endereco.cidade}, CEP {empresa.endereco.cep}
-                </dd>
-              </div>
-              <div>
-                <dt>Horário</dt>
-                <dd>{empresa.horario}</dd>
-              </div>
-            </dl>
           </div>
-          <div className="contato__mapa">
-            <iframe src={empresa.endereco.mapa} title="Mapa: localização da NF Soluções Digitais" loading="lazy" />
+
+          <dl className="contato__dados">
+            <div>
+              <dt>Telefones</dt>
+              <dd>
+                {empresa.telefones.map((t) => (
+                  <a key={t.numero} href={`tel:${t.numero}`}>{t.rotulo}</a>
+                ))}
+              </dd>
+            </div>
+            <div>
+              <dt>E-mail</dt>
+              <dd><a href={`mailto:${empresa.email}`}>{empresa.email}</a></dd>
+            </div>
+            <div>
+              <dt>Horário</dt>
+              <dd>{empresa.horario}</dd>
+            </div>
+          </dl>
+
+          <div className="contato__local">
+            <div className="contato__endereco">
+              <h3>Endereço</h3>
+              <p>
+                {empresa.endereco.linha1}<br />
+                {empresa.endereco.linha2}<br />
+                {empresa.endereco.cidade}, CEP {empresa.endereco.cep}
+              </p>
+              <div className="contato__redes">
+                <p>Siga a NF nas redes sociais</p>
+                <BotoesRedes />
+              </div>
+            </div>
+            <div className="contato__mapa">
+              <iframe src={empresa.endereco.mapa} title="Mapa: localização da NF Soluções Digitais" loading="lazy" />
+            </div>
           </div>
         </div>
       </section>
