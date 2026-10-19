@@ -79,6 +79,26 @@ export const servicos = [
   },
 ];
 
+// Banner de locação da página inicial. Só o que a NF já oferece hoje (confirmar com o cliente antes de
+// acrescentar condições de contrato, como franquia de cópias ou suprimentos incluídos).
+export const locacao = {
+  titulo: 'Locação de impressoras e copiadoras para empresas',
+  texto:
+    'Em vez de comprar, sua empresa paga um valor mensal e usa equipamentos revisados, com a assistência técnica incluída no plano. Sem investimento inicial e sem perder com a desvalorização do equipamento.',
+  vantagens: [
+    'Sem investimento na compra do equipamento',
+    'Assistência técnica incluída no plano',
+    'Equipamento indicado para o volume de impressão da sua empresa',
+    'Atendimento em São José dos Campos e região',
+  ],
+  passos: [
+    'Você conta como sua empresa imprime, copia e digitaliza',
+    'Indicamos o equipamento e o plano que custam menos no dia a dia',
+    'Sua empresa usa o equipamento e nós cuidamos da assistência técnica',
+  ],
+  publico: 'Locação disponível para empresas (CNPJ).',
+};
+
 export const institucional = {
   resumo:
     'Fundada em 2010, a NF Soluções Digitais atende empresas de São José dos Campos e região com equipamentos de cópia, impressão e digitalização. Nossa equipe soma mais de 10 anos de experiência, com formação nos próprios fabricantes.',
