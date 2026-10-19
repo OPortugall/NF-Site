@@ -43,7 +43,7 @@ jobs:
     name: Publicar (${{ github.ref_name == 'main' && 'produção' || 'teste' }})
     needs: verificacao
     if: github.ref_name == 'teste' || github.ref_name == 'main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # versão fixa: ubuntu-latest muda de versão sozinho (troca para o 26 em out/2026)
     environment: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
     env:
       AMBIENTE: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
