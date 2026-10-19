@@ -40,6 +40,7 @@ CREATE TABLE usuarios (
 
   -- Senha: apenas o HASH (argon2id ou bcrypt). Fica vazia para quem entra só com Google.
   senha_hash             VARCHAR(255) NULL,
+  senha_alterada_em      DATETIME     NULL COMMENT 'Última troca de senha: sessões abertas antes disso são encerradas',
   google_id              VARCHAR(64)  NULL,
   totp_segredo           VARCHAR(255) NULL COMMENT 'Só administradores: segredo do 2FA, cifrado pela API (nunca em texto)',
   totp_ultimo_passo      BIGINT UNSIGNED NULL COMMENT 'Último código 2FA aceito (impede reusar o mesmo código)',
@@ -352,7 +353,7 @@ CREATE TABLE auditoria (
 CREATE TABLE emails_enviados (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   usuario_id  INT UNSIGNED NULL,
-  tipo        ENUM('aviso_atraso', 'novo_cliente_admin', 'novo_orcamento_admin') NOT NULL,
+  tipo        ENUM('aviso_atraso', 'novo_cliente_admin', 'novo_orcamento_admin', 'confirmar_email', 'redefinir_senha') NOT NULL,
   sucesso     TINYINT(1)   NOT NULL,
   criado_em   DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 

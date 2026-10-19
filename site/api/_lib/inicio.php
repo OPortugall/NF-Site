@@ -19,6 +19,7 @@ require __DIR__ . '/github.php';
 require __DIR__ . '/admin.php';
 require __DIR__ . '/rotas.php';
 require __DIR__ . '/rotas-conta.php';
+require __DIR__ . '/rotas-acesso.php';
 require __DIR__ . '/rotas-admin.php';
 require __DIR__ . '/rotas-admin-loja.php';
 
@@ -109,7 +110,7 @@ function nf_despachar(array $config): void
     }
     // Rotas de cliente (cadastro, login, conta e pedidos) só existem com as contas ligadas
     $rotas = nf_rotas_publicas() + nf_rotas_admin() + nf_rotas_admin_loja()
-        + ($config['contas'] ? nf_rotas() + nf_rotas_conta() : []);
+        + ($config['contas'] ? nf_rotas() + nf_rotas_conta() + nf_rotas_acesso() : []);
     $rota = $rotas[$m[1]] ?? null;
     if ($rota === null) {
         nf_erro(404, 'Rota não encontrada.');

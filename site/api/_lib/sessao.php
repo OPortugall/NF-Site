@@ -88,8 +88,10 @@ function nf_cliente_atual(array $config): ?array
     if (!is_int($id)) {
         return null;
     }
-    $linhas = nf_consulta($config, "SELECT id, primeiro_nome, email, tipo_pessoa FROM usuarios WHERE id = ? AND status = 'ativo'", [$id]);
-    if (!$linhas) {
+    $linhas = nf_consulta($config, "SELECT id, primeiro_nome, email, tipo_pessoa, email_verificado_em, senha_alterada_em
+        FROM usuarios WHERE id = ? AND status = 'ativo'", [$id]);
+    // Senha trocada depois deste login (ex.: "esqueci minha senha"): a sessão antiga não vale mais
+    if (!$linhas || nf_sessao_anterior_a_senha($linhas[0]['senha_alterada_em'], (int) ($_SESSION['login_em'] ?? 0))) {
         nf_limpar_login();
         return null;
     }
@@ -103,5 +105,12 @@ function nf_cliente_publico(array $u): array
         'nome' => $u['primeiro_nome'],
         'email' => $u['email'],
         'tipo' => $u['tipo_pessoa'] === 'PJ' ? 'cnpj' : 'cpf',
+        'emailConfirmado' => ($u['email_verificado_em'] ?? null) !== null,
     ];
+}
+
+// senha_alterada_em é gravado com o relógio do PHP (date()), o mesmo de login_em: sem diferença de fuso com o banco
+function nf_sessao_anterior_a_senha(?string $senhaAlteradaEm, int $loginEm): bool
+{
+    return $senhaAlteradaEm !== null && strtotime($senhaAlteradaEm) > $loginEm;
 }

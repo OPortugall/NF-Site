@@ -55,7 +55,7 @@ function nf_rota_entrar(array $config): never
     }
 
     $linhas = nf_consulta($config,
-        'SELECT id, primeiro_nome, email, tipo_pessoa, senha_hash, status FROM usuarios WHERE email = ?', [$email]);
+        'SELECT id, primeiro_nome, email, tipo_pessoa, senha_hash, status, email_verificado_em FROM usuarios WHERE email = ?', [$email]);
     $u = $linhas[0] ?? null;
     $hash = $u['senha_hash'] ?? null;
     $senhaCerta = password_verify($senha, $hash ?? NF_HASH_FALSO);
@@ -105,8 +105,14 @@ function nf_rota_cadastrar(array $config): never
     nf_iniciar_sessao($config);
     nf_registrar_login($id);
     nf_avisar_cliente_novo($config, $id, $v, $interesses, $situacao);
+    try {
+        nf_registrar_uso($config, '#email-conta', (string) $id);
+        nf_enviar_confirmacao($config, ['id' => $id, 'primeiro_nome' => $v['usuario']['primeiro_nome'], 'email' => $v['usuario']['email']]);
+    } catch (Throwable $ex) {
+        error_log('[api-nf] e-mail de confirmação: ' . $ex->getMessage()); // a conta já existe; pode reenviar depois
+    }
     nf_responder(201, [
-        'cliente' => ['nome' => $v['usuario']['primeiro_nome'], 'email' => $v['usuario']['email'], 'tipo' => $v['tipo']],
+        'cliente' => ['nome' => $v['usuario']['primeiro_nome'], 'email' => $v['usuario']['email'], 'tipo' => $v['tipo'], 'emailConfirmado' => false],
         'csrf' => $_SESSION['csrf'],
         'situacaoCnpj' => $empresa ? ($situacao ?? 'não conferida (consulta indisponível)') : null,
     ]);

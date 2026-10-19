@@ -59,6 +59,10 @@ export const lerOrcamentos = () => pedir('GET', 'orcamentos');
 export const criarOrcamento = (itens, observacoes) => enviar('orcamento-criar', { itens, observacoes });
 export const cancelarOrcamento = (codigo) => enviar('orcamento-cancelar', { codigo });
 export const excluirConta = (senha, confirmacao) => enviar('conta-excluir', { senha, confirmacao });
+export const pedirNovaSenha = (email) => enviar('senha-esqueci', { email });
+export const redefinirSenha = (codigo, senha) => enviar('senha-redefinir', { codigo, senha });
+export const confirmarEmail = (codigo) => enviar('email-confirmar', { codigo });
+export const reenviarConfirmacao = () => enviar('email-reenviar', {});
 
 // Estoque ao vivo (0 = indisponível). null quando a API não responde: o site fica com o da compilação.
 export async function lerEstoque() {

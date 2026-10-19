@@ -28,6 +28,7 @@ export const ACOES = {
   cliente_aviso_atraso: 'Enviou aviso de pagamento pendente',
   clientes_exportar: 'Exportou a planilha de clientes',
   cliente_autoexcluir: 'O cliente excluiu a própria conta',
+  cliente_nova_senha: 'O cliente criou uma nova senha pelo link do e-mail',
   orcamento_status: 'Mudou a situação do pedido',
   orcamento_notas: 'Editou as anotações do pedido',
   orcamento_cancelado_cliente: 'O cliente cancelou o pedido pelo site',

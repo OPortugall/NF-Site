@@ -96,6 +96,11 @@ export function Provedores({ children }) {
 
   // Depois que o cliente exclui a própria conta (a API já encerrou a sessão)
   const contaExcluida = useCallback(() => setCliente(null), []);
+  // Relê a sessão do servidor (ex.: depois de confirmar o e-mail)
+  const atualizarSessao = useCallback(async () => {
+    const r = await lerSessao();
+    if (r.ok) setCliente(r.dados.cliente);
+  }, []);
 
   const adicionar = useCallback((slug, modalidade = 'compra') => {
     setItens((atual) => juntar([...atual, { slug, modalidade, quantidade: 1 }]));
@@ -120,8 +125,8 @@ export function Provedores({ children }) {
   const total = itens.reduce((s, i) => s + i.quantidade, 0);
 
   const sessao = useMemo(
-    () => ({ cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida }),
-    [cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida],
+    () => ({ cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida, atualizarSessao }),
+    [cliente, carregado, podeAlugar, cadastrar, entrar, sair, contaExcluida, atualizarSessao],
   );
   const carrinho = useMemo(
     () => ({
