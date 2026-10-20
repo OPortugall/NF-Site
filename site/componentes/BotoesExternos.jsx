@@ -1,14 +1,14 @@
 import { empresa } from '@/dados/empresa';
-import { IconeFacebook, IconeInstagram } from './Icones';
+import { IconeFacebook, IconeInstagram, IconeTikTok } from './Icones';
 
-const ICONES = { Facebook: IconeFacebook, Instagram: IconeInstagram };
+export const ICONES_REDES = { Facebook: IconeFacebook, Instagram: IconeInstagram, TikTok: IconeTikTok };
 
-// Botões do Facebook e do Instagram da empresa.
+// Botões das redes sociais da empresa (Facebook, Instagram e TikTok).
 export function BotoesRedes({ claro = false }) {
   return (
     <ul className={`redes${claro ? ' redes--claro' : ''}`}>
       {empresa.redes.map((r) => {
-        const Icone = ICONES[r.nome];
+        const Icone = ICONES_REDES[r.nome];
         return (
           <li key={r.nome}>
             <a className={`redes__botao redes__botao--${r.nome.toLowerCase()}`} href={r.url} target="_blank" rel="noopener">
