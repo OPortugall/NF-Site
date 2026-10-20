@@ -8,29 +8,43 @@ import { linkWhatsApp, produtosEmDestaque, todosOsProdutos } from '@/lib/produto
 
 // Carrossel da abertura: um slide por linha de produtos, cada um leva à loja filtrada no seu setor.
 // "cor" é a tinta do slide (ciano, magenta, amarelo e preto, como na faixa do topo).
-// Textos curtos e só com o que a NF vende hoje (produtos cadastrados no site).
+// Textos curtos e só com o que a NF vende hoje. Fotos: as do site (cheia = foto com cenário, preenche o cartão).
 const SLIDES = [
   {
-    rotulo: 'Copiadoras', cor: 'ciano', selo: 'Venda e locação', link: '/loja?tipo=impressoras-e-copiadoras',
-    imagem: '/destaques/banner-copiadoras.png', alt: 'Multifuncional copiadora',
+    rotulo: 'Copiadoras', botao: 'Ver copiadoras', cor: 'ciano', selo: 'Venda e locação', link: '/loja?tipo=impressoras-e-copiadoras',
+    imagens: [
+      { src: '/destaques/banner-copiadoras.png', alt: 'Copiadora Konica Minolta bizhub' },
+      { src: '/destaques/carrossel/hp-e42540.webp', alt: 'Multifuncional HP LaserJet E42540' },
+      { src: '/destaques/carrossel/epson-workforce-c5890.webp', alt: 'Multifuncional Epson WorkForce C5890' },
+    ],
     frase: 'Multifuncionais e copiadoras para o dia a dia da sua empresa.',
     pontos: ['Novas e seminovas revisadas', 'Locação com assistência técnica incluída', 'Das principais marcas do mercado'],
   },
   {
-    rotulo: 'Impressoras 3D', cor: 'magenta', selo: 'Impressão 3D', link: '/loja?tipo=impressoras-3d',
-    imagem: '/destaques/banner-impressoras-3d.png', alt: 'Impressora 3D',
+    rotulo: 'Impressoras 3D', botao: 'Ver impressoras 3D', cor: 'magenta', selo: 'Impressão 3D', link: '/loja?tipo=impressoras-3d',
+    imagens: [
+      { src: '/destaques/banner-impressoras-3d.png', alt: 'Impressora 3D Anycubic Kobra S1' },
+      { src: '/destaques/carrossel/anycubic-kobra-em-uso.jpg', alt: 'Impressora 3D Anycubic imprimindo', cheia: true },
+    ],
     frase: 'Impressoras 3D e filamentos para tirar seus projetos do papel.',
     pontos: ['Impressoras 3D Anycubic', 'Filamentos para impressão 3D', 'Orçamento sem custo'],
   },
   {
-    rotulo: 'Equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
-    imagem: '/destaques/banner-graficos.png', alt: 'Plotter de recorte',
+    rotulo: 'Equipamentos gráficos', botao: 'Ver equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
+    imagens: [
+      { src: '/destaques/carrossel/adgl-cc3348-plotter.png', alt: 'Plotter de recorte ADGL CC3348 Titanium' },
+      { src: '/destaques/carrossel/adgl-cc3348-conjunto.jpg', alt: 'Plotter ADGL CC3348 Titanium com suporte e acessórios', cheia: true },
+    ],
     frase: 'Plotters de recorte para gráficas e comunicação visual.',
     pontos: ['Plotters de recorte ADGL', 'Equipamentos novos', 'Orçamento sem custo'],
   },
   {
-    rotulo: 'Suprimentos', cor: 'preto', selo: 'Para impressoras e copiadoras', link: '/loja?tipo=suprimentos',
-    imagem: '/destaques/banner-suprimentos-filamentos.png', alt: 'Tintas, toners e filamentos',
+    rotulo: 'Suprimentos', botao: 'Ver suprimentos', cor: 'preto', selo: 'Para impressoras e copiadoras', link: '/loja?tipo=suprimentos',
+    imagens: [
+      { src: '/destaques/carrossel/tintas-corante.webp', alt: 'Tintas corante compatíveis' },
+      { src: '/destaques/carrossel/filamentos-esun.webp', alt: 'Filamentos eSUN PLA', cheia: true },
+      { src: '/destaques/carrossel/toner-ricoh.webp', alt: 'Toner Ricoh' },
+    ],
     frase: 'Tintas, toners e filamentos para as principais marcas de impressoras e copiadoras.',
     pontos: ['Toners para copiadoras e impressoras', 'Tintas para impressoras Epson', 'Filamentos para impressão 3D'],
   },

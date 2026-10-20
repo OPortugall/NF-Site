@@ -76,11 +76,15 @@ export default function Carrossel({ slides }) {
                   {s.pontos.map((p) => <li key={p}>{p}</li>)}
                 </ul>
                 <Link href={s.link} className="botao carrossel__botao">
-                  Ver {s.rotulo.toLowerCase()} <span aria-hidden="true">›</span>
+                  {s.botao} <span aria-hidden="true">›</span>
                 </Link>
               </div>
-              <div className="carrossel__foto">
-                <Image src={s.imagem} alt={s.alt} fill sizes="(max-width: 860px) 90vw, 560px" preload={i === 0} />
+              <div className={`carrossel__galeria carrossel__galeria--${s.imagens.length}`}>
+                {s.imagens.map((im, k) => (
+                  <div key={im.src} className={`carrossel__cartao${im.cheia ? ' carrossel__cartao--cheio' : ''}`}>
+                    <Image src={im.src} alt={im.alt} fill sizes={k === 0 ? '(max-width: 860px) 60vw, 380px' : '(max-width: 860px) 40vw, 240px'} preload={i === 0 && k === 0} />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
