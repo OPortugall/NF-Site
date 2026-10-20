@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { empresa } from '@/dados/empresa';
 import Logo from './Logo';
 import { FaixaRegistro } from './Tinta';
@@ -24,6 +24,25 @@ export default function Cabecalho() {
   const [contaAberta, setContaAberta] = useState(false);
   const caminho = usePathname();
   const { cliente, sair } = useSessao();
+  const irAoTopo = useRef(false);
+
+  // Logo: volta ao topo da página inicial. Já nela, rola até o topo; vindo de outra página, rola ao chegar
+  // (sem isso, o navegador parava um pouco abaixo do topo por causa do espaço reservado ao cabeçalho fixo).
+  const clicarLogo = (e) => {
+    if (caminho === '/') {
+      e.preventDefault();
+      window.history.replaceState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      irAoTopo.current = true;
+    }
+  };
+  useEffect(() => {
+    if (caminho === '/' && irAoTopo.current) {
+      irAoTopo.current = false;
+      window.scrollTo({ top: 0 });
+    }
+  }, [caminho]);
 
   // Fecha os menus ao trocar de página ou apertar Esc.
   useEffect(() => {
@@ -46,7 +65,7 @@ export default function Cabecalho() {
     <header className="cabecalho">
       <FaixaRegistro />
       <div className="cabecalho__barra conteudo">
-        <Link href="/" className="cabecalho__logo" aria-label="NF Soluções Digitais, página inicial">
+        <Link href="/" className="cabecalho__logo" aria-label="NF Soluções Digitais, página inicial" scroll={false} onClick={clicarLogo}>
           <Logo />
         </Link>
 

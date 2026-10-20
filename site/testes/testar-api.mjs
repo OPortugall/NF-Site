@@ -1171,6 +1171,152 @@ try {
   });
 
   // ===========================================================================
+  grupo('19. Casos extremos');
+  // ===========================================================================
+  await passo('casos extremos', async () => {
+    await zerarTentativas();
+    const nav = await novo();
+    const cru = (rota, corpo, tipo = 'application/json') => nav.req('POST', rota, { corpo, cabecalhos: { 'content-type': tipo } });
+
+    // --- formato do pedido ---
+    ok((await cru('/api/entrar', '[]')).status === 400, 'Corpo JSON que é lista (não objeto) → 400');
+    ok((await cru('/api/entrar', '"texto"')).status === 400, 'Corpo JSON que é só um texto → 400');
+    ok((await cru('/api/entrar', '')).status === 400, 'Corpo vazio → 400');
+    ok((await cru('/api/entrar', '{"email":')).status === 400, 'JSON cortado no meio → 400');
+    let fundo = '1'; for (let i = 0; i < 12; i++) fundo = `{"a":${fundo}}`;
+    ok((await cru('/api/entrar', fundo)).status === 400, 'JSON aninhado demais (12 níveis) → 400');
+    ok((await cru('/api/entrar', JSON.stringify({ email: 'a@b.com', senha: 'x'.repeat(40000) }))).status === 413, 'Corpo maior que 32 KB → 413');
+    ok((await cru('/api/entrar', JSON.stringify({ email: 'a@b.com', senha: 'x' }), 'text/plain')).status === 415, 'JSON enviado como text/plain → 415');
+    ok((await cru('/api/entrar', JSON.stringify({ email: 'a@b.com', senha: 'abc12345' }), 'application/json; charset=utf-8')).status === 401,
+      'application/json com charset é aceito normalmente');
+    ok((await nav.post('/api/entrar', { email: { $ne: '' }, senha: { $ne: '' } })).status === 422, 'Objeto no lugar do e-mail (injeção estilo NoSQL) → 422');
+    ok((await nav.post('/api/entrar', { email: ['a@b.com'], senha: ['x'] })).status === 422, 'Lista no lugar do e-mail e da senha → 422');
+    ok((await nav.post('/api/entrar', { email: 'a@b.com', senha: 'x'.repeat(129) })).status === 422, 'Senha com mais de 128 bytes → 422 (sem gastar o servidor com argon2)');
+    ok((await nav.post('/api/entrar', { email: `${'a'.repeat(250)}@b.com`, senha: 'abc12345' })).status === 422, 'E-mail com mais de 254 caracteres → 422');
+
+    // --- rotas e métodos ---
+    for (const [m, rota, esperado] of [['PUT', '/api/entrar', 405], ['DELETE', '/api/sessao', 405], ['GET', '/api/ENTRAR', 404], ['GET', '/api/sessao/', 404],
+      ['GET', '/api/../api/sessao', [200, 404]], ['GET', '/api/admin/../admin/resumo', [401, 404]], ['GET', `/api/${'a'.repeat(3000)}`, 404], ['GET', '/api/sessao%00.php', [400, 404]]]) {
+      const r = await nav.req(m, rota);
+      ok([].concat(esperado).includes(r.status) && !/SQLSTATE|PDO|\.php|stack/i.test(r.texto), `${m} ${rota.slice(0, 40)} → ${[].concat(esperado).join(' ou ')}`, `HTTP ${r.status}`);
+    }
+
+    // --- sessão e cookies ---
+    const forjado = new Navegador();
+    forjado.cookies.set('nf_sessao', 'id-inventado-pelo-atacante');
+    const sForjada = await forjado.sessao();
+    ok(sForjada.status === 200 && forjado.cookies.get('nf_sessao') !== 'id-inventado-pelo-atacante', 'Cookie de sessão inventado é trocado por um novo (contra fixação de sessão)');
+    const lixo = new Navegador();
+    lixo.cookies.set('nf_sessao', "'; DROP TABLE usuarios; --");
+    ok((await lixo.sessao()).status === 200, 'Cookie com lixo/SQL não quebra a API');
+    const outroCsrf = await novo();
+    ok((await nav.post('/api/sair', {}, { cabecalhos: { 'x-csrf-token': outroCsrf.csrf } })).status === 403, 'Código CSRF de outra sessão não vale → 403');
+
+    // --- cadastro: textos estranhos ---
+    const cad = (extra) => nav.post('/api/cadastrar', cadastroPF(extra));
+    ok((await cad({ nome: 'Ana‮gpj.exe' })).status === 422, 'Nome com caractere que inverte o texto (U+202E) → 422');
+    ok((await cad({ nome: 'Ana\u0000' })).status === 422, 'Nome com byte nulo → 422');
+    ok((await cad({ nome: '   ' })).status === 422, 'Nome só com espaços → 422');
+    ok((await cad({ nome: 'A'.repeat(61) })).status === 422, 'Nome com 61 letras (limite 60) → 422');
+    const comHifen = cadastroPF({ nome: 'Jo­ão', sobrenome: 'Ñuñez-D\'Ávila 😀' });
+    const rHifen = await (await novo()).post('/api/cadastrar', comHifen);
+    const [gravado] = await linhas(`SELECT primeiro_nome, sobrenome FROM ${BANCO}.usuarios WHERE email = ?`, [comHifen.email]);
+    ok(rHifen.status === 201 && gravado?.primeiro_nome === 'João' && gravado.sobrenome === "Ñuñez-D'Ávila 😀",
+      'Hífen invisível é removido; acentos, apóstrofo e emoji são aceitos', JSON.stringify(gravado));
+    const maiusculo = cadastroPF();
+    await (await novo()).post('/api/cadastrar', maiusculo);
+    ok((await (await novo()).post('/api/entrar', { email: `  ${maiusculo.email.toUpperCase()}  `, senha: SENHA })).status === 200,
+      'Login com o e-mail em maiúsculas e espaços nas pontas funciona');
+
+    // --- concorrência ---
+    await zerarTentativas();
+    const igual = cadastroPF();
+    const navs = await Promise.all([novo(), novo(), novo()]);
+    const respostas = await Promise.all(navs.map((n) => n.post('/api/cadastrar', igual)));
+    const st = respostas.map((r) => r.status).sort();
+    const [qtd] = await linhas(`SELECT COUNT(*) AS n FROM ${BANCO}.usuarios WHERE email = ?`, [igual.email]);
+    ok(st.filter((s) => s === 201).length === 1 && st.filter((s) => s === 409).length === 2 && Number(qtd.n) === 1,
+      '3 cadastros iguais ao mesmo tempo: só 1 conta criada, os outros recebem 409', st.join(','));
+
+    // --- pedidos: limites ---
+    await zerarTentativas();
+    const cli = cadastroPF();
+    const navC = await novo();
+    await navC.post('/api/cadastrar', cli);
+    await admin.query(`UPDATE ${BANCO}.usuarios SET email_verificado_em = NOW() WHERE email = ?`, [cli.email]);
+    const pedir = (itens, obs) => navC.post('/api/orcamento-criar', { itens, observacoes: obs });
+    ok((await pedir([{ slug: '15-mp5001', modalidade: 'compra', quantidade: 2.5 }])).status === 422, 'Quantidade quebrada (2,5) → 422');
+    ok((await pedir([{ slug: '15-mp5001', modalidade: 'compra', quantidade: 1e21 }])).status === 422, 'Quantidade gigante (1e21) → 422');
+    ok((await pedir([{ slug: '15-mp5001', modalidade: 'compra', quantidade: -1 }])).status === 422, 'Quantidade negativa → 422');
+    ok((await pedir([{ slug: '15-mp5001', modalidade: 'doacao', quantidade: 1 }])).status === 422, 'Modalidade inexistente → 422');
+    ok((await pedir([null])).status === 422, 'Item nulo no carrinho → 422');
+    ok((await pedir('tudo')).status === 422, 'Carrinho que não é lista → 422');
+    ok((await pedir([{ slug: '15-mp5001', modalidade: 'compra', quantidade: 1 }], '😀'.repeat(1001))).status === 422, 'Observação com 1.001 emojis → 422 (conta caracteres, não bytes)');
+    const soma = await pedir([{ slug: '15-mp5001', modalidade: 'compra', quantidade: 99 }, { slug: '15-mp5001', modalidade: 'compra', quantidade: 99 }],
+      '😀'.repeat(1000));
+    const [it] = await linhas(`SELECT i.quantidade FROM ${BANCO}.orcamento_itens i JOIN ${BANCO}.orcamentos o ON o.id = i.orcamento_id WHERE o.codigo = ?`, [soma.dados?.codigo]);
+    ok(soma.status === 201 && it?.quantidade === 99, '99 + 99 do mesmo item: soma limitada a 99; 1.000 emojis aceitos', `HTTP ${soma.status} qtd ${it?.quantidade}`);
+    // cancelar o mesmo pedido duas vezes ao mesmo tempo
+    const novoPedido = await pedir([{ slug: '4-toner', modalidade: 'compra', quantidade: 1 }]);
+    const duplo = await Promise.all([navC.post('/api/orcamento-cancelar', { codigo: novoPedido.dados?.codigo }), navC.post('/api/orcamento-cancelar', { codigo: novoPedido.dados?.codigo })]);
+    const [canc] = await linhas(`SELECT status FROM ${BANCO}.orcamentos WHERE codigo = ?`, [novoPedido.dados?.codigo]);
+    ok(canc?.status === 'cancelado' && duplo.every((r) => [200, 409].includes(r.status)), 'Cancelar duas vezes ao mesmo tempo: fica cancelado, sem erro', duplo.map((r) => r.status).join(','));
+
+    // --- links de senha: o mesmo código usado duas vezes ao mesmo tempo ---
+    await zerarTentativas();
+    await navC.post('/api/senha-esqueci', { email: cli.email });
+    const eml = emails().filter((x) => x.includes(`To: ${cli.email}`)).reverse().find((x) => x.includes('#redefinir='));
+    const cod = eml?.match(/#redefinir=([0-9a-f]{64})/)?.[1];
+    const dois = await Promise.all([(await novo()).post('/api/senha-redefinir', { codigo: cod, senha: 'corrida111a' }), (await novo()).post('/api/senha-redefinir', { codigo: cod, senha: 'corrida222b' })]);
+    const okCorrida = dois.filter((r) => r.status === 200).length;
+    ok(okCorrida === 1 && dois.some((r) => r.status === 400), 'O mesmo link de nova senha usado 2 vezes ao mesmo tempo: só 1 troca vale', dois.map((r) => r.status).join(','));
+
+    // --- painel: limites dos produtos ---
+    const prodBase = { slug: 'limite-teste', marca: 'Marca', modelo: '', nome: 'Produto limite', categoria: 'suprimentos', impressao: null, condicao: 'novo',
+      resumo: 'Resumo', descricao: '', disponivelVenda: true, disponivelLocacao: false, estoque: 65535, estoqueMinimo: 0, precoReferencia: null, status: 'oculto', destaque: false, ordem: 0 };
+    const criado = await adm.post('/api/admin/produto-criar', prodBase);
+    ok(criado.status === 201, 'Produto com estoque 65.535 (máximo), sem modelo e sem descrição → 201', criado.texto.slice(0, 120));
+    ok((await adm.post('/api/admin/produto-criar', { ...prodBase, slug: 'limite-teste-2', estoque: 65536 })).status === 422, 'Estoque 65.536 → 422');
+    ok((await adm.post('/api/admin/produto-criar', { ...prodBase, slug: 'a'.repeat(121) })).status === 422, 'Endereço com 121 caracteres → 422');
+    ok((await adm.post('/api/admin/produto-criar', { ...prodBase, slug: '-comeca-com-hifen' })).status === 422, 'Endereço começando com hífen → 422');
+    ok((await adm.post('/api/admin/produto-criar', { ...prodBase, slug: 'limite-teste-3', estoque: '10' })).status === 422, 'Estoque em texto ("10") → 422');
+    ok((await adm.post('/api/admin/produto-criar', { ...prodBase, slug: 'limite-teste-4', precoReferencia: 19.99 })).status === 422, 'Preço com centavos quebrados (19,99 em vez de 1999) → 422');
+    const desc = await adm.post('/api/admin/produto-editar', { ...prodBase, id: criado.dados?.id, descricao: '<script>alert(1)</script>\n## Título\n| a | b' });
+    const catDesc = (await adm.req('GET', `/api/admin/produto?id=${criado.dados?.id}`)).dados?.produto?.descricao;
+    ok(desc.status === 200 && catDesc.includes('<script>'), 'Descrição com <script> é guardada como texto (o site mostra como texto, nunca executa)');
+    // foto: arquivo vazio, só cabeçalho de imagem, imagem enorme
+    const enviarFoto = (buf, nome, tipo) => { const fd = new FormData(); fd.append('produtoId', String(criado.dados?.id)); fd.append('foto', new Blob([buf], { type: tipo }), nome); return adm.req('POST', '/api/admin/produto-foto', { corpo: fd }); };
+    ok((await enviarFoto(Buffer.alloc(0), 'vazia.jpg', 'image/jpeg')).status === 422, 'Foto vazia (0 bytes) → 422');
+    ok((await enviarFoto(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0x10]), 'cortada.jpg', 'image/jpeg')).status === 422, 'JPG cortado (só o começo do arquivo) → 422');
+    const gigante = await sharp({ create: { width: 4100, height: 4100, channels: 3, background: '#888' } }).png({ compressionLevel: 9 }).toBuffer();
+    ok((await enviarFoto(gigante, 'gigante.png', 'image/png')).status === 422, 'Foto com mais de 16 megapixels → 422 (protege a memória do servidor)');
+    const fd2 = new FormData(); fd2.append('produtoId', String(criado.dados?.id)); fd2.append('foto[]', new Blob([Buffer.from('x')]), 'a.jpg'); fd2.append('foto[]', new Blob([Buffer.from('y')]), 'b.jpg');
+    ok((await adm.req('POST', '/api/admin/produto-foto', { corpo: fd2 })).status === 422, 'Várias fotos num campo só (foto[]) → 422');
+    await adm.post('/api/admin/produto-excluir', { id: criado.dados?.id, confirmacao: 'limite-teste' });
+
+    // --- painel: busca e páginas estranhas ---
+    // curingas do SQL (%, _), barra e aspas são procurados como texto comum: nenhum cliente tem esses caracteres
+    const todos = (await adm.req('GET', '/api/admin/clientes')).dados?.total;
+    for (const q of ['%', '_', '\\', 'a'.repeat(500)]) {
+      const r = await adm.req('GET', `/api/admin/clientes?busca=${encodeURIComponent(q)}`);
+      ok(r.status === 200 && Array.isArray(r.dados?.clientes) && r.dados.total === 0,
+        `Busca por ${JSON.stringify(q.slice(0, 15))} não quebra e não vira curinga`, `HTTP ${r.status} total ${r.dados?.total}`);
+    }
+    // "' OR 1=1 --": os dígitos (11) são procurados no CPF e no telefone, mas nunca devolve todos os clientes
+    const inj = await adm.req('GET', `/api/admin/clientes?busca=${encodeURIComponent("' OR 1=1 -- ")}`);
+    ok(inj.status === 200 && inj.dados.total < todos, 'Busca com SQL não devolve todos os clientes', `${inj.dados?.total} de ${todos}`);
+    const emo = await adm.req('GET', `/api/admin/clientes?busca=${encodeURIComponent('😀')}`);
+    ok(emo.status === 200 && emo.dados.total === 1, 'Busca por emoji encontra o cliente que tem emoji no nome');
+    for (const pg of ['0', '-1', 'abc', '99999999999', '1.5']) {
+      const r = await adm.req('GET', `/api/admin/clientes?pagina=${pg}`);
+      ok(r.status === 200 && r.dados?.pagina >= 1, `Página "${pg}" → resposta normal (página válida)`, `HTTP ${r.status} pagina ${r.dados?.pagina}`);
+    }
+    ok((await adm.req('GET', '/api/admin/cliente?id=99999999999999999999')).status === 422, 'Id gigante → 422 (sem erro de número no banco)');
+    ok((await adm.req('GET', '/api/admin/cliente?id[]=1')).status === 422, 'Id em formato de lista (?id[]=1) → 422');
+    await zerarTentativas();
+  });
+
+  // ===========================================================================
   grupo('7. Falhas do servidor não vazam informação');
   // ===========================================================================
   await passo('falhas', async () => {
