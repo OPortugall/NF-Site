@@ -522,8 +522,7 @@ p {
   flex: 0 0 100%;
   display: flex;
   align-items: center;
-  min-height: 520px;
-  padding-block: var(--e-5) var(--e-7);
+  padding-block: var(--e-5) calc(var(--e-7) + var(--e-2));
   background:
     radial-gradient(ellipse 60% 90% at 85% 50%, var(--tom), transparent 70%),
     linear-gradient(135deg, #0c1120 0%, #070a14 100%);
@@ -612,16 +611,11 @@ p {
    sobrepostos e apoiados numa mesma linha de chão, com uma sombra de piso embaixo do conjunto */
 .carrossel__palco {
   position: relative;
-  width: 100%;
+  /* até 600px de largura, e baixo o bastante para o banner inteiro caber na tela abaixo do cabeçalho
+     (altura = 0,8 × largura; 230px = cabeçalho + respiros + controles) */
+  width: min(100%, 600px, (100svh - 230px) * 1.25);
   aspect-ratio: 5 / 4;
-}
-
-/* telas largas têm margem sobrando: o palco passa um pouco da coluna para a direita e fica maior */
-@media (min-width: 1300px) {
-  .carrossel__palco {
-    width: calc(100% + var(--e-7));
-    margin-right: calc(-1 * var(--e-7));
-  }
+  justify-self: center;
 }
 
 .carrossel__palco::before {
@@ -645,19 +639,17 @@ p {
 }
 
 .carrossel__seta {
-  position: absolute;
-  top: 50%;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-top: -22px;
+  width: 36px;
+  height: 36px;
+  padding: 0 0 3px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.35);
   color: var(--branco);
   font: inherit;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -666,16 +658,19 @@ p {
   background: rgba(0, 0, 0, 0.6);
 }
 
-.carrossel__seta--anterior { left: var(--e-3); }
-.carrossel__seta--proxima { right: var(--e-3); }
+/* setas + bolinhas juntas no centro, embaixo: longe dos botões flutuantes do canto direito */
+.carrossel__controles {
+  position: absolute;
+  left: 50%;
+  bottom: var(--e-3);
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  transform: translateX(-50%);
+}
 
 .carrossel__bolinhas {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: var(--e-4);
   display: flex;
-  justify-content: center;
   gap: var(--e-2);
 }
 
@@ -709,8 +704,7 @@ p {
 /* celular: foto em cima, texto embaixo */
 @media (max-width: 860px) {
   .carrossel__slide {
-    min-height: 0;
-    padding-block: var(--e-5) calc(var(--e-7) + var(--e-2));
+    padding-block: var(--e-4) calc(var(--e-7) + var(--e-2));
   }
 
   .carrossel__miolo {
@@ -721,8 +715,7 @@ p {
   .carrossel__palco {
     order: -1;
     justify-self: center;
-    width: 100%;
-    max-width: 520px;
+    width: min(100%, 440px);
   }
 
   .carrossel__titulo {
@@ -736,15 +729,6 @@ p {
   .carrossel__pontos {
     margin: var(--e-4) 0 var(--e-5);
     font-size: var(--texto-s);
-  }
-
-  .carrossel__seta {
-    /* no meio do palco: padding de cima + metade da altura do palco (5:4 → 0,4 × largura) */
-    top: calc(var(--e-5) + min(100vw - 2.5rem, 520px) * 0.4);
-    width: 38px;
-    height: 38px;
-    margin-top: -19px;
-    font-size: 1.5rem;
   }
 }
 
