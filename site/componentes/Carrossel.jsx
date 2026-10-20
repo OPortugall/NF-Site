@@ -8,7 +8,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * Banner da página inicial: um slide por linha de produtos (copiadoras, impressoras 3D, equipamentos
  * gráficos e suprimentos). Passa sozinho a cada 7 segundos; para quando o mouse ou o foco do teclado está
  * nele, quando a aba fica escondida ou quando a pessoa pede menos movimento no sistema (acessibilidade).
- * Setas, bolinhas e teclado (← →) trocam o slide.
+ * Setas, bolinhas e teclado (← →) trocam o slide. Setas e bolinhas ficam juntas no centro, embaixo, longe
+ * dos botões flutuantes do canto direito.
  */
 
 const INTERVALO = 7000;
@@ -94,20 +95,21 @@ export default function Carrossel({ slides }) {
         ))}
       </div>
 
-      <button type="button" className="carrossel__seta carrossel__seta--anterior" onClick={() => ir(atual - 1)} aria-label="Slide anterior">‹</button>
-      <button type="button" className="carrossel__seta carrossel__seta--proxima" onClick={() => ir(atual + 1)} aria-label="Próximo slide">›</button>
-
-      <div className="carrossel__bolinhas">
-        {slides.map((s, i) => (
-          <button
-            key={s.rotulo}
-            type="button"
-            className={`carrossel__bolinha carrossel__bolinha--${s.cor}`}
-            aria-label={`Mostrar ${s.rotulo}`}
-            aria-current={i === atual ? 'true' : undefined}
-            onClick={() => ir(i)}
-          />
-        ))}
+      <div className="carrossel__controles">
+        <button type="button" className="carrossel__seta" onClick={() => ir(atual - 1)} aria-label="Slide anterior">‹</button>
+        <div className="carrossel__bolinhas">
+          {slides.map((s, i) => (
+            <button
+              key={s.rotulo}
+              type="button"
+              className={`carrossel__bolinha carrossel__bolinha--${s.cor}`}
+              aria-label={`Mostrar ${s.rotulo}`}
+              aria-current={i === atual ? 'true' : undefined}
+              onClick={() => ir(i)}
+            />
+          ))}
+        </div>
+        <button type="button" className="carrossel__seta" onClick={() => ir(atual + 1)} aria-label="Próximo slide">›</button>
       </div>
     </div>
   );
