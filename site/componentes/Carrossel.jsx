@@ -79,12 +79,15 @@ export default function Carrossel({ slides }) {
                   {s.botao} <span aria-hidden="true">›</span>
                 </Link>
               </div>
-              <div className={`carrossel__galeria carrossel__galeria--${s.imagens.length}`}>
-                {s.imagens.map((im, k) => (
-                  <div key={im.src} className="carrossel__foto">
-                    <Image src={im.src} alt={im.alt} fill sizes={k === 0 ? '(max-width: 860px) 60vw, 380px' : '(max-width: 860px) 40vw, 240px'} preload={i === 0 && k === 0} />
-                  </div>
-                ))}
+              <div className="carrossel__palco">
+                {s.imagens.map((im) => {
+                  const [x, y, l, a] = im.pos;
+                  return (
+                    <div key={im.src} className="carrossel__foto" style={{ left: `${x}%`, top: `${y}%`, width: `${l}%`, height: `${a}%` }}>
+                      <Image src={im.src} alt={im.alt} fill sizes={im.principal ? '(max-width: 860px) 85vw, 560px' : '(max-width: 860px) 45vw, 320px'} preload={i === 0 && im.principal} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

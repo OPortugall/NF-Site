@@ -523,7 +523,7 @@ p {
   display: flex;
   align-items: center;
   min-height: 520px;
-  padding-block: var(--e-7) var(--e-8);
+  padding-block: var(--e-5) var(--e-7);
   background:
     radial-gradient(ellipse 60% 90% at 85% 50%, var(--tom), transparent 70%),
     linear-gradient(135deg, #0c1120 0%, #070a14 100%);
@@ -532,7 +532,7 @@ p {
 /* o conteúdo de cada slide fica alinhado com o resto do site; as setas ficam nas laterais da tela */
 .carrossel__miolo {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
   align-items: center;
   gap: var(--e-6);
   /* largura e margens vêm de .conteudo: o texto fica alinhado com o logo do cabeçalho */
@@ -608,39 +608,40 @@ p {
   filter: brightness(1.08);
 }
 
-/* fotos do slide: recortes sem fundo, direto sobre o degradê */
-.carrossel__galeria {
-  display: grid;
-  gap: var(--e-4);
+/* fotos do slide: recortes sem fundo montados como vitrine (posições em "pos", no page.js),
+   sobrepostos e apoiados numa mesma linha de chão, com uma sombra de piso embaixo do conjunto */
+.carrossel__palco {
+  position: relative;
   width: 100%;
-  height: 400px;
+  aspect-ratio: 5 / 4;
 }
 
-/* 3 fotos: uma grande e duas menores empilhadas ao lado */
-.carrossel__galeria--3 {
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+/* telas largas têm margem sobrando: o palco passa um pouco da coluna para a direita e fica maior */
+@media (min-width: 1300px) {
+  .carrossel__palco {
+    width: calc(100% + var(--e-7));
+    margin-right: calc(-1 * var(--e-7));
+  }
 }
 
-.carrossel__galeria--3 .carrossel__foto:first-child {
-  grid-row: span 2;
+.carrossel__palco::before {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -2%;
+  height: 14%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
 }
-
-/* 2 fotos: lado a lado, desencontradas */
-.carrossel__galeria--2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.carrossel__galeria--2 .carrossel__foto:first-child { margin-bottom: var(--e-7); }
-.carrossel__galeria--2 .carrossel__foto:last-child { margin-top: var(--e-7); }
 
 .carrossel__foto {
-  position: relative;
+  position: absolute;
 }
 
 .carrossel__foto img {
   object-fit: contain;
-  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.5));
+  object-position: center bottom;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
 }
 
 .carrossel__seta {
@@ -717,14 +718,12 @@ p {
     gap: var(--e-4);
   }
 
-  .carrossel__galeria {
+  .carrossel__palco {
     order: -1;
-    height: 260px;
-    gap: var(--e-3);
+    justify-self: center;
+    width: 100%;
+    max-width: 520px;
   }
-
-  .carrossel__galeria--2 .carrossel__foto:first-child { margin-bottom: var(--e-5); }
-  .carrossel__galeria--2 .carrossel__foto:last-child { margin-top: var(--e-5); }
 
   .carrossel__titulo {
     font-size: var(--texto-xl);
@@ -740,7 +739,8 @@ p {
   }
 
   .carrossel__seta {
-    top: 120px;
+    /* no meio do palco: padding de cima + metade da altura do palco (5:4 → 0,4 × largura) */
+    top: calc(var(--e-5) + min(100vw - 2.5rem, 520px) * 0.4);
     width: 38px;
     height: 38px;
     margin-top: -19px;

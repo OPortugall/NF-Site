@@ -8,14 +8,16 @@ import { linkWhatsApp, produtosEmDestaque, todosOsProdutos } from '@/lib/produto
 
 // Carrossel da abertura: um slide por linha de produtos, cada um leva à loja filtrada no seu setor.
 // "cor" é a tinta do slide (ciano, magenta, amarelo e preto, como na faixa do topo).
-// Textos curtos e só com o que a NF vende hoje. Fotos: recortes sem fundo, ficam direto sobre o degradê do slide.
+// Textos curtos e só com o que a NF vende hoje. Fotos: recortes sem fundo, montados como vitrine sobre o degradê.
+// "pos" = [esquerda, topo, largura, altura] em % do palco (5:4); a ordem da lista é a ordem de cima (última na frente).
+// Todas apoiam numa mesma linha de chão (topo + altura ≈ 98). "principal" = foto maior, pede a versão de mais resolução.
 const SLIDES = [
   {
     rotulo: 'Copiadoras', botao: 'Ver copiadoras', cor: 'ciano', selo: 'Venda e locação', link: '/loja?tipo=impressoras-e-copiadoras',
     imagens: [
-      { src: '/destaques/carrossel/konica-bizhub.png', alt: 'Copiadora Konica Minolta bizhub' },
-      { src: '/destaques/carrossel/hp-laserjet.png', alt: 'Multifuncional HP LaserJet' },
-      { src: '/destaques/carrossel/epson-workforce.png', alt: 'Multifuncional Epson WorkForce' },
+      { src: '/destaques/carrossel/konica-bizhub.png', alt: 'Copiadora Konica Minolta bizhub', pos: [0, 4, 70, 76], principal: true },
+      { src: '/destaques/carrossel/hp-laserjet.png', alt: 'Multifuncional HP LaserJet', pos: [56, 30, 44, 46] },
+      { src: '/destaques/carrossel/epson-workforce.png', alt: 'Multifuncional Epson WorkForce', pos: [32, 58, 40, 40] },
     ],
     frase: 'Multifuncionais e copiadoras para o dia a dia da sua empresa.',
     pontos: ['Novas e seminovas revisadas', 'Locação com assistência técnica incluída', 'Das principais marcas do mercado'],
@@ -23,8 +25,8 @@ const SLIDES = [
   {
     rotulo: 'Impressoras 3D', botao: 'Ver impressoras 3D', cor: 'magenta', selo: 'Impressão 3D', link: '/loja?tipo=impressoras-3d',
     imagens: [
-      { src: '/destaques/carrossel/anycubic-kobra-s1-pecas.png', alt: 'Impressora 3D Anycubic Kobra S1 com peças impressas' },
-      { src: '/destaques/carrossel/anycubic-kobra-s1-combo.png', alt: 'Impressora 3D Anycubic Kobra S1 Combo imprimindo' },
+      { src: '/destaques/carrossel/anycubic-kobra-s1-pecas.png', alt: 'Impressora 3D Anycubic Kobra S1 com peças impressas', pos: [0, 2, 80, 96], principal: true },
+      { src: '/destaques/carrossel/anycubic-kobra-s1-combo.png', alt: 'Impressora 3D Anycubic Kobra S1 Combo imprimindo', pos: [64, 42, 36, 56] },
     ],
     frase: 'Impressoras 3D e filamentos para tirar seus projetos do papel.',
     pontos: ['Impressoras 3D Anycubic', 'Filamentos para impressão 3D', 'Orçamento sem custo'],
@@ -32,9 +34,9 @@ const SLIDES = [
   {
     rotulo: 'Equipamentos gráficos', botao: 'Ver equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
     imagens: [
-      { src: '/destaques/carrossel/adgl-pl1300.png', alt: 'Plotter de recorte ADGL PL1300' },
-      { src: '/destaques/carrossel/plotter-mimaki.png', alt: 'Plotter de recorte Mimaki' },
-      { src: '/destaques/carrossel/roland-adgl.png', alt: 'Equipamento gráfico Roland ADGL' },
+      { src: '/destaques/carrossel/plotter-mimaki.png', alt: 'Plotter de recorte Mimaki', pos: [42, 0, 58, 64] },
+      { src: '/destaques/carrossel/roland-adgl.png', alt: 'Equipamento gráfico Roland ADGL', pos: [0, 22, 54, 42] },
+      { src: '/destaques/carrossel/adgl-pl1300.png', alt: 'Plotter de recorte ADGL PL1300', pos: [12, 40, 76, 58], principal: true },
     ],
     frase: 'Plotters de recorte para gráficas e comunicação visual.',
     pontos: ['Plotters de recorte ADGL', 'Equipamentos novos', 'Orçamento sem custo'],
@@ -42,8 +44,9 @@ const SLIDES = [
   {
     rotulo: 'Suprimentos', botao: 'Ver suprimentos', cor: 'preto', selo: 'Para impressoras e copiadoras', link: '/loja?tipo=suprimentos',
     imagens: [
-      { src: '/destaques/carrossel/tintas-corante-nf.png', alt: 'Tintas corante NF Soluções Digitais: ciano, preto, amarelo e magenta' },
-      { src: '/destaques/carrossel/filamentos-e-impressora-3d.png', alt: 'Filamentos para impressão 3D e peças impressas' },
+      { src: '/destaques/carrossel/filamentos-e-impressora-3d.png', alt: 'Filamentos para impressão 3D e peças impressas', pos: [26, 0, 74, 48] },
+      { src: '/destaques/carrossel/toners-cmyk.png', alt: 'Cartuchos de toner ciano, magenta, amarelo e preto', pos: [14, 30, 86, 68], principal: true },
+      { src: '/destaques/carrossel/tintas-corante-nf.png', alt: 'Tintas corante NF Soluções Digitais: ciano, preto, amarelo e magenta', pos: [0, 56, 36, 42] },
     ],
     frase: 'Tintas, toners e filamentos para as principais marcas de impressoras e copiadoras.',
     pontos: ['Toners para copiadoras e impressoras', 'Tintas para impressoras Epson', 'Filamentos para impressão 3D'],
