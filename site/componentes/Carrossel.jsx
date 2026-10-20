@@ -81,7 +81,7 @@ export default function Carrossel({ slides }) {
               </div>
               <div className={`carrossel__galeria carrossel__galeria--${s.imagens.length}`}>
                 {s.imagens.map((im, k) => (
-                  <div key={im.src} className={`carrossel__cartao${im.cheia ? ' carrossel__cartao--cheio' : ''}`}>
+                  <div key={im.src} className="carrossel__foto">
                     <Image src={im.src} alt={im.alt} fill sizes={k === 0 ? '(max-width: 860px) 60vw, 380px' : '(max-width: 860px) 40vw, 240px'} preload={i === 0 && k === 0} />
                   </div>
                 ))}
