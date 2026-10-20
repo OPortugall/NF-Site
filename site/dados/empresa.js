@@ -22,6 +22,7 @@ export const empresa = {
   redes: [
     { nome: 'Facebook', url: 'https://www.facebook.com/nfcopiadoras/?locale=pt_BR' },
     { nome: 'Instagram', url: 'https://www.instagram.com/nfcopiadoras/' },
+    { nome: 'TikTok', url: 'https://www.tiktok.com/@nfsolucoes' },
   ],
 };
 

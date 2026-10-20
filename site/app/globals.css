@@ -499,7 +499,6 @@ p {
 .vitrine {
   position: relative;
   overflow: hidden;
-  padding-block: var(--e-6) var(--e-6);
   color: var(--branco);
   background:
     radial-gradient(ellipse 45% 80% at 0% 100%, rgba(240, 42, 140, 0.55), transparent 70%),
@@ -508,136 +507,244 @@ p {
     linear-gradient(120deg, #0a1a2a 0%, #07070d 45%, #160716 100%);
 }
 
-.vitrine__lista {
+/* ---------- carrossel da abertura: um slide por linha de produtos ---------- */
+.carrossel {
+  position: relative;
+  overflow: hidden;
+}
+
+.carrossel__trilho {
+  display: flex;
+  transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.carrossel__slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  min-height: 520px;
+  padding-block: var(--e-5) var(--e-7);
+  background:
+    radial-gradient(ellipse 60% 90% at 85% 50%, var(--tom), transparent 70%),
+    linear-gradient(135deg, #0c1120 0%, #070a14 100%);
+}
+
+/* o conteúdo de cada slide fica alinhado com o resto do site; as setas ficam nas laterais da tela */
+.carrossel__miolo {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--e-5);
-  margin: 0;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: var(--e-6);
+  /* largura e margens vêm de .conteudo: o texto fica alinhado com o logo do cabeçalho */
+}
+
+.carrossel__slide--ciano { --tom: rgba(0, 173, 230, 0.5); --destaque: var(--cmyk-c); }
+.carrossel__slide--magenta { --tom: rgba(240, 42, 140, 0.5); --destaque: var(--cmyk-m); }
+.carrossel__slide--amarelo { --tom: rgba(255, 205, 0, 0.38); --destaque: var(--cmyk-y); }
+.carrossel__slide--preto { --tom: rgba(170, 170, 185, 0.32); --destaque: #d4d4dc; }
+
+.carrossel__selo {
+  display: inline-block;
+  padding: 2px var(--e-3);
+  border: 1px solid var(--destaque);
+  border-radius: 999px;
+  color: var(--destaque);
+  font-size: var(--texto-s);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.carrossel__titulo {
+  margin: var(--e-3) 0 var(--e-4);
+  color: var(--branco);
+  font-size: var(--texto-xxl);
+  font-stretch: 75%;
+  line-height: 0.95;
+}
+
+.carrossel__frase {
+  max-width: 30ch;
+  color: #e6e6ee;
+  font-size: var(--texto-l);
+  line-height: 1.45;
+}
+
+.carrossel__pontos {
+  display: grid;
+  gap: var(--e-2);
+  margin: var(--e-5) 0 var(--e-6);
   padding: 0;
   list-style: none;
+  color: var(--branco);
+  font-size: var(--texto-m);
+  font-weight: 600;
 }
 
-/* subgrid: as quatro colunas dividem as mesmas linhas, então as máquinas ficam na mesma altura
-   mesmo quando uma palavra ("Equipamentos Gráficos") ocupa duas linhas */
-.vitrine__item {
+.carrossel__pontos li {
   position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-row: span 3;
-  grid-template-rows: subgrid;
-  row-gap: 0;
-  border-radius: 12px;
-  transition: background-color 160ms;
+  padding-left: 1.6em;
 }
 
-.vitrine__item:hover::before,
-.vitrine__item:focus-within::before {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* tom de cada painel: as tintas C, M, Y e K (o preto vira cinza, para aparecer no fundo escuro) */
-.vitrine__item--ciano { --tom: rgba(0, 173, 230, 0.55); }
-.vitrine__item--magenta { --tom: rgba(240, 42, 140, 0.55); }
-.vitrine__item--amarelo { --tom: rgba(255, 205, 0, 0.42); }
-.vitrine__item--preto { --tom: rgba(170, 170, 185, 0.35); }
-
-/* o painel: retângulo inclinado, nas cores do site */
-.vitrine__item::before {
+.carrossel__pontos li::before {
   content: '';
   position: absolute;
-  z-index: -1;
-  inset: 0 6px;
-  transform: skewX(-7deg);
-  border-radius: 10px;
-  border-top: 3px solid var(--tom);
-  background:
-    radial-gradient(ellipse 95% 38% at 50% 0%, var(--tom), transparent 72%),
-    radial-gradient(ellipse 90% 30% at 50% 100%, var(--tom), transparent 75%),
-    linear-gradient(180deg, #0c1120 0%, #070a14 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 34px rgba(0, 0, 0, 0.35);
+  left: 0;
+  top: 0.45em;
+  width: 0.7em;
+  height: 0.7em;
+  background: var(--destaque);
+  transform: skewX(-12deg);
 }
 
-/* a palavra da coluna, centralizada exatamente acima da máquina */
-.vitrine__rotulo {
-  align-self: end; /* palavra de uma linha fica colada na máquina, não no topo */
-  padding: var(--e-3) var(--e-2) 0;
-  color: var(--branco);
-  font-size: var(--texto-xl);
-  text-align: center;
-}
-
-.vitrine__foto {
-  position: relative;
-  isolation: isolate;
-  aspect-ratio: 1;
-  margin-inline: var(--e-2);
-}
-
-/* sem fundo próprio: a imagem já vem recortada e "flutua" sobre o painel */
-.vitrine__foto img {
-  object-fit: contain;
-  padding: var(--e-3);
-  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.6));
-}
-
-.vitrine__texto {
-  display: grid;
-  justify-items: center;
-  align-content: start;
-  gap: var(--e-1);
-  padding: var(--e-2) var(--e-3) var(--e-5);
-  text-align: center;
-}
-
-.vitrine__link,
-.vitrine__link:hover {
-  color: var(--cmyk-y); /* sobrepõe a regra geral "a:hover", que escurecia o texto */
-  font-size: var(--texto-m);
-  font-weight: 700;
-  line-height: 1.1;
+.carrossel__botao,
+.carrossel__botao:hover {
+  background: var(--destaque);
+  color: #0a0a12;
   text-decoration: none;
 }
 
-/* a coluna inteira é clicável */
-.vitrine__link::after {
+.carrossel__botao:hover {
+  filter: brightness(1.08);
+}
+
+/* fotos do slide: recortes sem fundo montados como vitrine (posições em "pos", no page.js),
+   sobrepostos e apoiados numa mesma linha de chão, com uma sombra de piso embaixo do conjunto */
+.carrossel__palco {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 4;
+}
+
+/* telas largas têm margem sobrando: o palco passa um pouco da coluna para a direita e fica maior */
+@media (min-width: 1300px) {
+  .carrossel__palco {
+    width: calc(100% + var(--e-7));
+    margin-right: calc(-1 * var(--e-7));
+  }
+}
+
+.carrossel__palco::before {
   content: '';
   position: absolute;
-  inset: 0;
+  left: 4%;
+  right: 4%;
+  bottom: -2%;
+  height: 14%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.55), transparent 70%);
 }
 
-.vitrine__link:focus-visible {
-  outline: none;
+.carrossel__foto {
+  position: absolute;
 }
 
-.vitrine__item:has(.vitrine__link:focus-visible) {
+.carrossel__foto img {
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
+}
+
+.carrossel__seta {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--branco);
+  font: inherit;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carrossel__seta:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.carrossel__seta--anterior { left: var(--e-3); }
+.carrossel__seta--proxima { right: var(--e-3); }
+
+.carrossel__bolinhas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--e-4);
+  display: flex;
+  justify-content: center;
+  gap: var(--e-2);
+}
+
+.carrossel__bolinha {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.carrossel__bolinha[aria-current='true'] {
+  width: 32px;
+  border-radius: 6px;
+  background: var(--branco);
+}
+
+.carrossel :focus-visible {
   outline: 3px solid var(--cmyk-y);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-
-
-
-/* tablet e celular: duas colunas */
-@media (max-width: 900px) {
-  .vitrine__lista {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--e-3);
-  }
-  .vitrine__rotulo {
-    font-size: var(--texto-l);
+@media (prefers-reduced-motion: reduce) {
+  .carrossel__trilho {
+    transition: none;
   }
 }
 
-@media (max-width: 480px) {
-  .vitrine__rotulo {
-    font-size: 1.05rem;
+/* celular: foto em cima, texto embaixo */
+@media (max-width: 860px) {
+  .carrossel__slide {
+    min-height: 0;
+    padding-block: var(--e-5) calc(var(--e-7) + var(--e-2));
   }
-  .vitrine__link,
-  .vitrine__link:hover {
-    font-size: 0.95rem;
+
+  .carrossel__miolo {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
   }
-  .vitrine__texto {
-    padding: var(--e-1) var(--e-1) var(--e-3);
+
+  .carrossel__palco {
+    order: -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .carrossel__titulo {
+    font-size: var(--texto-xl);
+  }
+
+  .carrossel__frase {
+    font-size: var(--texto-m);
+  }
+
+  .carrossel__pontos {
+    margin: var(--e-4) 0 var(--e-5);
+    font-size: var(--texto-s);
+  }
+
+  .carrossel__seta {
+    /* no meio do palco: padding de cima + metade da altura do palco (5:4 → 0,4 × largura) */
+    top: calc(var(--e-5) + min(100vw - 2.5rem, 520px) * 0.4);
+    width: 38px;
+    height: 38px;
+    margin-top: -19px;
+    font-size: 1.5rem;
   }
 }
 
@@ -1274,6 +1381,10 @@ p {
 
 .redes-flutuantes__botao--facebook {
   background: #1877f2;
+}
+
+.redes-flutuantes__botao--tiktok {
+  background: #000;
 }
 
 .redes-flutuantes__botao--instagram {
@@ -2401,10 +2512,6 @@ p {
   color: #8c1d18;
 }
 
-/* Suprimentos: composição larga (tintas, toners e filamentos), sem margem interna para aparecer maior */
-.vitrine__item--preto .vitrine__foto img {
-  padding: 0;
-}
 
 
 

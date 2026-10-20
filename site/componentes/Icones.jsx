@@ -25,6 +25,14 @@ export function IconeFacebook(props) {
   );
 }
 
+export function IconeTikTok(props) {
+  return (
+    <svg {...base} {...props} fill="currentColor">
+      <path d="M16.6 3h-3.1v12.3a2.8 2.8 0 1 1-2-2.7V9.4a6 6 0 1 0 5.1 5.9V9.1a7.4 7.4 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-4.3-4.4Z" />
+    </svg>
+  );
+}
+
 export function IconeInstagram(props) {
   return (
     <svg {...base} {...props} fill="none" stroke="currentColor" strokeWidth="1.8">

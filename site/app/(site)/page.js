@@ -1,26 +1,55 @@
 import Image from 'next/image';
+import Carrossel from '@/componentes/Carrossel';
 import Link from 'next/link';
-import CartaoProduto, { tituloProduto } from '@/componentes/CartaoProduto';
+import CartaoProduto from '@/componentes/CartaoProduto';
 import { empresa, institucional, locacao, marcas, servicos } from '@/dados/empresa';
 import { BotoesRedes } from '@/componentes/BotoesExternos';
-import { linkWhatsApp, produtoPorSlug, produtosEmDestaque, todosOsProdutos } from '@/lib/produtos';
+import { linkWhatsApp, produtosEmDestaque, todosOsProdutos } from '@/lib/produtos';
 
-// Banner da abertura: uma coluna por linha de produtos, com a palavra exatamente acima da máquina.
-// Cada coluna leva à loja já filtrada no seu setor ("tipo" = filtro da loja).
-// "cor" é o tom do painel (ciano, magenta, amarelo e preto, como na faixa do topo).
-// "banner" é a imagem recortada (fundo transparente) que aparece no painel.
-const VITRINE = [
-  { rotulo: 'Copiadoras', produto: 'konica-minolta-bizhub-c361i', cor: 'ciano', tipo: 'impressoras-e-copiadoras', banner: '/destaques/banner-copiadoras.png' },
-  { rotulo: 'Impressoras 3D', produto: 'anycubic-kobra-s1-v2-combo', cor: 'magenta', tipo: 'impressoras-3d', banner: '/destaques/banner-impressoras-3d.png' },
-  { rotulo: 'Equipamentos Gráficos', produto: 'adgl-cc3348-titanium', cor: 'amarelo', tipo: 'acabamento', banner: '/destaques/banner-graficos.png' },
+// Carrossel da abertura: um slide por linha de produtos, cada um leva à loja filtrada no seu setor.
+// "cor" é a tinta do slide (ciano, magenta, amarelo e preto, como na faixa do topo).
+// Textos curtos e só com o que a NF vende hoje. Fotos: recortes sem fundo, montados como vitrine sobre o degradê.
+// "pos" = [esquerda, topo, largura, altura] em % do palco (5:4); a ordem da lista é a ordem de cima (última na frente).
+// Todas apoiam numa mesma linha de chão (topo + altura ≈ 98). "principal" = foto maior, pede a versão de mais resolução.
+const SLIDES = [
   {
-    rotulo: 'Suprimentos',
-    cor: 'preto',
-    tipo: 'suprimentos',
-    // Não é um produto: só ilustra a coluna. Foto oficial das garrafas Epson EcoTank T544.
-    banner: '/destaques/banner-suprimentos-filamentos.png',
-    nome: 'Tintas e toners',
-    resumo: 'Tintas, toners e peças para as principais marcas de impressoras e copiadoras',
+    rotulo: 'Copiadoras', botao: 'Ver copiadoras', cor: 'ciano', selo: 'Venda e locação', link: '/loja?tipo=impressoras-e-copiadoras',
+    imagens: [
+      { src: '/destaques/carrossel/konica-bizhub.png', alt: 'Copiadora Konica Minolta bizhub', pos: [0, 4, 70, 76], principal: true },
+      { src: '/destaques/carrossel/hp-laserjet.png', alt: 'Multifuncional HP LaserJet', pos: [56, 30, 44, 46] },
+      { src: '/destaques/carrossel/epson-workforce.png', alt: 'Multifuncional Epson WorkForce', pos: [32, 58, 40, 40] },
+    ],
+    frase: 'Multifuncionais e copiadoras para o dia a dia da sua empresa.',
+    pontos: ['Novas e seminovas revisadas', 'Locação com assistência técnica incluída', 'Das principais marcas do mercado'],
+  },
+  {
+    rotulo: 'Impressoras 3D', botao: 'Ver impressoras 3D', cor: 'magenta', selo: 'Impressão 3D', link: '/loja?tipo=impressoras-3d',
+    imagens: [
+      { src: '/destaques/carrossel/anycubic-kobra-s1-pecas.png', alt: 'Impressora 3D Anycubic Kobra S1 com peças impressas', pos: [0, 2, 80, 96], principal: true },
+      { src: '/destaques/carrossel/anycubic-kobra-s1-combo.png', alt: 'Impressora 3D Anycubic Kobra S1 Combo imprimindo', pos: [64, 42, 36, 56] },
+    ],
+    frase: 'Impressoras 3D e filamentos para tirar seus projetos do papel.',
+    pontos: ['Impressoras 3D Anycubic', 'Filamentos para impressão 3D', 'Orçamento sem custo'],
+  },
+  {
+    rotulo: 'Equipamentos gráficos', botao: 'Ver equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
+    imagens: [
+      { src: '/destaques/carrossel/plotter-mimaki.png', alt: 'Plotter de recorte Mimaki', pos: [42, 0, 58, 64] },
+      { src: '/destaques/carrossel/roland-adgl.png', alt: 'Equipamento gráfico Roland ADGL', pos: [0, 22, 54, 42] },
+      { src: '/destaques/carrossel/adgl-pl1300.png', alt: 'Plotter de recorte ADGL PL1300', pos: [12, 40, 76, 58], principal: true },
+    ],
+    frase: 'Plotters de recorte para gráficas e comunicação visual.',
+    pontos: ['Plotters de recorte ADGL', 'Equipamentos novos', 'Orçamento sem custo'],
+  },
+  {
+    rotulo: 'Suprimentos', botao: 'Ver suprimentos', cor: 'preto', selo: 'Para impressoras e copiadoras', link: '/loja?tipo=suprimentos',
+    imagens: [
+      { src: '/destaques/carrossel/filamentos-e-impressora-3d.png', alt: 'Filamentos para impressão 3D e peças impressas', pos: [26, 0, 74, 48] },
+      { src: '/destaques/carrossel/toners-cmyk.png', alt: 'Cartuchos de toner ciano, magenta, amarelo e preto', pos: [14, 30, 86, 68], principal: true },
+      { src: '/destaques/carrossel/tintas-corante-nf.png', alt: 'Tintas corante NF Soluções Digitais: ciano, preto, amarelo e magenta', pos: [0, 56, 36, 42] },
+    ],
+    frase: 'Tintas, toners e filamentos para as principais marcas de impressoras e copiadoras.',
+    pontos: ['Toners para copiadoras e impressoras', 'Tintas para impressoras Epson', 'Filamentos para impressão 3D'],
   },
 ];
 
@@ -28,19 +57,6 @@ export default function PaginaInicial() {
   const produtos = todosOsProdutos();
   // "Equipamentos em estoque": os produtos marcados como destaque no painel (até 8)
   const destaques = produtosEmDestaque().slice(0, 8);
-  const vitrine = VITRINE.map((v) => {
-    const link = `/loja?tipo=${v.tipo}`;
-    if (!v.produto) return { ...v, link, imagem: v.banner };
-    // O produto pode ter saído do catálogo pelo painel: a coluna continua, com o nome do setor
-    const p = produtoPorSlug(v.produto);
-    return {
-      ...v,
-      link,
-      imagem: v.banner,
-      nome: p ? tituloProduto(p) : v.rotulo,
-      resumo: p?.resumo,
-    };
-  });
   const nomesMarcas = marcas.map((m) => m.nome);
 
   return (
@@ -49,26 +65,10 @@ export default function PaginaInicial() {
           Cada coluna tem a sua palavra (h2) exatamente acima da máquina. O <h1> da página é lido pelo Google
           e por leitores de tela, mas não aparece, porque as quatro palavras já dizem o mesmo na tela. */}
       <section className="vitrine" aria-labelledby="titulo-principal">
-        <div className="conteudo">
-          <h1 id="titulo-principal" className="visualmente-oculto">
-            NF Soluções Digitais: copiadoras, impressoras 3D, equipamentos gráficos e suprimentos
-          </h1>
-          <ul className="vitrine__lista">
-            {vitrine.map((v) => (
-              <li key={v.rotulo} className={`vitrine__item vitrine__item--${v.cor}`}>
-                <h2 className="vitrine__rotulo">{v.rotulo}</h2>
-                <div className="vitrine__foto">
-                  <Image src={v.imagem} alt={v.nome} fill sizes="(max-width: 900px) 50vw, 300px" preload />
-                </div>
-                <div className="vitrine__texto">
-                  <Link href={v.link} className="vitrine__link">
-                    Ver {v.rotulo.toLowerCase()} <span aria-hidden="true">›</span>
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <h1 id="titulo-principal" className="visualmente-oculto">
+          NF Soluções Digitais: copiadoras, impressoras 3D, equipamentos gráficos e suprimentos
+        </h1>
+        <Carrossel slides={SLIDES} />
       </section>
 
       <section className="abertura">

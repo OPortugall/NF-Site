@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { empresa, juridico } from '@/dados/empresa';
 import { linkWhatsApp } from '@/lib/produtos';
 import Logo from './Logo';
-import { BotoesRedes } from './BotoesExternos';
-import { IconeFacebook, IconeInstagram, IconeWhatsApp } from './Icones';
+import { ICONES_REDES } from './BotoesExternos';
+import { IconeWhatsApp } from './Icones';
 
 export default function Rodape() {
   return (
@@ -15,7 +15,6 @@ export default function Rodape() {
               <Logo claro />
             </Link>
             <p>Venda, locação e assistência técnica de impressoras e copiadoras desde {empresa.fundacao}.</p>
-            <BotoesRedes claro />
           </div>
 
           <nav aria-label="Rodapé">
@@ -65,10 +64,10 @@ export default function Rodape() {
         <span className="visualmente-oculto">Conversar pelo WhatsApp</span>
       </a>
 
-      {/* Facebook e Instagram empilhados logo acima do WhatsApp */}
+      {/* Facebook, Instagram e TikTok empilhados logo acima do WhatsApp */}
       <ul className="redes-flutuantes" aria-label="Redes sociais da NF">
         {empresa.redes.map((r) => {
-          const Icone = r.nome === 'Facebook' ? IconeFacebook : IconeInstagram;
+          const Icone = ICONES_REDES[r.nome];
           return (
             <li key={r.nome}>
               <a className={`redes-flutuantes__botao redes-flutuantes__botao--${r.nome.toLowerCase()}`} href={r.url} target="_blank" rel="noopener noreferrer">
