@@ -499,7 +499,6 @@ p {
 .vitrine {
   position: relative;
   overflow: hidden;
-  padding-block: var(--e-6) var(--e-6);
   color: var(--branco);
   background:
     radial-gradient(ellipse 45% 80% at 0% 100%, rgba(240, 42, 140, 0.55), transparent 70%),
@@ -512,7 +511,6 @@ p {
 .carrossel {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
 }
 
 .carrossel__trilho {
@@ -522,16 +520,22 @@ p {
 
 .carrossel__slide {
   flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  min-height: 520px;
+  padding-block: var(--e-7) var(--e-8);
+  background:
+    radial-gradient(ellipse 60% 90% at 85% 50%, var(--tom), transparent 70%),
+    linear-gradient(135deg, #0c1120 0%, #070a14 100%);
+}
+
+/* o conteúdo de cada slide fica alinhado com o resto do site; as setas ficam nas laterais da tela */
+.carrossel__miolo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   align-items: center;
   gap: var(--e-6);
-  min-height: 460px;
-  padding: var(--e-7) calc(var(--e-7) + 24px);
-  background:
-    radial-gradient(ellipse 60% 90% at 85% 50%, var(--tom), transparent 70%),
-    linear-gradient(135deg, #0c1120 0%, #070a14 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  /* largura e margens vêm de .conteudo: o texto fica alinhado com o logo do cabeçalho */
 }
 
 .carrossel__slide--ciano { --tom: rgba(0, 173, 230, 0.5); --destaque: var(--cmyk-c); }
@@ -617,6 +621,15 @@ p {
   filter: drop-shadow(0 20px 26px rgba(0, 0, 0, 0.6));
 }
 
+/* suprimentos: a foto original já vem cortada em cima e à direita (rolos de filamento);
+   as bordas somem aos poucos no fundo, em vez de terminarem numa linha reta */
+.carrossel__slide--preto .carrossel__foto img {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%), linear-gradient(to left, transparent 0, #000 10%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%), linear-gradient(to left, transparent 0, #000 10%);
+  mask-composite: intersect;
+}
+
 .carrossel__seta {
   position: absolute;
   top: 50%;
@@ -682,10 +695,13 @@ p {
 /* celular: foto em cima, texto embaixo */
 @media (max-width: 860px) {
   .carrossel__slide {
+    min-height: 0;
+    padding-block: var(--e-5) calc(var(--e-7) + var(--e-2));
+  }
+
+  .carrossel__miolo {
     grid-template-columns: 1fr;
     gap: var(--e-4);
-    min-height: 0;
-    padding: var(--e-5) var(--e-5) calc(var(--e-7) + var(--e-2));
   }
 
   .carrossel__foto {
@@ -1353,7 +1369,6 @@ p {
 
 .redes-flutuantes__botao--tiktok {
   background: #000;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22), inset 0 0 0 2px #25f4ee, inset 0 0 0 4px #fe2c55;
 }
 
 .redes-flutuantes__botao--instagram {

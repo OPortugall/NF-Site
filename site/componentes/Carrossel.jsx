@@ -67,19 +67,21 @@ export default function Carrossel({ slides }) {
             aria-hidden={i !== atual}
             inert={i !== atual ? true : undefined}
           >
-            <div className="carrossel__texto">
-              <p className="carrossel__selo">{s.selo}</p>
-              <h2 className="carrossel__titulo">{s.rotulo}</h2>
-              <p className="carrossel__frase">{s.frase}</p>
-              <ul className="carrossel__pontos">
-                {s.pontos.map((p) => <li key={p}>{p}</li>)}
-              </ul>
-              <Link href={s.link} className="botao carrossel__botao">
-                Ver {s.rotulo.toLowerCase()} <span aria-hidden="true">›</span>
-              </Link>
-            </div>
-            <div className="carrossel__foto">
-              <Image src={s.imagem} alt={s.alt} fill sizes="(max-width: 860px) 90vw, 560px" preload={i === 0} />
+            <div className="conteudo carrossel__miolo">
+              <div className="carrossel__texto">
+                <p className="carrossel__selo">{s.selo}</p>
+                <h2 className="carrossel__titulo">{s.rotulo}</h2>
+                <p className="carrossel__frase">{s.frase}</p>
+                <ul className="carrossel__pontos">
+                  {s.pontos.map((p) => <li key={p}>{p}</li>)}
+                </ul>
+                <Link href={s.link} className="botao carrossel__botao">
+                  Ver {s.rotulo.toLowerCase()} <span aria-hidden="true">›</span>
+                </Link>
+              </div>
+              <div className="carrossel__foto">
+                <Image src={s.imagem} alt={s.alt} fill sizes="(max-width: 860px) 90vw, 560px" preload={i === 0} />
+              </div>
             </div>
           </div>
         ))}

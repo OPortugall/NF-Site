@@ -48,12 +48,10 @@ export default function PaginaInicial() {
           Cada coluna tem a sua palavra (h2) exatamente acima da máquina. O <h1> da página é lido pelo Google
           e por leitores de tela, mas não aparece, porque as quatro palavras já dizem o mesmo na tela. */}
       <section className="vitrine" aria-labelledby="titulo-principal">
-        <div className="conteudo">
-          <h1 id="titulo-principal" className="visualmente-oculto">
-            NF Soluções Digitais: copiadoras, impressoras 3D, equipamentos gráficos e suprimentos
-          </h1>
-          <Carrossel slides={SLIDES} />
-        </div>
+        <h1 id="titulo-principal" className="visualmente-oculto">
+          NF Soluções Digitais: copiadoras, impressoras 3D, equipamentos gráficos e suprimentos
+        </h1>
+        <Carrossel slides={SLIDES} />
       </section>
 
       <section className="abertura">
