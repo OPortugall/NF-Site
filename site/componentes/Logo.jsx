@@ -22,11 +22,3 @@ export default function Logo({ claro = false }) {
     </span>
   );
 }
-
-// O selo redondo original (fundo escuro), usado onde há espaço para ele ser lido.
-export function SeloNF({ tamanho = 120 }) {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img className="selo-nf" src="/logo-nf.jpg" alt="NF Soluções Digitais" width={tamanho} height={tamanho} />
-  );
-}

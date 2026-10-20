@@ -223,11 +223,21 @@ p {
   color: var(--branco);
 }
 
-.selo-nf {
-  display: block;
-  width: 104px;
-  height: 104px;
-  border-radius: 50%; /* o arquivo é quadrado com o selo redondo; esconde os cantos claros */
+/* rodapé: o mesmo logo vetorial do cabeçalho, maior e em branco */
+.rodape__logo {
+  display: inline-block;
+}
+
+.rodape__logo:hover {
+  text-decoration: none !important;
+}
+
+.rodape__logo .logo__marca {
+  width: 72px;
+}
+
+.rodape__logo .logo__texto {
+  font-size: 1rem;
 }
 
 /* ---------- botões ---------- */
@@ -1234,6 +1244,70 @@ p {
   .whatsapp-flutuante {
     width: 54px;
     height: 54px;
+  }
+}
+
+/* ---------- Facebook e Instagram flutuantes (lateral direita) ---------- */
+.redes-flutuantes {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  top: 50%;
+  z-index: 60;
+  display: grid;
+  gap: var(--e-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateY(-50%);
+}
+
+.redes-flutuantes__botao {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--branco);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  transition: transform 120ms, filter 120ms;
+}
+
+.redes-flutuantes__botao--facebook {
+  background: #1877f2;
+}
+
+.redes-flutuantes__botao--instagram {
+  background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 95%);
+}
+
+.redes-flutuantes__botao:hover {
+  color: var(--branco);
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+.redes-flutuantes__botao:focus-visible {
+  outline: 3px solid var(--grafite);
+  outline-offset: 3px;
+}
+
+/* celular: no canto de baixo, para não cobrir o texto no meio da tela */
+@media (max-width: 560px) {
+  .redes-flutuantes {
+    top: auto;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    transform: none;
+  }
+
+  .redes-flutuantes__botao {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .redes-flutuantes__botao {
+    transition: none;
   }
 }
 

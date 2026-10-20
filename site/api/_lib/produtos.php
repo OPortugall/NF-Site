@@ -130,8 +130,8 @@ function nf_texto_longo(mixed $v, int $maximo): ?string
     if (!is_string($v) || !mb_check_encoding($v, 'UTF-8')) {
         return null;
     }
-    $t = trim(str_replace(["\r\n", "\r", "\t"], ["\n", "\n", ' '], $v));
-    if (preg_match('/[\x00-\x09\x0B-\x1F\x7F]/', $t) || mb_strlen($t) > $maximo) {
+    $t = trim(str_replace(["\r\n", "\r", "\t"], ["\n", "\n", ' '], nf_tirar_invisiveis($v)));
+    if (preg_match('/[\x00-\x09\x0B-\x1F\x7F]/', $t) || nf_tem_invisivel($t) || mb_strlen($t) > $maximo) {
         return null;
     }
     return $t;

@@ -64,6 +64,20 @@ function nf_senha_valida(mixed $s): bool
         && preg_match('/\p{L}/u', $s) === 1 && preg_match('/\d/', $s) === 1;
 }
 
+// Caracteres de direção do texto (ex.: U+202E inverte o que vem depois): servem para disfarçar nomes e
+// textos no painel ("arquivo.exe" aparecendo como "exe.oviuqra"). Nenhum texto do site precisa deles: recusa.
+function nf_tem_invisivel(string $v): bool
+{
+    return preg_match('/[\x{061C}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{206A}-\x{206F}\x{FFF9}-\x{FFFB}]/u', $v) === 1;
+}
+
+// Invisíveis inofensivos que vêm junto ao copiar texto de sites (hífen invisível, espaço de largura zero,
+// BOM): removidos em silêncio, para não dar erro à equipe. Só chamar com UTF-8 já conferido.
+function nf_tirar_invisiveis(string $v): string
+{
+    return preg_replace('/[\x{00AD}\x{180E}\x{200B}\x{2060}-\x{2064}\x{FEFF}]/u', '', $v);
+}
+
 // Texto livre: tipo certo, UTF-8 válido, sem caracteres de controle, tamanho dentro do limite.
 // Devolve o texto limpo (sem espaços nas pontas) ou null se for inválido.
 function nf_texto(mixed $v, int $maximo, bool $obrigatorio = true): ?string
@@ -71,10 +85,10 @@ function nf_texto(mixed $v, int $maximo, bool $obrigatorio = true): ?string
     if ($v === null && !$obrigatorio) {
         return '';
     }
-    if (!is_string($v) || !mb_check_encoding($v, 'UTF-8') || preg_match('/[\x00-\x1F\x7F]/', $v)) {
+    if (!is_string($v) || !mb_check_encoding($v, 'UTF-8') || preg_match('/[\x00-\x1F\x7F]/', $v) || nf_tem_invisivel($v)) {
         return null;
     }
-    $t = trim(preg_replace('/\s+/u', ' ', $v));
+    $t = trim(preg_replace('/\s+/u', ' ', nf_tirar_invisiveis($v)));
     if (($obrigatorio && $t === '') || mb_strlen($t) > $maximo) {
         return null;
     }

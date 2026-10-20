@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { empresa, juridico } from '@/dados/empresa';
 import { linkWhatsApp } from '@/lib/produtos';
-import { SeloNF } from './Logo';
+import Logo from './Logo';
 import { BotoesRedes } from './BotoesExternos';
-import { IconeWhatsApp } from './Icones';
+import { IconeFacebook, IconeInstagram, IconeWhatsApp } from './Icones';
 
 export default function Rodape() {
   return (
@@ -11,7 +11,9 @@ export default function Rodape() {
       <footer className="rodape">
         <div className="conteudo rodape__grade">
           <div className="rodape__marca">
-            <SeloNF tamanho={104} />
+            <Link href="/" className="rodape__logo" aria-label="NF Soluções Digitais, página inicial">
+              <Logo claro />
+            </Link>
             <p>Venda, locação e assistência técnica de impressoras e copiadoras desde {empresa.fundacao}.</p>
             <BotoesRedes claro />
           </div>
@@ -62,6 +64,21 @@ export default function Rodape() {
         <IconeWhatsApp width={30} height={30} />
         <span className="visualmente-oculto">Conversar pelo WhatsApp</span>
       </a>
+
+      {/* Facebook e Instagram fixos na lateral direita */}
+      <ul className="redes-flutuantes" aria-label="Redes sociais da NF">
+        {empresa.redes.map((r) => {
+          const Icone = r.nome === 'Facebook' ? IconeFacebook : IconeInstagram;
+          return (
+            <li key={r.nome}>
+              <a className={`redes-flutuantes__botao redes-flutuantes__botao--${r.nome.toLowerCase()}`} href={r.url} target="_blank" rel="noopener noreferrer">
+                <Icone width={24} height={24} />
+                <span className="visualmente-oculto">{r.nome} da NF (abre em nova aba)</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }
