@@ -59,13 +59,13 @@ export default function Rodape() {
         </div>
       </footer>
 
-      {/* WhatsApp fixo no canto inferior esquerdo, acompanha a rolagem em todas as páginas */}
+      {/* WhatsApp fixo no canto inferior direito, acompanha a rolagem em todas as páginas */}
       <a className="whatsapp-flutuante" href={linkWhatsApp('Olá! Vim pelo site e gostaria de um orçamento.')}>
         <IconeWhatsApp width={30} height={30} />
         <span className="visualmente-oculto">Conversar pelo WhatsApp</span>
       </a>
 
-      {/* Facebook e Instagram fixos na lateral direita */}
+      {/* Facebook e Instagram empilhados logo acima do WhatsApp */}
       <ul className="redes-flutuantes" aria-label="Redes sociais da NF">
         {empresa.redes.map((r) => {
           const Icone = r.nome === 'Facebook' ? IconeFacebook : IconeInstagram;

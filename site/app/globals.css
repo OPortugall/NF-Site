@@ -1217,10 +1217,10 @@ p {
   }
 }
 
-/* ---------- WhatsApp flutuante (canto inferior esquerdo, acompanha a rolagem) ---------- */
+/* ---------- botões flutuantes: WhatsApp, Instagram e Facebook empilhados no canto inferior direito ---------- */
 .whatsapp-flutuante {
   position: fixed;
-  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 60;
   display: grid;
@@ -1250,15 +1250,15 @@ p {
 /* ---------- Facebook e Instagram flutuantes (lateral direita) ---------- */
 .redes-flutuantes {
   position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  top: 50%;
+  /* acima do WhatsApp (60px + espaço) e centralizado com ele (60 - 48 = 12px → 6px de cada lado) */
+  right: calc(max(1rem, env(safe-area-inset-right)) + 6px);
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 60px + var(--e-3));
   z-index: 60;
   display: grid;
   gap: var(--e-3);
   margin: 0;
   padding: 0;
   list-style: none;
-  transform: translateY(-50%);
 }
 
 .redes-flutuantes__botao {
@@ -1291,12 +1291,11 @@ p {
   outline-offset: 3px;
 }
 
-/* celular: no canto de baixo, para não cobrir o texto no meio da tela */
+/* celular: botões um pouco menores (WhatsApp 54px, redes 44px → 5px de cada lado) */
 @media (max-width: 560px) {
   .redes-flutuantes {
-    top: auto;
-    bottom: max(1rem, env(safe-area-inset-bottom));
-    transform: none;
+    right: calc(max(1rem, env(safe-area-inset-right)) + 5px);
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 54px + var(--e-3));
   }
 
   .redes-flutuantes__botao {
