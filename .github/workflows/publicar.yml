@@ -13,6 +13,7 @@
 # aqui no arquivo (não vêm de variáveis), para um erro de configuração nunca apontar para outra pasta.
 #
 # Segredos necessários (Settings → Secrets and variables → Actions), veja o LEIA-ME do site:
+#   Ambiente "producao-painel" (botão do painel): os mesmos SSH_KEY e CATALOGO_URL de "producao", sem revisor.
 #   SSH_HOST, SSH_PORT, SSH_USER, SSH_KNOWN_HOSTS (do repositório) e SSH_KEY (de cada AMBIENTE:
 #   uma chave para "teste" e outra para "producao", cada uma presa à sua pasta no servidor)
 #   CATALOGO_URL (de cada ambiente, opcional): https://nfsolucoesdigitais.com.br/api/catalogo na produção;
@@ -40,14 +41,17 @@ jobs:
     uses: ./.github/workflows/verificacao.yml
 
   publicar:
-    name: Publicar (${{ github.ref_name == 'main' && 'produção' || 'teste' }})
+    name: Publicar (${{ github.ref == 'refs/heads/main' && 'produção' || 'teste' }})
     needs: verificacao
-    if: github.ref_name == 'teste' || github.ref_name == 'main'
+    if: github.ref == 'refs/heads/teste' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04 # versão fixa: ubuntu-latest muda de versão sozinho (troca para o 26 em out/2026)
-    environment: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
+    # Produção: mudança de código (push na main) passa pelo ambiente "producao", com aprovação obrigatória.
+    # O botão "Publicar alterações" do painel (workflow_dispatch) usa "producao-painel", sem aprovação:
+    # ele só recompila o código que já está na main (aprovado quando entrou) com os produtos do banco.
+    environment: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' && 'producao-painel' || 'producao') || 'teste' }}
     env:
-      AMBIENTE: ${{ github.ref_name == 'main' && 'producao' || 'teste' }}
-      DESTINO: ${{ github.ref_name == 'main' && 'nfsolucoesdigitais.com.br-site' || 'teste.nfsolucoesdigitais.com.br' }}
+      AMBIENTE: ${{ github.ref == 'refs/heads/main' && 'producao' || 'teste' }}
+      DESTINO: ${{ github.ref == 'refs/heads/main' && 'nfsolucoesdigitais.com.br-site' || 'teste.nfsolucoesdigitais.com.br' }}
     steps:
       - uses: actions/checkout@v4
 
