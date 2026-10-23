@@ -69,10 +69,6 @@ export default function PaginaPrivacidade() {
                 recuperá-la.
               </li>
               <li>
-                <strong>Entrar com Google:</strong> se você escolher essa opção, recebemos do Google seu nome, e-mail e
-                foto de perfil. Não recebemos sua senha do Google.
-              </li>
-              <li>
                 <strong>Pedidos de orçamento pelo site:</strong> os produtos escolhidos, quantidades, modalidade (compra ou
                 locação), endereço e observações. Você acompanha a situação de cada pedido em “Minha conta”.
               </li>
@@ -170,7 +166,7 @@ export default function PaginaPrivacidade() {
           <li><strong>Hospedagem:</strong> a Hostinger, que mantém o servidor e o banco de dados do site.</li>
           <li>
             <strong>Google:</strong> o mapa da seção de contato é carregado do Google Maps, que recebe seu IP e dados de
-            navegação ao exibi-lo{CONTAS_ATIVAS ? '; e o Google, se você usar “Entrar com Google”' : ''}.
+            navegação ao exibi-lo.
           </li>
           <li>
             <strong>WhatsApp (Meta):</strong> quando você clica nos botões de WhatsApp, a conversa acontece no aplicativo

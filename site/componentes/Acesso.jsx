@@ -50,33 +50,6 @@ function PainelAcesso({ abaInicial }) {
   );
 }
 
-// ---------- Google ----------
-function BotaoGoogle({ texto }) {
-  const [aviso, setAviso] = useState(false);
-  return (
-    <>
-      <button type="button" className="botao botao--google botao--largo" onClick={() => setAviso(true)}>
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z" />
-          <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3a7.2 7.2 0 0 1-10.7-3.8H1.4v3.1A12 12 0 0 0 12 24Z" />
-          <path fill="#FBBC05" d="M5.4 14.3a7.2 7.2 0 0 1 0-4.6V6.6h-4a12 12 0 0 0 0 10.8l4-3.1Z" />
-          <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.6l4 3.1A7.2 7.2 0 0 1 12 4.8Z" />
-        </svg>
-        {texto}
-      </button>
-      {aviso && (
-        <p className="aviso aviso--info" role="status">
-          O acesso com Google será ligado junto com o banco de dados (precisa da configuração no Google Cloud).
-        </p>
-      )}
-    </>
-  );
-}
-
-function Separador() {
-  return <p className="separador"><span>ou com e-mail</span></p>;
-}
-
 // ---------- campo com rótulo, ajuda e erro ----------
 export function Campo({ rotulo, erro, ajuda, opcional, children, className = '' }) {
   const id = useId();
@@ -142,8 +115,6 @@ function FormEntrar({ irParaCriar, irParaEsqueci }) {
 
   return (
     <form className="formulario" onSubmit={enviar} noValidate>
-      <BotaoGoogle texto="Entrar com Google" />
-      <Separador />
       <Campo rotulo="E-mail" erro={erros.email}>
         {(p) => <input {...p} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />}
       </Campo>
@@ -306,10 +277,6 @@ function FormCriar({ aoConcluir }) {
 
   return (
     <form ref={formulario} className="formulario" onSubmit={enviar} noValidate>
-      <BotaoGoogle texto="Criar conta com Google" />
-      <p className="campo__ajuda">Com o Google, você ainda completa documento, telefone e endereço depois.</p>
-      <Separador />
-
       {qtdErros > 0 && (
         <p className="aviso aviso--erro" role="alert">
           {qtdErros === 1 ? 'Há 1 campo para corrigir.' : `Há ${qtdErros} campos para corrigir.`} Veja as mensagens em vermelho.

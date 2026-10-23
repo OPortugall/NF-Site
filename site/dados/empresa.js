@@ -38,7 +38,7 @@ export const juridico = {
   encarregado: 'Ricardo Nunes Fonseca',
   emailPrivacidade: 'contato@nfsolucoesdigitais.com.br',
   foro: 'São José dos Campos – SP',
-  atualizadoEm: '18 de outubro de 2026',
+  atualizadoEm: '23 de outubro de 2026',
 };
 
 // Marcas com que a NF trabalha (rodapé do site e da loja antigos).

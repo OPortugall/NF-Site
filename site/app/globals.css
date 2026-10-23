@@ -1804,17 +1804,6 @@ p {
   color: var(--branco);
 }
 
-.botao--google {
-  background: var(--branco);
-  border: 1px solid var(--linha-forte);
-  color: var(--tinta);
-}
-
-.botao--google:hover {
-  background: var(--papel);
-  color: var(--tinta);
-}
-
 .link-botao {
   padding: 0;
   border: 0;
@@ -2210,21 +2199,6 @@ p {
 .formulario__rodape {
   text-align: center;
   color: var(--tinta-suave);
-}
-
-.separador {
-  display: flex;
-  align-items: center;
-  gap: var(--e-3);
-  color: var(--tinta-suave);
-  font-size: var(--texto-s);
-}
-
-.separador::before,
-.separador::after {
-  content: '';
-  flex: 1;
-  border-top: 1px solid var(--linha);
 }
 
 .grupo {

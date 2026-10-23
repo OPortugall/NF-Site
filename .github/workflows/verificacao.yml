@@ -22,10 +22,10 @@ jobs:
     name: Senhas e chaves (gitleaks)
     runs-on: ubuntu-24.04 # versão fixa: ubuntu-latest muda de versão sozinho (troca para o 26 em out/2026)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # histórico completo: procura segredos em todos os commits, não só no último
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_VERSION: 8.30.1 # mesma versão testada localmente com o .gitleaks.toml
@@ -35,8 +35,8 @@ jobs:
     name: Arquivos, código malicioso e conteúdo
     runs-on: ubuntu-24.04 # versão fixa: ubuntu-latest muda de versão sozinho (troca para o 26 em out/2026)
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Rodar scripts/verificar.py
