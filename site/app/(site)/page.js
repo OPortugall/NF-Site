@@ -34,8 +34,8 @@ const SLIDES = [
   {
     rotulo: 'Equipamentos gráficos', botao: 'Ver equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
     imagens: [
-      { src: '/destaques/carrossel/plotter-mimaki.png', alt: 'Plotter de recorte Mimaki', pos: [42, 0, 58, 64] },
-      { src: '/destaques/carrossel/roland-adgl.png', alt: 'Equipamento gráfico Roland ADGL', pos: [0, 22, 54, 42] },
+      { src: '/destaques/carrossel/adgl-plotter-aberta.png', alt: 'Plotter de recorte ADGL com a tampa aberta', pos: [42, 0, 58, 64] },
+      { src: '/destaques/carrossel/adgl-plotter-frente.png', alt: 'Plotter de recorte ADGL vista de frente', pos: [0, 22, 54, 42] },
       { src: '/destaques/carrossel/adgl-pl1300.png', alt: 'Plotter de recorte ADGL PL1300', pos: [12, 40, 76, 58], principal: true },
     ],
     frase: 'Plotters de recorte para gráficas e comunicação visual.',
