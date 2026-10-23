@@ -416,6 +416,17 @@ a.adm-cartao--alerta:hover { background: #c4116b; }
 .adm-botao--publicar { background: var(--grafite); border-color: var(--grafite); padding: 0.8em 1.4em; }
 .adm-botao--publicar:hover { background: #000; border-color: #000; }
 .adm-importar { border-left: 6px solid var(--cmyk-y); }
+.adm-faixa-publicar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-1) var(--e-3);
+  margin: 0;
+  padding: var(--e-2) var(--e-5);
+  background: var(--cmyk-y);
+  color: var(--grafite);
+}
+.adm-faixa-publicar a { margin-left: auto; color: var(--grafite); font-weight: 800; }
 
 @media (prefers-reduced-motion: reduce) {
   .adm-cartao { transition: none; }

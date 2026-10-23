@@ -50,6 +50,7 @@ export default function PainelAdmin() {
   const [sessao, setSessao] = useState({ carregando: true });
   const [rota, setRota] = useState({ tela: 'resumo', id: null });
   const [naoLidas, setNaoLidas] = useState(0);
+  const [naoPublicadas, setNaoPublicadas] = useState(false);
 
   const carregarSessao = useCallback(async () => {
     const r = await adminLer('sessao');
@@ -76,9 +77,18 @@ export default function PainelAdmin() {
     if (r.ok) setNaoLidas(r.dados.naoLidas);
   }, [api]);
 
+  // Alterações de produtos ainda não publicadas: aviso fixo em todas as telas (fácil de esquecer de publicar)
+  const conferirPublicacao = useCallback(async () => {
+    const r = await api('GET', 'publicacao');
+    if (r.ok) setNaoPublicadas(Boolean(r.dados.pendente));
+  }, [api]);
+
   useEffect(() => {
-    if (sessao.admin) atualizarContador();
-  }, [sessao.admin, rota, atualizarContador]);
+    if (sessao.admin) {
+      atualizarContador();
+      conferirPublicacao();
+    }
+  }, [sessao.admin, rota, atualizarContador, conferirPublicacao]);
 
   const sair = async () => {
     await adminEnviar('sair', {});
@@ -128,6 +138,13 @@ export default function PainelAdmin() {
         </div>
       </header>
       <FaixaRegistro />
+      {/* Em Resumo e Produtos o quadro "Publicar alterações" já aparece na própria tela */}
+      {naoPublicadas && !['resumo', 'produtos'].includes(rota.tela) && (
+        <p className="adm-faixa-publicar" role="status">
+          <strong>Há alterações de produtos ainda não publicadas.</strong> Elas só aparecem no site depois de publicar.
+          <a href="#produtos">Publicar agora</a>
+        </p>
+      )}
       </div>
       <main className={`adm-conteudo adm-area--${ativa}`} id="conteudo">{tela}</main>
     </div>
