@@ -16,3 +16,6 @@ __pycache__/
 # Configuração real da API (senha do banco e chaves): fica só no servidor, fora do site
 config-nf/
 site/api/_ambiente.php
+
+# Cargas de dados para rodar no phpMyAdmin (INSERT): ficam fora do GitHub, como os backups (scripts/verificar.py barra .sql com dados)
+banco-de-dados/cargas/
