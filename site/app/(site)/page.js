@@ -10,7 +10,8 @@ import { linkWhatsApp, produtosEmDestaque, todosOsProdutos } from '@/lib/produto
 // "cor" é a tinta do slide (ciano, magenta, amarelo e preto, como na faixa do topo).
 // Textos curtos e só com o que a NF vende hoje. Fotos: recortes sem fundo, montados como vitrine sobre o degradê.
 // "pos" = [esquerda, topo, largura, altura] em % do palco (5:4); a ordem da lista é a ordem de cima (última na frente).
-// Todas apoiam numa mesma linha de chão (topo + altura ≈ 98). "principal" = foto maior, pede a versão de mais resolução.
+// Apoiam numa mesma linha de chão (topo + altura ≈ 98), ou em degraus quando a de trás fica mais alta (impressoras 3D).
+// "principal" = foto maior, pede a versão de mais resolução. "marcas" (opcional) aparece em linha abaixo da frase.
 const SLIDES = [
   {
     rotulo: 'Copiadoras', botao: 'Ver copiadoras', cor: 'ciano', selo: 'Venda e locação', link: '/loja?tipo=impressoras-e-copiadoras',
@@ -25,11 +26,13 @@ const SLIDES = [
   {
     rotulo: 'Impressoras 3D', botao: 'Ver impressoras 3D', cor: 'magenta', selo: 'Impressão 3D', link: '/loja?tipo=impressoras-3d',
     imagens: [
-      { src: '/destaques/carrossel/anycubic-kobra-s1-pecas.png', alt: 'Impressora 3D Anycubic Kobra S1 com peças impressas', pos: [0, 2, 80, 96], principal: true },
-      { src: '/destaques/carrossel/anycubic-kobra-s1-combo.png', alt: 'Impressora 3D Anycubic Kobra S1 Combo imprimindo', pos: [64, 42, 36, 56] },
+      { src: '/destaques/carrossel/anycubic-kobra-s1.png', alt: 'Impressora 3D Anycubic Kobra S1 Combo', pos: [0, 0, 50, 88], principal: true },
+      { src: '/destaques/carrossel/bambu-lab-a1.png', alt: 'Impressora 3D Bambu Lab A1', pos: [50, 16, 50, 72] },
+      { src: '/destaques/carrossel/bambu-lab-a1-mini.png', alt: 'Impressora 3D Bambu Lab A1 Mini', pos: [30, 44, 38, 54] },
     ],
     frase: 'Impressoras 3D e filamentos para tirar seus projetos do papel.',
-    pontos: ['Impressoras 3D Anycubic', 'Filamentos para impressão 3D', 'Orçamento sem custo'],
+    marcas: ['Anycubic', 'Bambu Lab'],
+    pontos: ['Impressoras 3D fechadas e abertas', 'Filamentos para impressão 3D', 'Orçamento sem custo'],
   },
   {
     rotulo: 'Equipamentos gráficos', botao: 'Ver equipamentos gráficos', cor: 'amarelo', selo: 'Comunicação visual', link: '/loja?tipo=acabamento',
