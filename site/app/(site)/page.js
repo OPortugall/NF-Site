@@ -39,7 +39,7 @@ const SLIDES = [
     imagens: [
       { src: '/destaques/carrossel/adgl-plotter-aberta.png', alt: 'Plotter de recorte ADGL com a tampa aberta', pos: [42, 0, 58, 64] },
       { src: '/destaques/carrossel/adgl-plotter-frente.png', alt: 'Plotter de recorte ADGL vista de frente', pos: [0, 22, 54, 42] },
-      { src: '/destaques/carrossel/adgl-cc3308.png', alt: 'Plotter de recorte industrial ADGL CC3308 com a bandeja aberta', pos: [22, 30, 56, 68], principal: true },
+      { src: '/destaques/carrossel/adgl-cc3308.png', alt: 'Plotter de recorte industrial ADGL CC3308 com a bandeja aberta', pos: [18, 45, 64, 55], principal: true },
     ],
     frase: 'Plotters de recorte para gráficas e comunicação visual.',
     pontos: ['Plotters de recorte ADGL', 'Equipamentos novos', 'Orçamento sem custo'],
