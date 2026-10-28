@@ -130,6 +130,11 @@ export default function Carrossel({ slides }) {
                 <p className="carrossel__selo">{s.selo}</p>
                 <h2 className="carrossel__titulo">{s.rotulo}</h2>
                 <p className="carrossel__frase">{s.frase}</p>
+                {s.marcas && (
+                  <ul className="carrossel__marcas" aria-label="Marcas">
+                    {s.marcas.map((m) => <li key={m}>{m}</li>)}
+                  </ul>
+                )}
                 <ul className="carrossel__pontos">
                   {s.pontos.map((p) => <li key={p}>{p}</li>)}
                 </ul>
