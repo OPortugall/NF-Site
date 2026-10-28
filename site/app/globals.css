@@ -509,6 +509,10 @@ p {
 
 /* ---------- carrossel da abertura: um slide por linha de produtos ---------- */
 .carrossel {
+  /* faixa lateral das setas: no mínimo 176px, para a seta da direita (46px + 24px de folga até o conteúdo)
+     ficar longe da coluna de botões flutuantes (até 76px da borda) */
+  --seta: 46px;
+  --faixa-seta: max(176px, (100% - var(--largura)) / 2);
   position: relative;
   overflow: hidden;
 }
@@ -516,6 +520,12 @@ p {
 .carrossel__trilho {
   display: flex;
   transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* rolagem vertical com o navegador; o arrasto na horizontal fica com o carrossel (Carrossel.jsx) */
+  touch-action: pan-y;
+}
+
+.carrossel__trilho--arrastando {
+  transition: none;
 }
 
 .carrossel__slide {
@@ -528,13 +538,14 @@ p {
     linear-gradient(135deg, #0c1120 0%, #070a14 100%);
 }
 
-/* o conteúdo de cada slide fica alinhado com o resto do site; as setas ficam nas laterais da tela */
+/* o conteúdo de cada slide fica entre as setas; em tela larga (faixa ≥ 176px) continua alinhado com o
+   logo do cabeçalho, em tela menor encolhe um pouco para abrir espaço para elas */
 .carrossel__miolo {
   display: grid;
   grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
   align-items: center;
   gap: var(--e-6);
-  /* largura e margens vêm de .conteudo: o texto fica alinhado com o logo do cabeçalho */
+  width: min(100% - 2 * var(--faixa-seta), var(--largura));
 }
 
 .carrossel__slide--ciano { --tom: rgba(0, 173, 230, 0.5); --destaque: var(--cmyk-c); }
@@ -638,40 +649,45 @@ p {
   filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
 }
 
+/* setas nas laterais, na altura do meio do banner, 24px antes do conteúdo */
 .carrossel__seta {
+  position: absolute;
+  top: 50%;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: var(--seta);
+  height: var(--seta);
   padding: 0 0 3px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
   color: var(--branco);
   font: inherit;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.carrossel__seta--anterior {
+  left: calc(var(--faixa-seta) - var(--seta) - 24px);
+}
+
+.carrossel__seta--proxima {
+  right: calc(var(--faixa-seta) - var(--seta) - 24px);
 }
 
 .carrossel__seta:hover {
-  background: rgba(0, 0, 0, 0.6);
-}
-
-/* setas + bolinhas juntas no centro, embaixo: longe dos botões flutuantes do canto direito */
-.carrossel__controles {
-  position: absolute;
-  left: 50%;
-  bottom: var(--e-3);
-  display: flex;
-  align-items: center;
-  gap: var(--e-4);
-  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.65);
 }
 
 .carrossel__bolinhas {
+  position: absolute;
+  left: 50%;
+  bottom: var(--e-4);
   display: flex;
   gap: var(--e-2);
+  transform: translateX(-50%);
 }
 
 .carrossel__bolinha {
@@ -701,7 +717,7 @@ p {
   }
 }
 
-/* celular: foto em cima, texto embaixo */
+/* celular: foto em cima, texto embaixo, sem setas (passa arrastando para o lado) */
 @media (max-width: 860px) {
   .carrossel__slide {
     padding-block: var(--e-4) calc(var(--e-7) + var(--e-2));
@@ -710,6 +726,16 @@ p {
   .carrossel__miolo {
     grid-template-columns: 1fr;
     gap: var(--e-4);
+    width: min(100% - 2.5rem, var(--largura));
+  }
+
+  .carrossel__seta {
+    display: none;
+  }
+
+  /* o texto não passa por baixo da coluna de botões flutuantes da direita */
+  .carrossel__texto {
+    padding-right: 52px;
   }
 
   .carrossel__palco {
