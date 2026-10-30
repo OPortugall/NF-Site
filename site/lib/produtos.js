@@ -13,6 +13,7 @@ export const TIPOS = {
   'impressoras-3d': 'Impressoras 3D',
   acabamento: 'Plotters de recorte e vinco',
   suprimentos: 'Suprimentos',
+  scooter: 'Scooters',
 };
 
 // Filtros da loja: multifuncionais/copiadoras e impressoras ficam juntas num só filtro.
@@ -21,11 +22,13 @@ export const FILTROS_TIPO = {
   'impressoras-3d': { rotulo: 'Impressoras 3D', tipos: ['impressoras-3d'] },
   acabamento: { rotulo: 'Equipamentos gráficos', tipos: ['acabamento'] },
   suprimentos: { rotulo: 'Suprimentos', tipos: ['suprimentos'] },
+  scooter: { rotulo: 'Scooters', tipos: ['scooter'] },
 };
 
 export const IMPRESSAO = {
   colorida: 'Colorida',
   pb: 'Preto e branco',
+  scooter: 'Scooter', // só no filtro da loja: scooter não tem tipo de impressão, a opção mostra a categoria
 };
 
 export function todosOsProdutos() {

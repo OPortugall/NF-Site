@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 defined('NF_API') || exit;
 
-const NF_CATEGORIAS = ['multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos'];
+const NF_CATEGORIAS = ['multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos', 'scooter'];
 // Larguras das versões reduzidas das fotos: as mesmas de site/lib/carregador-imagens.mjs
 const NF_LARGURAS_FOTO = [64, 128, 256, 384, 640, 828, 1080, 1600];
 const NF_FOTO_BYTES = 8 * 1024 * 1024;     // 8 MB por foto enviada
@@ -174,6 +174,20 @@ function nf_pasta_protegida(string $pasta): void
     }
 }
 
+// Pastas das fotos de um produto (original, versões reduzidas), criadas se ainda não existirem
+function nf_pastas_foto(array $config, string $slug): array
+{
+    nf_pasta_protegida("{$config['pasta_site']}/uploads");
+    nf_pasta_protegida("{$config['pasta_site']}/otim/uploads");
+    $pastas = ["{$config['pasta_site']}/uploads/produtos/{$slug}", "{$config['pasta_site']}/otim/uploads/produtos/{$slug}"];
+    foreach ($pastas as $p) {
+        if (!is_dir($p) && !mkdir($p, 0755, true) && !is_dir($p)) {
+            throw new RuntimeException('Não foi possível criar a pasta de fotos');
+        }
+    }
+    return $pastas;
+}
+
 // Devolve a URL da foto (/uploads/produtos/<slug>/<código>.webp) ou lança RespostaApi com o erro.
 function nf_salvar_foto(array $config, string $slug, array $arquivo): string
 {
@@ -210,15 +224,7 @@ function nf_salvar_foto(array $config, string $slug, array $arquivo): string
 
     $codigo = bin2hex(random_bytes(8));
     $base = "produtos/{$slug}";
-    $pastaOriginal = "{$config['pasta_site']}/uploads/{$base}";
-    $pastaReduzidas = "{$config['pasta_site']}/otim/uploads/{$base}";
-    nf_pasta_protegida("{$config['pasta_site']}/uploads");
-    nf_pasta_protegida("{$config['pasta_site']}/otim/uploads");
-    foreach ([$pastaOriginal, $pastaReduzidas] as $p) {
-        if (!is_dir($p) && !mkdir($p, 0755, true) && !is_dir($p)) {
-            throw new RuntimeException('Não foi possível criar a pasta de fotos');
-        }
-    }
+    [$pastaOriginal, $pastaReduzidas] = nf_pastas_foto($config, $slug);
     try {
         nf_gravar_webp($imagem, NF_LARGURAS_FOTO[count(NF_LARGURAS_FOTO) - 1], "{$pastaOriginal}/{$codigo}.webp", 85);
         foreach (NF_LARGURAS_FOTO as $l) {
@@ -229,6 +235,30 @@ function nf_salvar_foto(array $config, string $slug, array $arquivo): string
         throw $ex;
     }
     return "/uploads/{$base}/{$codigo}.webp";
+}
+
+// Copia uma foto para outro produto e devolve a URL da cópia. Cada produto precisa dos próprios
+// arquivos: excluir um não pode apagar as fotos do outro. Fotos que vêm com o código do site
+// (/produtos/...) nunca são apagadas e podem ser usadas pelos dois.
+function nf_copiar_foto(array $config, string $url, string $slug): string
+{
+    if (!preg_match('#^/uploads/produtos/([a-z0-9-]+)/([a-f0-9]{16})\.webp$#', $url, $m)) {
+        return $url;
+    }
+    [$pastaOriginal, $pastaReduzidas] = nf_pastas_foto($config, $slug);
+    $codigo = bin2hex(random_bytes(8));
+    $arquivos = ["{$config['pasta_site']}/uploads/produtos/{$m[1]}/{$m[2]}.webp" => "{$pastaOriginal}/{$codigo}.webp"];
+    foreach (NF_LARGURAS_FOTO as $l) {
+        $arquivos["{$config['pasta_site']}/otim/uploads/produtos/{$m[1]}/{$m[2]}-{$l}.webp"] = "{$pastaReduzidas}/{$codigo}-{$l}.webp";
+    }
+    $nova = "/uploads/produtos/{$slug}/{$codigo}.webp";
+    foreach ($arquivos as $de => $para) {
+        if (!@copy($de, $para) || !chmod($para, 0644)) {
+            nf_apagar_foto($config, $nova);
+            throw new RuntimeException('Não foi possível copiar a foto');
+        }
+    }
+    return $nova;
 }
 
 // Foto de celular "deitada": gira conforme a orientação gravada pela câmera (se o PHP tiver EXIF)

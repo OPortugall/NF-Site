@@ -34,6 +34,7 @@ antigo + a migração fica idêntico ao `schema.sql` atual.
 | Migração | O que muda |
 |---|---|
 | `002-painel-admin.sql` | pagamento e 2FA em `usuarios`, estoque em `produtos`, interesses por slug, `notificacoes`, `auditoria`, `emails_enviados` |
+| `005-categoria-scooter.sql` | categoria `scooter` em `produtos` |
 
 **usuarios:** id, primeiro_nome, sobrenome, tipo_pessoa (PF/PJ), documento (CPF ou CNPJ),
 razao_social, nome_fantasia, situacao_cnpj, cnpj_verificado_em, email, email_verificado_em,

@@ -985,6 +985,29 @@ try {
     const apagar = await adm.post('/api/admin/produto-foto-excluir', { id: fichaFotos[1]?.id });
     ok(apagar.status === 200 && !existsSync(path.join(pastaSite, ...String(fotoPoli.dados?.url).split('/'))), 'Apagar foto remove os arquivos');
 
+    // duplicar (fica com a foto que restou) e categoria Scooter
+    const fotoOriginal = (await adm.req('GET', `/api/admin/produto?id=${idProdutoNovo}`)).dados?.produto?.fotos?.[0];
+    ok((await adm.post('/api/admin/produto-duplicar', { id: 999999 })).status === 404, 'Duplicar produto inexistente → 404');
+    const dup = await adm.post('/api/admin/produto-duplicar', { id: idProdutoNovo });
+    const copiaP = (await adm.req('GET', `/api/admin/produto?id=${dup.dados?.id}`)).dados?.produto;
+    ok(dup.status === 201 && copiaP?.slug === 'ricoh-im-c3000-copia' && copiaP.status === 'oculto' && copiaP.nome === 'Ricoh IM C3000 (cópia)' && !copiaP.destaque,
+      'Duplicar cria uma cópia oculta, com endereço próprio');
+    ok(copiaP?.resumo === 'Multifuncional colorida A3' && copiaP.precoReferencia === 1500000 && copiaP.estoque === 4 && copiaP.impressao === 'colorida',
+      'A cópia mantém os demais dados');
+    const fotoCopia = copiaP?.fotos?.[0];
+    const fotoCopiaArq = path.join(pastaSite, ...String(fotoCopia?.url).split('/'));
+    ok(copiaP?.fotos?.length === 1 && fotoCopia.url.startsWith('/uploads/produtos/ricoh-im-c3000-copia/') && existsSync(fotoCopiaArq), 'A cópia tem arquivos próprios de foto');
+    const dup2 = await adm.post('/api/admin/produto-duplicar', { id: dup.dados?.id });
+    const copia2 = (await adm.req('GET', `/api/admin/produto?id=${dup2.dados?.id}`)).dados?.produto;
+    ok(copia2?.slug === 'ricoh-im-c3000-copia-2', 'Copiar uma cópia usa o próximo endereço livre');
+    await adm.post('/api/admin/produto-excluir', { id: dup2.dados?.id, confirmacao: 'ricoh-im-c3000-copia-2' });
+    await adm.post('/api/admin/produto-excluir', { id: dup.dados?.id, confirmacao: 'ricoh-im-c3000-copia' });
+    ok(!existsSync(fotoCopiaArq) && existsSync(path.join(pastaSite, ...String(fotoOriginal?.url).split('/'))), 'Excluir a cópia não apaga as fotos do original');
+    const scooter = await adm.post('/api/admin/produto-criar', { ...base, slug: 'scooter-teste', categoria: 'scooter', impressao: 'colorida', descricao: '' });
+    const fichaScooter = (await adm.req('GET', `/api/admin/produto?id=${scooter.dados?.id}`)).dados?.produto;
+    ok(scooter.status === 201 && fichaScooter?.categoria === 'scooter' && fichaScooter.impressao === null, 'Categoria Scooter: cadastra sem tipo de impressão');
+    await adm.post('/api/admin/produto-excluir', { id: scooter.dados?.id, confirmacao: 'scooter-teste' });
+
     // pedido com o produto e depois exclusão do produto
     const pedido = await navEmpresa.post('/api/orcamento-criar', { itens: [{ slug: 'ricoh-im-c3000', modalidade: 'locacao', quantidade: 2 }] });
     ok(pedido.status === 201, 'Pedido com produto cadastrado no painel');
@@ -996,7 +1019,7 @@ try {
     ok(excluir.status === 200 && !existsSync(arquivo) && restante?.produto_id === null && restante.produto_nome === 'Ricoh IM C3000',
       'Excluir produto apaga as fotos; pedidos antigos mantêm o nome');
     const aud = (await adm.req('GET', '/api/admin/auditoria')).dados?.registros?.map((r) => r.acao) || [];
-    for (const a of ['produtos_importar', 'produto_criar', 'produto_editar', 'produto_estoque', 'produto_foto_enviar', 'produto_fotos_ordem', 'produto_foto_excluir', 'produto_excluir']) {
+    for (const a of ['produtos_importar', 'produto_criar', 'produto_editar', 'produto_duplicar', 'produto_estoque', 'produto_foto_enviar', 'produto_fotos_ordem', 'produto_foto_excluir', 'produto_excluir']) {
       ok(aud.includes(a), `Auditoria registra "${a}"`);
     }
   });
