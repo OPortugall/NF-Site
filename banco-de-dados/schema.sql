@@ -119,7 +119,7 @@ CREATE TABLE produtos (
   marca                      VARCHAR(60)  NOT NULL,
   modelo                     VARCHAR(100) NOT NULL COMMENT 'Vazio em produtos sem modelo (ex.: toner): o site mostra o nome',
   nome                       VARCHAR(160) NOT NULL COMMENT 'Nome exibido no site',
-  categoria                  ENUM('multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos') NOT NULL,
+  categoria                  ENUM('multifuncionais', 'impressoras', 'impressoras-3d', 'acabamento', 'suprimentos', 'scooter') NOT NULL,
   -- Só para impressoras e copiadoras; fica vazio em impressora 3D, plotter e suprimentos
   impressao                  ENUM('colorida', 'monocromatica') NULL,
   condicao                   ENUM('novo', 'seminovo') NOT NULL,

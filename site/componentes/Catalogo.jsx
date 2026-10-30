@@ -29,7 +29,7 @@ function CatalogoFiltrado({ produtos, tipoInicial }) {
   const lista = useMemo(
     () =>
       produtos.filter(
-        (p) => (tipo === 'todos' || FILTROS_TIPO[tipo].tipos.includes(p.tipo)) && (impressao === 'todas' || p.impressao === impressao),
+        (p) => (tipo === 'todos' || FILTROS_TIPO[tipo].tipos.includes(p.tipo)) && (impressao === 'todas' || (p.impressao ?? p.tipo) === impressao),
       ),
     [produtos, tipo, impressao],
   );

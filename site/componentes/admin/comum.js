@@ -34,6 +34,7 @@ export const ACOES = {
   orcamento_cancelado_cliente: 'O cliente cancelou o pedido pelo site',
   produto_criar: 'Cadastrou o produto',
   produto_editar: 'Editou o produto',
+  produto_duplicar: 'Duplicou o produto',
   produto_excluir: 'Excluiu o produto',
   produto_estoque: 'Mudou o estoque',
   produto_foto_enviar: 'Enviou uma foto',
@@ -63,6 +64,7 @@ export const CATEGORIAS = {
   'impressoras-3d': 'Impressoras 3D',
   acabamento: 'Plotters de recorte e vinco',
   suprimentos: 'Suprimentos',
+  scooter: 'Scooters',
 };
 
 export const CAMPOS = {

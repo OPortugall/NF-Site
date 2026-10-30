@@ -52,6 +52,7 @@ export default function FichaProduto({ id, novo, api, ir }) {
   const [msg, setMsg] = useState(null);
   const [ocupado, setOcupado] = useState(false);
   const [confirmacao, setConfirmacao] = useState('');
+  const copia = /-copia(-\d+)?$/.test(produto?.slug || ''); // enquanto tiver o endereço provisório da duplicação
 
   const carregar = useCallback(async () => {
     const r = await api('GET', `produto?id=${id}`);
@@ -65,8 +66,8 @@ export default function FichaProduto({ id, novo, api, ir }) {
     const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setF((a) => {
       const n = { ...a, [campo]: v };
-      // No cadastro, o endereço acompanha marca + modelo (ou o nome) até o admin mexer nele
-      if (novo && !slugManual && ['marca', 'modelo', 'nome'].includes(campo)) n.slug = gerarSlug(n.modelo ? `${n.marca} ${n.modelo}` : n.nome);
+      // No cadastro e na cópia, o endereço acompanha marca + modelo (ou o nome) até o admin mexer nele
+      if ((novo || copia) && !slugManual && ['marca', 'modelo', 'nome'].includes(campo)) n.slug = gerarSlug(n.modelo ? `${n.marca} ${n.modelo}` : n.nome);
       if (campo === 'categoria' && v === 'suprimentos') n.disponivelLocacao = false;
       return n;
     });
@@ -102,6 +103,14 @@ export default function FichaProduto({ id, novo, api, ir }) {
     if (r.dados.alterados.length) carregar(); // sem mudança, não recarrega (não apaga o que o admin começar a digitar)
   };
 
+  const duplicar = async () => {
+    setOcupado(true);
+    const r = await api('POST', 'produto-duplicar', { id });
+    setOcupado(false);
+    if (!r.ok) return setMsg({ tipo: 'erro', texto: r.erro });
+    ir(`produto/${r.dados.id}`);
+  };
+
   const excluir = async () => {
     setOcupado(true);
     const r = await api('POST', 'produto-excluir', { id, confirmacao });
@@ -123,9 +132,13 @@ export default function FichaProduto({ id, novo, api, ir }) {
             <span className={`adm-etiqueta ${produto.status === 'ativo' ? 'adm-etiqueta--ok' : 'adm-etiqueta--cinza'}`}>{produto.status === 'ativo' ? 'Visível no site' : 'Oculto'}</span>
             {situacao && <span className={`adm-etiqueta ${situacao[1]}`}>{situacao[0]}</span>}
             {produto.status === 'ativo' && <a className="adm-link" href={`/loja/inicio/${produto.slug}.html`} target="_blank" rel="noopener">Ver no site</a>}
+            <button type="button" className="adm-botao adm-botao--fantasma adm-botao--compacto" disabled={ocupado} onClick={duplicar} title="Copia o produto como está salvo">Duplicar</button>
           </div>
         )}
       </div>
+      {copia && produto.status === 'oculto' && (
+        <p className="adm-aviso adm-aviso--ok">Esta é uma cópia e está oculta no site. Altere o que for diferente, marque “Visível” e salve.</p>
+      )}
       {msg && <p className={`adm-aviso adm-aviso--${msg.tipo}`} role={msg.tipo === 'erro' ? 'alert' : 'status'}>{msg.texto}</p>}
 
       <div className="adm-ficha adm-ficha--produto">
@@ -136,7 +149,7 @@ export default function FichaProduto({ id, novo, api, ir }) {
           <Campo rotulo="Nome completo" erro={erros.nome} largo ajuda="Aparece no carrinho e nos pedidos. O título da página usa marca + modelo (ou este nome, se não houver modelo).">
             <input value={f.nome} onChange={muda('nome')} maxLength={160} />
           </Campo>
-          <Campo rotulo="Endereço da página" erro={erros.slug} largo ajuda={`nfsolucoesdigitais.com.br/loja/inicio/${f.slug || '…'}.html${!novo ? ' — mudar o endereço quebra links já compartilhados' : ''}`}>
+          <Campo rotulo="Endereço da página" erro={erros.slug} largo ajuda={`nfsolucoesdigitais.com.br/loja/inicio/${f.slug || '…'}.html${!novo && !copia ? ' — mudar o endereço quebra links já compartilhados' : ''}`}>
             <input value={f.slug} onChange={(e) => { setSlugManual(true); setF((a) => ({ ...a, slug: e.target.value.toLowerCase() })); }} maxLength={120} />
           </Campo>
 
@@ -159,6 +172,12 @@ export default function FichaProduto({ id, novo, api, ir }) {
                 <label key={v}><input type="radio" name="impressao" checked={f.impressao === v} onChange={() => setF((a) => ({ ...a, impressao: v }))} /> {r}</label>
               ))}
               {erros.impressao && <span className="adm-campo__erro">{erros.impressao}</span>}
+            </fieldset>
+          )}
+          {f.categoria === 'scooter' && (
+            <fieldset className="adm-radios adm-campo--largo">
+              <legend>Impressão</legend>
+              <label><input type="radio" name="impressao" checked readOnly /> Scooter</label>
             </fieldset>
           )}
           <fieldset className="adm-radios adm-campo--largo">

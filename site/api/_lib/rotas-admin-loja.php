@@ -7,7 +7,7 @@
 //   POST admin/orcamento-status | orcamento-notas
 //   GET  admin/produtos            → lista (?busca, categoria, status, estoque=zerado|baixo, pagina)
 //   GET  admin/produto?id=         → produto completo, com fotos
-//   POST admin/produto-criar | produto-editar | produto-excluir | produto-estoque
+//   POST admin/produto-criar | produto-editar | produto-duplicar | produto-excluir | produto-estoque
 //   POST admin/produto-foto        → envio de foto (multipart: produtoId, foto)
 //   POST admin/produto-foto-excluir | produto-fotos-ordem
 //   POST admin/produtos-importar   → copia para o banco os produtos que hoje estão nos arquivos do site
@@ -32,6 +32,7 @@ function nf_rotas_admin_loja(): array
         'admin/produto' => ['GET' => 'nf_admin_rota_produto'],
         'admin/produto-criar' => ['POST' => 'nf_admin_rota_produto_criar'],
         'admin/produto-editar' => ['POST' => 'nf_admin_rota_produto_editar'],
+        'admin/produto-duplicar' => ['POST' => 'nf_admin_rota_produto_duplicar'],
         'admin/produto-excluir' => ['POST' => 'nf_admin_rota_produto_excluir'],
         'admin/produto-estoque' => ['POST' => 'nf_admin_rota_produto_estoque'],
         'admin/produto-foto' => ['POST' => 'nf_admin_rota_produto_foto'],
@@ -292,6 +293,57 @@ function nf_admin_rota_produto_editar(array $config): never
         }
     }
     nf_responder(200, ['ok' => true, 'alterados' => $alterados]);
+}
+
+// "ricoh-mp-c3502" → "ricoh-mp-c3502-copia" (ou -copia-2, -copia-3...: o primeiro livre)
+function nf_slug_da_copia(array $config, string $slug): string
+{
+    $base = rtrim(substr(preg_replace('/-copia(-\d+)?$/', '', $slug), 0, 110), '-');
+    for ($n = 1; ; $n++) {
+        $novo = $base . '-copia' . ($n > 1 ? "-{$n}" : '');
+        if (!nf_consulta($config, 'SELECT 1 FROM produtos WHERE slug = ?', [$novo])) {
+            return $novo;
+        }
+    }
+}
+
+// Cria uma cópia oculta do produto, com as fotos, para o admin alterar só o que for diferente.
+function nf_admin_rota_produto_duplicar(array $config): never
+{
+    $admin = nf_exigir_admin($config);
+    $p = nf_buscar_produto($config, nf_id_do_corpo(nf_ler_json(), 'Produto inválido.'));
+    $fotos = nf_consulta($config, 'SELECT url, texto_alternativo, ordem FROM produto_fotos WHERE produto_id = ? ORDER BY ordem, id', [$p['id']]);
+    $slug = nf_slug_da_copia($config, $p['slug']);
+    $colunas = ['marca', 'modelo', 'categoria', 'impressao', 'condicao', 'resumo', 'descricao', 'disponivel_venda', 'disponivel_locacao',
+        'estoque', 'estoque_minimo', 'preco_referencia_centavos', 'ordem'];
+    $v = array_intersect_key($p, array_flip($colunas)) + [
+        'slug' => $slug, 'nome' => mb_substr($p['nome'], 0, 152) . ' (cópia)', 'status' => 'oculto', 'destaque' => 0,
+    ];
+    $banco = nf_banco($config);
+    $banco->beginTransaction();
+    $copiadas = [];
+    try {
+        nf_consulta($config, 'INSERT INTO produtos (' . implode(', ', array_keys($v)) . ') VALUES (' . implode(', ', array_fill(0, count($v), '?')) . ')',
+            array_values($v));
+        $id = (int) $banco->lastInsertId();
+        foreach ($fotos as $f) {
+            $url = $copiadas[] = nf_copiar_foto($config, $f['url'], $slug);
+            nf_consulta($config, 'INSERT INTO produto_fotos (produto_id, url, texto_alternativo, ordem) VALUES (?, ?, ?, ?)',
+                [$id, $url, $f['texto_alternativo'], $f['ordem']]);
+        }
+        nf_auditar($config, (int) $admin['id'], 'produto_duplicar', 'produto', $id, ['slug' => $p['slug']]);
+        $banco->commit();
+    } catch (Throwable $ex) {
+        $banco->rollBack();
+        foreach ($copiadas as $url) {
+            nf_apagar_foto($config, $url);
+        }
+        if ($ex instanceof PDOException) {
+            nf_erro_slug_repetido($ex);
+        }
+        throw $ex;
+    }
+    nf_responder(201, ['id' => $id]);
 }
 
 function nf_admin_rota_produto_excluir(array $config): never

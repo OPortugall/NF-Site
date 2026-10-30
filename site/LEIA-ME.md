@@ -213,7 +213,7 @@ e de uma conta de e-mail remetente criada no cPanel (ex.: `naoresponda@nfsolucoe
 ## Páginas
 
 - `/`: banner com as quatro categorias, equipamentos em estoque, serviços, marcas, empresa e contato
-- `/loja`: catálogo com filtros (aceita `?tipo=impressoras-e-copiadoras`, `impressoras-3d`, `acabamento`, `suprimentos`)
+- `/loja`: catálogo com filtros (aceita `?tipo=impressoras-e-copiadoras`, `impressoras-3d`, `acabamento`, `suprimentos`, `scooter`)
 - `/loja/inicio/<produto>.html`: página de cada produto (mesmo endereço da loja antiga)
 - `/entrar`: login e cadastro (só existe com `NEXT_PUBLIC_CONTAS_ATIVAS=true`; aceita `?aba=criar` e `?volta=/conta`)
 - `/conta`: "Minha conta": pedidos de orçamento e a situação de cada um, dados do cadastro e exclusão da conta
