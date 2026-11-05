@@ -16,7 +16,7 @@ export const empresa = {
     linha2: 'Residencial Bosque dos Ipês',
     cidade: 'São José dos Campos – SP',
     cep: '12236-500',
-    mapa: 'https://maps.google.com/maps?q=-23.2510094,-45.8973812&z=16&output=embed',
+    mapa: 'https://maps.google.com/maps?q=-23.2518963,-45.8976534&z=17&output=embed',
   },
   horario: 'Segunda a sexta, das 8h às 18h',
   redes: [
